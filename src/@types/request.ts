@@ -1,0 +1,29 @@
+import { FetchModel } from "./generic";
+
+export type RequestStatus = 'pending' | 'preparing' | 'resolving' |  'resolved' | 'reject';
+
+export type Estimation =  'High' | 'Medium' | 'Low';
+
+export type Priority = Estimation;
+
+export type Agency = {
+    address: string;
+    agency_name: string;
+    code: string;
+    id: string;
+    phone: string;
+}
+
+export type Request = {
+    id: string;
+    code: string;
+    customer: FetchModel;
+    name: string;
+    createdAt: Date;
+    service: FetchModel;
+    agency: FetchModel;
+    priority: Priority;
+    description: string;
+    status: RequestStatus;
+    technician: any;
+}
