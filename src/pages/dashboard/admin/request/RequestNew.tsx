@@ -139,14 +139,14 @@ export default function RequestNew() {
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </Grid>
-                <Box display="flex" justifyContent="center" m={1} width="100%">
+                <Box display="flex" justifyContent="end" m={1} width="100%">
                   <Button
                     variant="contained"
                     onClick={() =>
                       handleSubmit(agency, service, description, name, parseInt(priority))
                     }
                   >
-                    Create
+                    create
                   </Button>
                 </Box>
               </Grid>
