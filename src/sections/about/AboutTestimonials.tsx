@@ -177,7 +177,7 @@ type TestimonialCardProps = {
     name: string;
     rating: number;
     content: string;
-    dateCreate: Date | string;
+    dateCreate: string;
   };
 };
 

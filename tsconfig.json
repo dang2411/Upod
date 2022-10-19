@@ -23,7 +23,8 @@
     "noFallthroughCasesInSwitch": true,
     "useUnknownInCatchVariables": false,
     "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "checkJs": false // warn
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules"],
