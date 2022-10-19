@@ -94,7 +94,6 @@ function AuthProvider({ children }: AuthProviderProps) {
           setSession(accessToken);
 
           const id = await localStorage.getItem('id');
-          
 
           const account_id = await localStorage.getItem('account_id');
 

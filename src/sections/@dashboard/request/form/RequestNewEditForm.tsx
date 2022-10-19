@@ -12,6 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { RequestStatus } from 'src/@types/request';
@@ -19,7 +20,7 @@ import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/comp
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import axios from 'src/utils/axios';
-import { _invoiceAddressFrom, _technician } from 'src/_mock';
+import { _technician } from 'src/_mock';
 import * as Yup from 'yup';
 import RequestConfirmDialog from '../dialog/RequestConfirmDialog';
 
@@ -72,6 +73,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const isCustomer = user?.account?.roleName === 'Customer';
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const {
     toggle: openConfirmDialog,
     onClose: onConfirmDialogClose,
@@ -104,7 +107,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
     agency: currentRequest?.agency || _empty, // fetch model
-    priority: currentRequest?.priority || 'Low',
+    priority: currentRequest?.priority || 2, //! todo FE fix priority not work
     description: currentRequest?.description || '',
     status: currentRequest?.status || 'pending',
     technician: _technician[0],
@@ -125,7 +128,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
       } else {
         response = await axios.get('/api/agencies/get_list_agencies', {});
       }
-      setAgencies(response.data.map((x) => ({ id: x.id, name: x.agency_name })));
+      setAgencies(
+        response.data.map((x) => ({
+          id: x.id,
+          name: x.agency_name,
+          address: x.address,
+          phone: x.telephone,
+        }))
+      );
     } catch (error) {
       console.error(error);
     }
@@ -140,7 +150,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
           params: { id: user?.account?.id },
         });
       } else {
-        response = await axios.get('/api/servies/get_all_services');
+        response = await axios.get('/api/services/get_all_services');
       }
       setServices(response.data.map((x) => ({ id: x.id, name: x.service_name })));
     } catch (error) {
@@ -149,7 +159,45 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { control, reset, getValues, handleSubmit } = methods;
+  const updateRequest = useCallback(async (data: any) => {
+    try {
+      await axios.put(
+        '/api/requests/update_request_by_id',
+        data,
+        {
+          params: { id: currentRequest?.id },
+        },
+      );
+
+      enqueueSnackbar('Update request successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Update request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createRequest = useCallback(async (data: any) => {
+    try {
+      if (isCustomer) {
+        await axios.post('/api/requests/create_request', {
+          ...data,
+        });
+      } else {
+        await axios.post('/api/requests/create_request_by_admin', {
+          ...data,
+        });
+      }
+
+      enqueueSnackbar('Create request successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Create request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { control, reset, watch, setValue, getValues, handleSubmit } = methods;
 
   useEffect(() => {
     fetchAgencies();
@@ -167,8 +215,37 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, agencies, services, currentRequest]);
 
+  useEffect(() => {
+    setValue('address', getValues('agency').address);
+    setValue('phone', getValues('agency').phone);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('agency')]);
+
   const onSubmit = (data: any) => {
-    //
+    console.log(data.priority);
+    const priority = PRIORITY_OPTIONS.find((x) => x.text === data.priority)?.value;
+    console.log(priority);
+    if (isEdit) {
+      const params = {
+        agency_id: data.agency.id,
+        service_id: data.service.id,
+        request_description: data.description,
+        request_name: data.name,
+        phone: data.phone,
+        priority,
+      };
+      updateRequest(params);
+    } else {
+      const params = {
+        admin_id: user?.account?.id,
+        service_id: data.service.id,
+        agency_id: data.agency.id,
+        request_description: data.description,
+        request_name: data.name,
+        priority,
+      };
+      createRequest(params);
+    }
   };
 
   return (
@@ -216,26 +293,30 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 ))}
               </RHFSelect>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <RHFTextField
-                name="address"
-                label="Address"
-                variant="outlined"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ readOnly: !isEdit }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <RHFTextField
-                name="phone"
-                label="Phone"
-                variant="outlined"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ readOnly: !isEdit }}
-              />
-            </Grid>
+            {getValues('address') && (
+              <Grid item xs={12} md={6}>
+                <RHFTextField
+                  name="address"
+                  label="Address"
+                  variant="outlined"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
+                />
+              </Grid>
+            )}
+            {getValues('phone') && (
+              <Grid item xs={12} md={6}>
+                <RHFTextField
+                  name="phone"
+                  label="Phone"
+                  variant="outlined"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} md={6}>
               <RHFTextField
                 name="description"
@@ -281,8 +362,10 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               </Grid>
             )}
           </Grid>
-          <Box mt={3} display="flex" justifyContent="end">
-            <Button variant="contained">{isEdit ? 'Save' : 'Create'}</Button>
+          <Box mt={3} display="flex" justifyContent="end" textAlign="end">
+            <Button variant="contained" type="submit">
+              {isEdit ? 'Save' : 'Create'}
+            </Button>
           </Box>
         </Card>
         {isEdit && !isCustomer && defaultValues.status === 'pending' && (
