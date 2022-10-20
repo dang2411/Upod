@@ -401,6 +401,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         open={openConfirmDialog}
         onClose={onConfirmDialogClose}
         onSelect={onConfirm}
+        requestId={currentRequest.id}
       />
       <RequestRejectDialog
         open={openRejectDialog}
