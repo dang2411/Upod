@@ -51,7 +51,7 @@ export default function RequestEdit() {
         priority: parsePriority(response.data.priority),
         description: response.data.description,
         status: response.data.request_status.toLowerCase(),
-        technician: response.data.technician,
+        technician: response.data.technicican,
       } as Request;
       if (response.status === 200) {
         setRequest(result);
