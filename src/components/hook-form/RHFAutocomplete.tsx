@@ -19,6 +19,7 @@ export default function RHFAutocomplete({
   valueIdentifier = 'name',
   options,
   label,
+  disabled = false,
   ...other
 }: any) {
   const { control } = useFormContext();
@@ -35,6 +36,7 @@ export default function RHFAutocomplete({
           onChange={(event: any, newValue: any) => {
             onChange(newValue);
           }}
+          disabled={disabled}
           value={value}
           renderInput={(params) => (
             <TextField

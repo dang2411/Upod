@@ -19,6 +19,6 @@ export const _request = [...Array(5)].map((_, index) => ({
   estimation: randomInArray(['High', 'Medium', 'Low']),
   priority: randomInArray(['High', 'Medium', 'Low']),
   description: _mock.text.description(index),
-  status: randomInArray(['pending', 'preparing', 'resolving', 'resolved', 'reject']),
+  status: randomInArray(['pending', 'preparing', 'resolving', 'resolved', 'rejected']),
   technician: randomInArray(_userList),
 }));

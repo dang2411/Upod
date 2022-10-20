@@ -1,6 +1,6 @@
 import { FetchModel } from "./generic";
 
-export type RequestStatus = 'pending' | 'preparing' | 'resolving' |  'resolved' | 'reject';
+export type RequestStatus = 'pending' | 'preparing' | 'resolving' |  'resolved' | 'rejected';
 
 export type Estimation =  'High' | 'Medium' | 'Low';
 

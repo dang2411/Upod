@@ -15,7 +15,7 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       return <Chip label="Pending" />;
     } else if (status === 'preparing') {
       return <Chip label="Preparing" color="info" />;
-    } else if (status === 'reject') {
+    } else if (status === 'rejected') {
       return <Chip label="Rejected" color="error" />;
     } else if (status === 'resolving') {
       return <Chip label="Resolving" color="warning" />;

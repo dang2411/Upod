@@ -1,18 +1,21 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { LoadingButton } from '@mui/lab';
 import {
   Autocomplete,
-  Box, Button,
+  Box,
+  Button,
   Card,
   Chip,
-  Dialog, DialogTitle, Grid,
+  Grid,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { RequestStatus } from 'src/@types/request';
+import { Technician } from 'src/@types/user';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -20,6 +23,7 @@ import axios from 'src/utils/axios';
 import { _technician } from 'src/_mock';
 import * as Yup from 'yup';
 import RequestConfirmDialog from '../dialog/RequestConfirmDialog';
+import RequestRejectDialog from '../dialog/RequestRejectDialog';
 
 const PRIORITY_OPTIONS = [
   { text: 'Low', value: 1 },
@@ -37,7 +41,7 @@ const parseStatus = (status: RequestStatus) => {
     return <Chip label="Pending" size="small" />;
   } else if (status === 'preparing') {
     return <Chip label="Preparing" color="info" size="small" />;
-  } else if (status === 'reject') {
+  } else if (status === 'rejected') {
     return <Chip label="Rejected" color="error" size="small" />;
   } else if (status === 'resolving') {
     return <Chip label="Resolving" color="warning" size="small" />;
@@ -107,7 +111,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     priority: currentRequest?.priority || 2, //! todo FE fix priority not work
     description: currentRequest?.description || '',
     status: currentRequest?.status || 'pending',
-    technician: _technician[0],
+    technician: currentRequest?.technician,
   };
 
   const methods = useForm({
@@ -158,13 +162,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const updateRequest = useCallback(async (data: any) => {
     try {
-      await axios.put(
-        '/api/requests/update_request_by_id',
-        data,
-        {
-          params: { id: currentRequest?.id },
-        },
-      );
+      await axios.put('/api/requests/update_request_by_id', data, {
+        params: { id: currentRequest?.id },
+      });
 
       enqueueSnackbar('Update request successfully', { variant: 'success' });
     } catch (error) {
@@ -174,16 +174,43 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const confirmRequest = useCallback(async (data: Technician) => {
+    try {
+      await axios.put('/api/requests/mapping_technician_to_request_by_id', data, {
+        params: { request_id: currentRequest?.id, technician_id: data.id },
+      });
+
+      setValue('status', 'preparing');
+      setValue('technician', data);
+      enqueueSnackbar('Confirm request successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Confirm request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const rejectRequest = useCallback(async (data: string) => {
+    try {
+      await axios.put('/api/requests/disable_request_by_id', data, {
+        params: { id: currentRequest?.id },
+      });
+
+      setValue('status', 'rejected');
+      enqueueSnackbar('Reject request successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Reject request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const createRequest = useCallback(async (data: any) => {
     try {
       if (isCustomer) {
-        await axios.post('/api/requests/create_request', {
-          ...data,
-        });
+        await axios.post('/api/requests/create_request', data);
       } else {
-        await axios.post('/api/requests/create_request_by_admin', {
-          ...data,
-        });
+        await axios.post('/api/requests/create_request_by_admin', data);
       }
 
       enqueueSnackbar('Create request successfully', { variant: 'success' });
@@ -194,7 +221,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { control, reset, watch, setValue, getValues, handleSubmit } = methods;
+  const {
+    control,
+    reset,
+    watch,
+    setValue,
+    getValues,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   useEffect(() => {
     fetchAgencies();
@@ -219,9 +254,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   }, [watch('agency')]);
 
   const onSubmit = (data: any) => {
-    console.log(data.priority);
     const priority = PRIORITY_OPTIONS.find((x) => x.text === data.priority)?.value;
-    console.log(priority);
     if (isEdit) {
       const params = {
         agency_id: data.agency.id,
@@ -245,10 +278,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     }
   };
 
+  const onConfirm = (value: Technician) => {
+    confirmRequest(value);
+  };
+
+  const onReject = (value: string) => {
+    rejectRequest(value);
+  };
+
+  const disabled = getValues('status') !== 'pending';
+
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Stack spacing={3}>
-        <TitleSection label={getValues('code')} status={getValues('status')} />
+        {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />}
         <Card sx={{ p: 3 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
@@ -257,7 +300,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 label="Name"
                 variant="outlined"
                 fullWidth
-                inputProps={{ readOnly: !isEdit }}
+                disabled={disabled}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -267,7 +310,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 variant="outlined"
                 options={agencies}
                 fullWidth
-                inputProps={{ readOnly: !isEdit }}
+                disabled={disabled}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -278,11 +321,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 options={services}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-                inputProps={{ readOnly: !isEdit }}
+                disabled={disabled}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <RHFSelect name="priority" label="Priority">
+              <RHFSelect disabled={disabled} name="priority" label="Priority">
                 {PRIORITY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.text}
@@ -290,7 +333,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 ))}
               </RHFSelect>
             </Grid>
-            {getValues('address') && (
+            {watch('address') && (
               <Grid item xs={12} md={6}>
                 <RHFTextField
                   name="address"
@@ -298,11 +341,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   variant="outlined"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  inputProps={{ readOnly: true }}
+                  disabled={disabled}
                 />
               </Grid>
             )}
-            {getValues('phone') && (
+            {watch('phone') && (
               <Grid item xs={12} md={6}>
                 <RHFTextField
                   name="phone"
@@ -310,7 +353,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   variant="outlined"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  inputProps={{ readOnly: true }}
+                  disabled={disabled}
                 />
               </Grid>
             )}
@@ -323,10 +366,10 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 minRows={6}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-                disabled={!isEdit}
+                disabled={disabled}
               />
             </Grid>
-            {defaultValues.status !== 'pending' && (
+            {getValues('status') !== 'pending' && (
               <Grid item xs={12} md={6}>
                 <Controller
                   name="technician"
@@ -340,13 +383,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                         onChange(newValue);
                       }}
                       value={value}
+                      disabled={disabled}
                       renderInput={(params) => (
                         <TextField
                           error={!!error}
                           helperText={error?.message}
                           label="Technician"
                           {...params}
-                          inputProps={{ ...params.inputProps, readOnly: !isEdit }}
+                          inputProps={{ ...params.inputProps }}
                           InputProps={{
                             ...params.InputProps,
                             endAdornment: <>{params.InputProps.endAdornment}</>,
@@ -359,13 +403,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               </Grid>
             )}
           </Grid>
-          <Box mt={3} display="flex" justifyContent="end" textAlign="end">
-            <Button variant="contained" type="submit">
-              {isEdit ? 'Save' : 'Create'}
-            </Button>
-          </Box>
+          {getValues('status') === 'pending' && (
+            <Box mt={3} display="flex" justifyContent="end" textAlign="end">
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                {isEdit ? 'Save' : 'Create'}
+              </LoadingButton>
+            </Box>
+          )}
         </Card>
-        {isEdit && !isCustomer && defaultValues.status === 'pending' && (
+        {isEdit && !isCustomer && getValues('status') === 'pending' && (
           <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
             <Button onClick={handleShowReject} color="error" variant="outlined">
               Reject
@@ -377,15 +423,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         )}
       </Stack>
       <RequestConfirmDialog
-        selected={(selectedId: string) => _technician[0].id === selectedId}
         open={openConfirmDialog}
         onClose={onConfirmDialogClose}
-        onSelect={() => {}}
-        options={_technician}
+        onSelect={onConfirm}
       />
-      <Dialog open={openRejectDialog} onClose={onRejectDialogClose}>
-        <DialogTitle>Reject</DialogTitle>
-      </Dialog>
+      <RequestRejectDialog
+        open={openRejectDialog}
+        onClose={onRejectDialogClose}
+        onReject={onReject}
+      />
     </FormProvider>
   );
 }
