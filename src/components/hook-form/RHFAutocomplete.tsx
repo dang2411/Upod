@@ -36,6 +36,7 @@ export default function RHFAutocomplete({
           onChange={(event: any, newValue: any) => {
             onChange(newValue);
           }}
+          disableClearable
           disabled={disabled}
           value={value}
           renderInput={(params) => (

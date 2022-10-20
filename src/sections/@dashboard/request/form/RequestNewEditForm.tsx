@@ -97,7 +97,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
     agency: currentRequest?.agency || _empty, // fetch model
-    priority: currentRequest?.priority || 2, //! todo FE fix priority not work
+    priority: currentRequest?.priority || 2, 
     description: currentRequest?.description || '',
     status: currentRequest?.status || 'pending',
     technician: currentRequest?.technician,
