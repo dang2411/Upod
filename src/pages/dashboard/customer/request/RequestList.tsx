@@ -86,7 +86,8 @@ export default function RequestList() {
   const fetch = useCallback(async () => {
     const id = user?.account.id;
     const response = await axios.get('/api/customers/get_requests_by_customer_id', {
-      params: { id: id },
+      // params: { id: id, pageNumber: page, pageSize: rowsPerPage, search: filterText },
+      params: { id },
     });
     // setData(response.data);
     const result = Array.from(response.data).map(
@@ -109,9 +110,8 @@ export default function RequestList() {
 
   useEffect(() => {
     fetch();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [page, rowsPerPage, filterText]);
 
   return (
     <Page title="Request: Listing">

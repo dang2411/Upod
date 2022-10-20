@@ -200,6 +200,8 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     setSession(null);
+    localStorage.removeItem('id');
+    localStorage.removeItem('account_id');
     dispatch({ type: Types.Logout });
   };
 

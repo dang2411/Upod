@@ -50,17 +50,16 @@ export default function RequestList() {
   const [filterText, setFilterText] = useState('');
 
   const handleFilterTextChange = (value: string) => {
-    //
     setFilterText(value);
   };
 
   const handleRowClick = (value: string) => {
-    //
     navigate(PATH_DASHBOARD.admin.request.edit(value));
   };
   const handleBtnClick = () => {
     navigate(PATH_DASHBOARD.admin.request.new);
   };
+
   const {
     dense,
     page,
@@ -81,8 +80,11 @@ export default function RequestList() {
   const isNotFound = !data.length;
 
   const fetch = useCallback(async () => {
-    const response = await axios.get('/api/requests/get_list_requests');
-    // setData(response.data);
+    const response = await axios.get('/api/requests/get_list_requests', 
+    // {
+      // params: { pageNumber: page, pageSize: rowsPerPage },
+    // }
+    );
     const result = Array.from(response.data).map(
       (x: any) =>
         ({
@@ -103,9 +105,8 @@ export default function RequestList() {
 
   useEffect(() => {
     fetch();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [page, rowsPerPage, filterText]);
 
   return (
     <Page title="Request: Listing">

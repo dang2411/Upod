@@ -28,7 +28,7 @@ const customerNavConfig = [
     subheader: 'account',
     items: [
       // { title: 'profile', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.profile },
-      { title: 'technican', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.technican },
+      { title: 'technican', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.technican },
     ],
   },
 ];

@@ -254,7 +254,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   }, [watch('agency')]);
 
   const onSubmit = (data: any) => {
+    console.log(data.priority);
     const priority = PRIORITY_OPTIONS.find((x) => x.text === data.priority)?.value;
+    console.log(priority);
     if (isEdit) {
       const params = {
         agency_id: data.agency.id,
@@ -327,7 +329,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             <Grid item xs={12} md={6}>
               <RHFSelect disabled={disabled} name="priority" label="Priority">
                 {PRIORITY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.text} value={option.value}>
                     {option.text}
                   </option>
                 ))}
