@@ -139,8 +139,9 @@ export type AuthCredential  = {
 
 export type Technician = {
   id: string;
-  name: string;
-  address: string;
-  skills: string[];
+  code?: string;
+  name?: string;
+  address?: string;
+  skills?: string[];
   avatar?: string;
 };

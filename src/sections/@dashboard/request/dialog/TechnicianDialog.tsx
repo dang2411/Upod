@@ -6,7 +6,7 @@ import {
   ListItemButton,
   Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Technician } from 'src/@types/user';
@@ -19,9 +19,10 @@ type Props = {
   open: boolean;
   onClose: VoidFunction;
   onSelect?: (value: Technician) => void;
+  requestId: string;
 };
 
-export default function TechnicianDialog({ open, onClose, onSelect }: Props) {
+export default function TechnicianDialog({ open, onClose, onSelect, requestId }: Props) {
   const handleSelect = (value: Technician) => {
     if (onSelect) {
       onSelect(value);
@@ -37,14 +38,16 @@ export default function TechnicianDialog({ open, onClose, onSelect }: Props) {
 
   const fetch = useCallback(async () => {
     try {
-      const response = await axios.get('/api/technicians/get_list_technicians');
+      const response = await axios.get('/api/technicians/get_technicians_by_id_request', {
+        params: { id: requestId },
+      });
       if (response.data) {
         setData(
           response.data.map((x) => ({
             id: x.id,
             name: x.technician_name,
             address: x.address,
-            skills: x.service.map((e) => e.service_name),
+            // skills: x.service.map((e) => e.service_name),
           }))
         );
       }
@@ -52,14 +55,14 @@ export default function TechnicianDialog({ open, onClose, onSelect }: Props) {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [requestId]);
 
   useEffect(() => {
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const options = data.filter((option: Technician) => {
-    var result = option.name.toLowerCase().includes(search.toLowerCase());
+    var result = option!.name!.toLowerCase().includes(search.toLowerCase());
     if (option.address) {
       return result || option.address.toLowerCase().includes(search.toLowerCase());
     }
@@ -109,12 +112,12 @@ export default function TechnicianDialog({ open, onClose, onSelect }: Props) {
             >
               <Typography variant="subtitle2">{technician.name}</Typography>
 
-              <Typography
+              {/* <Typography
                 variant="caption"
                 sx={{ color: 'primary.main', my: 0.5, fontWeight: 'fontWeightMedium' }}
               >
                 {technician.skills.join(', ')}
-              </Typography>
+              </Typography> */}
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {technician.address}

@@ -10,15 +10,16 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Priority, Request } from 'src/@types/request';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
-import { TableEmptyRows, TableHeadCustom, TableNoData } from 'src/components/table';
+import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useAuth from 'src/hooks/useAuth';
 import useSettings from 'src/hooks/useSettings';
-import useTable, { emptyRows } from 'src/hooks/useTable';
+import useTable from 'src/hooks/useTable';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestTableRow from 'src/sections/@dashboard/request/list/RequestTableRow';
 import RequestTableToolbar from 'src/sections/@dashboard/request/list/RequestTableToolbar';
@@ -77,36 +78,44 @@ export default function RequestList() {
 
   const [data, setData] = useState<Request[]>([]);
 
-  const denseHeight = dense ? 52 : 72;
+  const [total, setTotal] = useState(0);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const isNotFound = !data.length;
 
   const { user } = useAuth();
 
   const fetch = useCallback(async () => {
-    const id = user?.account.id;
-    const response = await axios.get('/api/customers/get_requests_by_customer_id', {
-      // params: { id: id, pageNumber: page, pageSize: rowsPerPage, search: filterText },
-      params: { id },
-    });
-    // setData(response.data);
-    const result = Array.from(response.data).map(
-      (x: any) =>
-        ({
-          id: x.id,
-          code: x.code,
-          createdAt: new Date(x.create_date),
-          name: x.request_name,
-          service: { id: x.service.id, name: x.service.code },
-          agency: { id: x.agency.id, name: x.agency.code },
-          priority: parsePriority(x.priority),
-          description: x.description,
-          status: x.request_status.toLowerCase(),
-          technician: '',
-        } as Request)
-    );
-    setData(result);
-  }, []);
+    try {
+      const id = user?.account.id;
+      const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
+        params: { id: id, pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      });
+      setTotal(response.total);
+      // setData(response.data);
+      const result = Array.from(response.data).map(
+        (x: any) =>
+          ({
+            id: x.id,
+            code: x.code,
+            createdAt: new Date(x.create_date),
+            name: x.request_name,
+            service: { id: x.service.id, name: x.service.code },
+            agency: { id: x.agency.id, name: x.agency.code },
+            priority: parsePriority(x.priority),
+            description: x.description,
+            status: x.request_status.toLowerCase(),
+            technician: x.technician,
+          } as Request)
+      );
+      setData(result);
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
 
   useEffect(() => {
     fetch();
@@ -158,10 +167,10 @@ export default function RequestList() {
                   />
                 ))}
 
-                <TableEmptyRows
+                {/* <TableEmptyRows
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                />
+                /> */}
 
                 <TableNoData isNotFound={isNotFound} />
               </TableBody>
@@ -171,7 +180,7 @@ export default function RequestList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={data.length}
+              count={total}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}

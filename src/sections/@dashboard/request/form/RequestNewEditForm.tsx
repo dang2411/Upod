@@ -30,8 +30,8 @@ const parseStatus = (status: RequestStatus) => {
     return <Chip label="Pending" size="small" />;
   } else if (status === 'preparing') {
     return <Chip label="Preparing" color="info" size="small" />;
-  } else if (status === 'rejected') {
-    return <Chip label="Rejected" color="error" size="small" />;
+  } else if (status === 'reject') {
+    return <Chip label="Reject" color="error" size="small" />;
   } else if (status === 'resolving') {
     return <Chip label="Resolving" color="warning" size="small" />;
   } else if (status === 'resolved') {
@@ -97,7 +97,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
     agency: currentRequest?.agency || _empty, // fetch model
-    priority: currentRequest?.priority || 2, 
+    priority: currentRequest?.priority || 2,
     description: currentRequest?.description || '',
     status: currentRequest?.status || 'pending',
     technician: currentRequest?.technician,
@@ -181,11 +181,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const rejectRequest = useCallback(async (data: string) => {
     try {
-      await axios.put('/api/requests/disable_request_by_id', data, {
-        params: { id: currentRequest?.id },
-      });
+      await axios.put(
+        '/api/requests/reject_request_by_id',
+        {},
+        {
+          params: { id: currentRequest?.id, reason: data },
+        }
+      );
 
-      setValue('status', 'rejected');
+      setValue('status', 'reject');
       enqueueSnackbar('Reject request successfully', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Reject request failed', { variant: 'error' });
@@ -242,9 +246,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   }, [watch('agency')]);
 
   const onSubmit = (data: any) => {
-    console.log(data.priority);
-    const priority = PRIORITY_OPTIONS.find((x) => x.text === data.priority)?.value;
-    console.log(priority);
     if (isEdit) {
       const params = {
         agency_id: data.agency.id,
@@ -252,7 +253,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         request_description: data.description,
         request_name: data.name,
         phone: data.phone,
-        priority,
+        priority: parseInt(data.priority),
       };
       updateRequest(params);
     } else {
@@ -262,7 +263,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         agency_id: data.agency.id,
         request_description: data.description,
         request_name: data.name,
-        priority,
+        priority: parseInt(data.priority),
       };
       createRequest(params);
     }
@@ -347,20 +348,21 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            {!(isCustomer && watch('status') === 'pending') && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  value={watch('technician')?.name ?? ''}
-                  label="Technician"
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => setOpenConfirmDialog(true)}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{ readOnly: true }}
-                  disabled={disabled}
-                />
-              </Grid>
-            )}
+            {(!isCustomer && isEdit) ||
+              (watch('status') !== 'pending' && (
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    value={watch('technician')?.name ?? ''}
+                    label="Technician"
+                    variant="outlined"
+                    fullWidth
+                    onClick={() => setOpenConfirmDialog(true)}
+                    InputLabelProps={{ shrink: true }}
+                    inputProps={{ readOnly: true }}
+                    disabled={disabled}
+                  />
+                </Grid>
+              ))}
             <Grid item xs={12} md={6}>
               <RHFTextField
                 name="description"

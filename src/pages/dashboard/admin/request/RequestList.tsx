@@ -8,16 +8,17 @@ import {
   Table,
   TableBody,
   TableContainer,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Priority, Request } from 'src/@types/request';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
-import { TableEmptyRows, TableHeadCustom, TableNoData } from 'src/components/table';
+import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useSettings from 'src/hooks/useSettings';
-import useTable, { emptyRows } from 'src/hooks/useTable';
+import useTable from 'src/hooks/useTable';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestTableRow from 'src/sections/@dashboard/request/list/RequestTableRow';
 import RequestTableToolbar from 'src/sections/@dashboard/request/list/RequestTableToolbar';
@@ -75,34 +76,42 @@ export default function RequestList() {
 
   const [data, setData] = useState<Request[]>([]);
 
-  const denseHeight = dense ? 52 : 72;
+  const [total, setTotal] = useState(0);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const isNotFound = !data.length;
 
   const fetch = useCallback(async () => {
-    const response = await axios.get('/api/requests/get_list_requests', 
-    // {
-      // params: { pageNumber: page, pageSize: rowsPerPage },
-    // }
-    );
-    console.log(response.data);
-    const result = Array.from(response.data).map(
-      (x: any) =>
-        ({
-          id: x.id,
-          code: x.code,
-          createdAt: new Date(x.create_date),
-          name: x.request_name,
-          service: { id: x.service.id, name: x.service.service_name },
-          agency: { id: x.agency.id, name: x.agency.agency_name },
-          priority: parsePriority(x.priority),
-          description: x.description,
-          status: x.request_status.toLowerCase(),
-          technician: '',
-        } as Request)
-    );
-    setData(result);
-  }, []);
+    try {
+      const response: any = await axios.get('/api/requests/get_list_requests', {
+        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      });
+
+      setTotal(response.total);
+
+      const result = Array.from(response.data).map(
+        (x: any) =>
+          ({
+            id: x.id,
+            code: x.code,
+            createdAt: new Date(x.create_date),
+            name: x.request_name,
+            service: { id: x.service.id, name: x.service.service_name },
+            agency: { id: x.agency.id, name: x.agency.agency_name },
+            priority: parsePriority(x.priority),
+            description: x.description,
+            status: x.request_status.toLowerCase(),
+            technician: x.technician,
+          } as Request)
+      );
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
 
   useEffect(() => {
     fetch();
@@ -153,11 +162,11 @@ export default function RequestList() {
                     onRowClick={() => handleRowClick(row.id)}
                   />
                 ))}
-
+                {/* 
                 <TableEmptyRows
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                />
+                /> */}
 
                 <TableNoData isNotFound={isNotFound} />
               </TableBody>
@@ -167,7 +176,7 @@ export default function RequestList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={data.length}
+              count={total}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
