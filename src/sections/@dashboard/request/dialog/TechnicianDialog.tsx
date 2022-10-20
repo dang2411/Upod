@@ -21,7 +21,7 @@ type Props = {
   onSelect?: (value: Technician) => void;
 };
 
-export default function RequestConfirmDialog({ open, onClose, onSelect }: Props) {
+export default function TechnicianDialog({ open, onClose, onSelect }: Props) {
   const handleSelect = (value: Technician) => {
     if (onSelect) {
       onSelect(value);
@@ -95,7 +95,7 @@ export default function RequestConfirmDialog({ open, onClose, onSelect }: Props)
         </Box>
       )}
       {!loading && (
-        <Scrollbar sx={{ p: 1.5, pt: 0, maxHeight: 80 * 8 }}>
+        <Scrollbar sx={{ p: 1.5, pt: 0, maxHeight: 80 * 6 }}>
           {options.map((technician: Technician) => (
             <ListItemButton
               key={technician.id}

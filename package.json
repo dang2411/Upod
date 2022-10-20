@@ -48,7 +48,8 @@
     "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
     "rehype-raw": "^6.1.1",
-    "simplebar-react": "^2.4.3",
+    "simplebar": "^5.3.6",
+    "simplebar-react": "^2.3.6",
     "yup": "^0.32.11"
   },
   "devDependencies": {

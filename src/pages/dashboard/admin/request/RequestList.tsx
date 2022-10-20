@@ -85,6 +85,7 @@ export default function RequestList() {
       // params: { pageNumber: page, pageSize: rowsPerPage },
     // }
     );
+    console.log(response.data);
     const result = Array.from(response.data).map(
       (x: any) =>
         ({
@@ -92,8 +93,8 @@ export default function RequestList() {
           code: x.code,
           createdAt: new Date(x.create_date),
           name: x.request_name,
-          service: { id: x.service.id, name: x.service.code },
-          agency: { id: x.agency.id, name: x.agency.code },
+          service: { id: x.service.id, name: x.service.service_name },
+          agency: { id: x.agency.id, name: x.agency.agency_name },
           priority: parsePriority(x.priority),
           description: x.description,
           status: x.request_status.toLowerCase(),

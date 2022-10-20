@@ -1,29 +1,18 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Card,
-  Chip,
-  Grid,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { RequestStatus } from 'src/@types/request';
 import { Technician } from 'src/@types/user';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import axios from 'src/utils/axios';
-import { _technician } from 'src/_mock';
 import * as Yup from 'yup';
-import RequestConfirmDialog from '../dialog/RequestConfirmDialog';
 import RequestRejectDialog from '../dialog/RequestRejectDialog';
+import TechnicianDialog from '../dialog/TechnicianDialog';
 
 const PRIORITY_OPTIONS = [
   { text: 'Low', value: 1 },
@@ -94,8 +83,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const _empty = { id: '', name: '' };
 
-  const handleShowConfirm = (event) => {
-    setOpenConfirmDialog(true);
+  const handleConfirm = (event) => {
+    confirmRequest(getValues('technician'));
   };
   const handleShowReject = (event) => {
     setOpenRejectDialog(true);
@@ -134,7 +123,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
           id: x.id,
           name: x.agency_name,
           address: x.address,
-          phone: x.telephone,
+          phone: isCustomer ? x.phone : x.telephone,
         }))
       );
     } catch (error) {
@@ -222,7 +211,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   }, []);
 
   const {
-    control,
     reset,
     watch,
     setValue,
@@ -281,7 +269,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   };
 
   const onConfirm = (value: Technician) => {
-    confirmRequest(value);
+    setValue('technician', value);
   };
 
   const onReject = (value: string) => {
@@ -343,7 +331,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   variant="outlined"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  disabled={disabled}
+                  disabled={true}
                 />
               </Grid>
             )}
@@ -355,6 +343,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   variant="outlined"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
+                  disabled={true}
+                />
+              </Grid>
+            )}
+            {!(isCustomer && watch('status') === 'pending') && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  value={watch('technician')?.name ?? ''}
+                  label="Technician"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => setOpenConfirmDialog(true)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
                   disabled={disabled}
                 />
               </Grid>
@@ -371,39 +373,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 disabled={disabled}
               />
             </Grid>
-            {getValues('status') !== 'pending' && (
-              <Grid item xs={12} md={6}>
-                <Controller
-                  name="technician"
-                  control={control}
-                  render={({ field: { value, onChange }, fieldState: { error } }) => (
-                    <Autocomplete
-                      isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
-                      getOptionLabel={(option: any) => option.name}
-                      options={_technician}
-                      onChange={(event: any, newValue: any) => {
-                        onChange(newValue);
-                      }}
-                      value={value}
-                      disabled={disabled}
-                      renderInput={(params) => (
-                        <TextField
-                          error={!!error}
-                          helperText={error?.message}
-                          label="Technician"
-                          {...params}
-                          inputProps={{ ...params.inputProps }}
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: <>{params.InputProps.endAdornment}</>,
-                          }}
-                        />
-                      )}
-                    />
-                  )}
-                />
-              </Grid>
-            )}
           </Grid>
           {getValues('status') === 'pending' && (
             <Box mt={3} display="flex" justifyContent="end" textAlign="end">
@@ -418,13 +387,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             <Button onClick={handleShowReject} color="error" variant="outlined">
               Reject
             </Button>
-            <Button variant="contained" onClick={handleShowConfirm}>
-              Confirm
-            </Button>
+            {watch('technician') && (
+              <Button variant="contained" onClick={handleConfirm}>
+                Confirm
+              </Button>
+            )}
           </Stack>
         )}
       </Stack>
-      <RequestConfirmDialog
+      <TechnicianDialog
         open={openConfirmDialog}
         onClose={onConfirmDialogClose}
         onSelect={onConfirm}
