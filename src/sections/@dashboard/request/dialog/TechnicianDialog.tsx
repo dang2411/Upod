@@ -6,7 +6,7 @@ import {
   ListItemButton,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Technician } from 'src/@types/user';
@@ -19,7 +19,7 @@ type Props = {
   open: boolean;
   onClose: VoidFunction;
   onSelect?: (value: Technician) => void;
-  requestId: string;
+  requestId: string | null;
 };
 
 export default function TechnicianDialog({ open, onClose, onSelect, requestId }: Props) {
@@ -38,9 +38,10 @@ export default function TechnicianDialog({ open, onClose, onSelect, requestId }:
 
   const fetch = useCallback(async () => {
     try {
-      const response = await axios.get('/api/technicians/get_technicians_by_id_request', {
+      const response = await axios.get('/api/requests/get_technicians_by_id_request', {
         params: { id: requestId },
       });
+      setLoading(false);
       if (response.data) {
         setData(
           response.data.map((x) => ({
@@ -51,7 +52,6 @@ export default function TechnicianDialog({ open, onClose, onSelect, requestId }:
           }))
         );
       }
-      setLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -73,6 +73,9 @@ export default function TechnicianDialog({ open, onClose, onSelect, requestId }:
     setSearch(event.target.value);
   };
 
+  if (requestId === null) {
+    return <div />;
+  }
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <Stack direction="row" alignItems="center" justifyContent="start" sx={{ py: 2.5, px: 3 }}>

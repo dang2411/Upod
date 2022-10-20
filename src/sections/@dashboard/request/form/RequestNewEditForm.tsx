@@ -348,21 +348,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            {(!isCustomer && isEdit) ||
-              (watch('status') !== 'pending' && (
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    value={watch('technician')?.name ?? ''}
-                    label="Technician"
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => setOpenConfirmDialog(true)}
-                    InputLabelProps={{ shrink: true }}
-                    inputProps={{ readOnly: true }}
-                    disabled={disabled}
-                  />
-                </Grid>
-              ))}
+            {((!isCustomer && isEdit) || watch('status') !== 'pending') && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  value={watch('technician')?.name ?? ''}
+                  label="Technician"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => setOpenConfirmDialog(true)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
+                  disabled={disabled}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} md={6}>
               <RHFTextField
                 name="description"
@@ -401,7 +400,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         open={openConfirmDialog}
         onClose={onConfirmDialogClose}
         onSelect={onConfirm}
-        requestId={currentRequest.id}
+        requestId={currentRequest?.id}
       />
       <RequestRejectDialog
         open={openRejectDialog}
