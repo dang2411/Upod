@@ -4,11 +4,13 @@ import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mu
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Navigate, useNavigate } from 'react-router';
 import { RequestStatus } from 'src/@types/request';
 import { Technician } from 'src/@types/user';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
+import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
 import RequestRejectDialog from '../dialog/RequestRejectDialog';
@@ -63,6 +65,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     name: Yup.string().required('Name is required'),
   });
 
+  const navigate = useNavigate();
+
   const { user } = useAuth();
 
   const isCustomer = user?.account?.roleName === 'Customer';
@@ -86,13 +90,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   const [services, setServices] = useState([]);
 
   const _empty = { id: '', name: '' };
-
-  const handleConfirm = (event) => {
-    confirmRequest(getValues('technician'));
-  };
-  const handleShowReject = (event) => {
-    setOpenRejectDialog(true);
-  };
 
   const defaultValues = {
     code: currentRequest?.code || '',
@@ -218,6 +215,69 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const reopenRequest = useCallback(async (data: any) => {
+    try {
+      await axios.put('/api/requests/reopen_request_by_id', {}, { params: data });
+
+      enqueueSnackbar('Reopen request successfully', { variant: 'success' });
+      setValue('status', 'editing');
+    } catch (error) {
+      enqueueSnackbar('Reopen request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const cancelRequest = useCallback(async (data: any) => {
+    try {
+      await axios.put('/api/requests/cancel_request_by_id', {}, { params: data });
+
+      enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+      setValue('status', 'canceled');
+    } catch (error) {
+      enqueueSnackbar('Cancel request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const deleteRequest = useCallback(async (data: any) => {
+    try {
+      await axios.put('/api/requests/disable_request_by_id', {}, { params: data });
+
+      enqueueSnackbar('Disable request successfully', { variant: 'success' });
+      if (isCustomer) {
+        navigate(PATH_DASHBOARD.customer.request.root);
+      } else {
+        navigate(PATH_DASHBOARD.admin.request.root);
+      }
+    } catch (error) {
+      enqueueSnackbar('Disable request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleConfirm = (event) => {
+    confirmRequest(getValues('technician'));
+  };
+
+  const handleShowReject = (event) => {
+    setOpenRejectDialog(true);
+  };
+
+  const handleReopenClick = (event) => {
+    reopenRequest({ id: currentRequest?.id });
+  };
+
+  const handleCancelClick = (event) => {
+    cancelRequest({ id: currentRequest?.id });
+  };
+
+  const handleDeleteClick = (event) => {
+    deleteRequest({ id: currentRequest?.id });
+  };
+
   const {
     reset,
     watch,
@@ -282,6 +342,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   };
 
   const disabled = getValues('status') !== 'pending';
+
+  console.log({ createdBy: currentRequest?.createdBy, id: user!.account!.id });
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -389,6 +451,16 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         </Card>
         {isEdit && !isCustomer && getValues('status') === 'pending' && (
           <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
+            {currentRequest!.createdBy === user!.account!.id && (
+              <>
+                <Button onClick={handleDeleteClick} color="error" variant="outlined">
+                  Delete
+                </Button>
+                <Button onClick={handleCancelClick} color="error" variant="outlined">
+                  Cancel
+                </Button>
+              </>
+            )}
             <Button onClick={handleShowReject} color="error" variant="outlined">
               Reject
             </Button>
@@ -397,6 +469,26 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 Confirm
               </Button>
             )}
+          </Stack>
+        )}
+        {isEdit &&
+          currentRequest!.createdBy === user!.account!.id &&
+          getValues('status') === 'preparing' && (
+            <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
+              {currentRequest!.createdBy === user!.account!.id && (
+                <>
+                  <Button onClick={handleCancelClick} color="error" variant="outlined">
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </Stack>
+          )}
+        {isEdit && !isCustomer && getValues('status') === 'resolved' && (
+          <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
+            <Button onClick={handleReopenClick} color="info" variant="outlined">
+              Reopen
+            </Button>
           </Stack>
         )}
       </Stack>

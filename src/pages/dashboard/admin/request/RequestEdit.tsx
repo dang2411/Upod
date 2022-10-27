@@ -52,6 +52,7 @@ export default function RequestEdit() {
         description: response.data.description,
         status: response.data.request_status.toLowerCase(),
         technician: response.data.technicican,
+        createdBy: response.data.create_by,
       } as Request;
       if (response.status === 200) {
         setRequest(result);

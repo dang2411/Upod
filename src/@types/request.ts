@@ -26,4 +26,5 @@ export type Request = {
     description: string;
     status: RequestStatus;
     technician: any;
+    createdBy: Date;
 }
