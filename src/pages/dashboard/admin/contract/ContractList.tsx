@@ -15,19 +15,20 @@ import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useTable from 'src/hooks/useTable';
 import { useSnackbar } from 'notistack';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
 import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
+import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'company', label: 'Company', align: 'left' },
-  { id: 'createdAt', label: 'CreatedAt', align: 'left' },
-  { id: 'expiredAt', label: 'ExpiredAt', align: 'left' },
+  { id: 'createdAt', label: 'Created At', align: 'left' },
+  { id: 'expiredAt', label: 'Expired At', align: 'left' },
 ];
 
 export default function ContractList() {
@@ -49,7 +50,7 @@ export default function ContractList() {
     navigate(PATH_DASHBOARD.admin.contract.edit(value));
   };
 
-  const data = [];
+  const [data, setData] = useState<any[]>([]);
 
   const {
     dense,
@@ -63,6 +64,35 @@ export default function ContractList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const fetch = useCallback(async () => {
+    try {
+      const response: any = await axiosInstance.get('/api/contracts/get_all_contracts', {
+        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      });
+
+      setTotal(response.total);
+
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.contract_name,
+        company: x.customer.name,
+        createdAt: x.start_date,
+        expiredAt: x.end_date,
+      }));
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
+
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, filterText]);
 
   const [total, setTotal] = useState(0);
 

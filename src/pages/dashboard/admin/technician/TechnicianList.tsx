@@ -30,7 +30,7 @@ export default function TechnicianList() {
   const [filterText, setFilterText] = useState('');
 
   const handleBtnClick = () => {
-    navigate(PATH_DASHBOARD.admin.contract.new);
+    navigate(PATH_DASHBOARD.admin.technician.new);
   };
 
   const handleFilterTextChange = (value: string) => {
@@ -38,7 +38,7 @@ export default function TechnicianList() {
   };
 
   const handleRowClick = (value: string) => {
-    navigate(PATH_DASHBOARD.admin.contract.edit(value));
+    navigate(PATH_DASHBOARD.admin.technician.edit(value));
   };
 
   const data = [];

@@ -17,8 +17,8 @@ export default function ContractTableRow({ row, onRowClick }: Props) {
       </TableCell>
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{company} </TableCell>
-      <TableCell align="left">{format(createdAt, 'dd/MM/yyyy')} </TableCell>
-      <TableCell align="left">{format(expiredAt, 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(createdAt), 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(expiredAt), 'dd/MM/yyyy')} </TableCell>
     </TableRow>
   );
 }
