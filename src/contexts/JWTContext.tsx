@@ -85,7 +85,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     const initialize = async () => {
       try {
         const accessToken = await localStorage.getItem('accessToken');
-        
+
         if (state.isAuthenticated) {
           return;
         }
@@ -142,7 +142,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     };
 
     initialize();
-  }, []);
+  }, [state.isAuthenticated]);
 
   const login = async (userName: string, password: string) => {
     const response = await axios.post('/api/accounts/login', {

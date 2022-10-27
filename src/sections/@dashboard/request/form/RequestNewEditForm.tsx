@@ -4,7 +4,7 @@ import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mu
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Navigate, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { RequestStatus } from 'src/@types/request';
 import { Technician } from 'src/@types/user';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
