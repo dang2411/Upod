@@ -1,6 +1,7 @@
 import { Chip, TableCell, TableRow, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import { Request, RequestStatus } from 'src/@types/request';
+import { cutOut } from 'src/utils/cutOut';
 
 type Props = {
   row: Request;
@@ -15,14 +16,16 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       return <Chip label="Pending" />;
     } else if (status === 'preparing') {
       return <Chip label="Preparing" color="info" />;
-    } else if (status === 'reject') {
-      return <Chip label="Reject" color="error" />;
+    } else if (status === 'rejected') {
+      return <Chip label="Rejected" color="error" size="small" />;
     } else if (status === 'resolving') {
       return <Chip label="Resolving" color="warning" />;
     } else if (status === 'resolved') {
       return <Chip label="Resolved" color="success" />;
     } else if (status === 'editing') {
       return <Chip label="Editing" color="secondary" size="small" />;
+    } else if (status === 'canceled') {
+      return <Chip label="Canceled" size="small" />;
     }
     return <Chip label="Default" />;
   };
@@ -39,7 +42,7 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{service.name} </TableCell>
       <TableCell align="left">{format(createdAt, 'dd/MM/yyyy')} </TableCell>
       {/* <TableCell align="left">{createdAt} </TableCell> */}
-      <TableCell align="left">{description} </TableCell>
+      <TableCell align="left">{cutOut(description)} </TableCell>
       <TableCell align="left">{parseStatus(status)} </TableCell>
     </TableRow>
   );

@@ -30,14 +30,16 @@ const parseStatus = (status: RequestStatus) => {
     return <Chip label="Pending" size="small" />;
   } else if (status === 'preparing') {
     return <Chip label="Preparing" color="info" size="small" />;
-  } else if (status === 'reject') {
-    return <Chip label="Reject" color="error" size="small" />;
+  } else if (status === 'rejected') {
+    return <Chip label="Rejected" color="error" size="small" />;
   } else if (status === 'resolving') {
     return <Chip label="Resolving" color="warning" size="small" />;
   } else if (status === 'resolved') {
     return <Chip label="Resolved" color="success" size="small" />;
   } else if (status === 'editing') {
     return <Chip label="Editing" color="secondary" size="small" />;
+  } else if (status === 'canceled') {
+    return <Chip label="Canceled" size="small" />;
   }
   return <Chip label="Default" size="small" />;
 };
