@@ -20,7 +20,19 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const defaultValues = {};
+  const defaultValues = {
+    code: currentContract?.code || '',
+    name: currentContract?.name || '',
+    customer: currentContract?.customer,
+    price: currentContract?.price || '',
+    startDate: currentContract?.startDate || new Date(),
+    endDate: currentContract?.endDate || new Date(),
+    attachment: currentContract?.attachment || '',
+    img: currentContract?.img || '',
+    description: currentContract?.description || '',
+    frequencyMaintain: currentContract?.frequencyMaintain || '',
+    service: currentContract?.service || '',
+  };
 
   const methods = useForm({
     resolver: yupResolver(ContractSchema),

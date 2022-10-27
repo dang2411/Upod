@@ -19,10 +19,32 @@ export default function TechnicianEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(``, {
+      const response = await axiosInstance.get(`/api/technicians/get_technician_details`, {
         params: { id },
       });
-      const result = {};
+      const result = {
+        id: response.data.id,
+        code: response.data.code,
+        name: response.data.technician_name,
+        area: {
+          id: response.data.area.id,
+          name: response.data.area.area_name,
+        },
+        account: {
+          id: response.data.account.id,
+          name: response.data.account.username,
+        },
+        telephone: response.data.telephone,
+        email: response.data.email,
+        gender: response.data.gender,
+        address: response.data.address,
+        rating: response.data.rating_avg,
+        busy: response.data.is_busy,
+        service: {
+          id: response.data.service.id,
+          name: response.data.service.service_name,
+        },
+      };
       if (response.status === 200) {
         setData(result);
       } else {

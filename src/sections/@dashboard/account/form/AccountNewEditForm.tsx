@@ -5,12 +5,12 @@ import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 
 type Props = {
-  currentAgency: any;
+  currentAccount: any;
   isEdit: boolean;
 };
 
-export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
-  const AgencySchema = Yup.object().shape({
+export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
+  const accountSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
   });
 
@@ -21,17 +21,15 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
   const defaultValues = {
-    name: currentAgency?.name || '',
-    customer: currentAgency?.customer,
-    area: currentAgency?.area,
-    description: currentAgency?.description || '',
-    address: currentAgency?.address || '',
-    telephone: currentAgency?.telephone || '',
-    manager: currentAgency?.manager || '',
+    code: currentAccount?.code,
+    roleId: currentAccount?.roleId || '',
+    roleName: currentAccount?.roleName || new Date(),
+    username: currentAccount?.username || new Date(),
+    isDelete: currentAccount?.isDelete || '',
   };
 
   const methods = useForm({
-    resolver: yupResolver(AgencySchema),
+    resolver: yupResolver(accountSchema),
     defaultValues,
   });
 

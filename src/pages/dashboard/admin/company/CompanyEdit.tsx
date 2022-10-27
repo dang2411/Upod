@@ -19,10 +19,19 @@ export default function CompanyEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(``, {
+      const response = await axiosInstance.get(`/api/customers/get_customer_details_by_id`, {
         params: { id },
       });
-      const result = {};
+      const result = {
+        id: response.data[0].id,
+        code: response.data[0].code,
+        name: response.data[0].name,
+        account: response.data[0].account,
+        mail: response.data[0].mail,
+        address: response.data[0].address,
+        phone: response.data[0].phone,
+        description: response.data[0].description,
+      };
       if (response.status === 200) {
         setData(result);
       } else {

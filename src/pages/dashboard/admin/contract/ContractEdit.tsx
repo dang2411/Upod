@@ -19,10 +19,23 @@ export default function ContractEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(``, {
+      const response = await axiosInstance.get(`/api/contracts/get_contract_details_by_id`, {
         params: { id },
       });
-      const result = {};
+      const result = {
+        id: response.data.id,
+        code: response.data.code,
+        name: response.data.contract_name,
+        customer: response.data.customer,
+        price: response.data.price,
+        startDate: response.data.start_date,
+        endDate: response.data.end_date,
+        attachment: response.data.attachment,
+        img: response.data.img,
+        description: response.data.description,
+        frequencyMaintain: response.data.frequency_maintain,
+        service: response.data.service,
+      };
       if (response.status === 200) {
         setData(result);
       } else {

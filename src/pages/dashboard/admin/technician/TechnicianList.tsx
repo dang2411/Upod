@@ -1,5 +1,15 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
@@ -20,7 +30,6 @@ const TABLE_HEAD = [
   { id: 'address', label: 'Address', align: 'left' },
   { id: 'phone', label: 'Phone', align: 'left' },
 ];
-
 
 export default function TechnicianList() {
   const { themeStretch } = useSettings();
@@ -57,7 +66,7 @@ export default function TechnicianList() {
   } = useTable();
   const fetch = useCallback(async () => {
     try {
-      const response: any = await axiosInstance.get('/api/agencies/get_list_agencies', {
+      const response: any = await axiosInstance.get('/api/technicians/get_list_technicians', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
 

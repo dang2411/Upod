@@ -22,7 +22,14 @@ export default function ServiceEdit() {
       const response = await axiosInstance.get(``, {
         params: { id },
       });
-      const result = {};
+      const result = {
+        id: response.data.id,
+        code: response.data.code,
+        roleId: response.data.role.id,
+        roleName: response.data.role.role_name,
+        username: response.data.username,
+        isDelete: response.data.is_delete,
+      };
       if (response.status === 200) {
         setData(result);
       } else {

@@ -1,5 +1,15 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
@@ -56,7 +66,7 @@ export default function DeviceList() {
 
   const fetch = useCallback(async () => {
     try {
-      const response: any = await axiosInstance.get('/api/technicians/get_list_technicians', {
+      const response: any = await axiosInstance.get('/api/devices/get_list_devices', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
 

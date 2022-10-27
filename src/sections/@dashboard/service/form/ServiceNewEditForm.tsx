@@ -20,7 +20,14 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const defaultValues = {};
+  const defaultValues = {
+    code: currentService?.code || '',
+    name: currentService?.name || '',
+    area: currentService?.area || '',
+    areaDescription: currentService?.areaDescription || '',
+    account: currentService?.account,
+    telephone: currentService?.telephone || '',
+  };
 
   const methods = useForm({
     resolver: yupResolver(serviceSchema),

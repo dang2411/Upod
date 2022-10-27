@@ -20,7 +20,15 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const defaultValues = {};
+  const defaultValues = {
+    code: currentCompany?.code || '',
+    name: currentCompany?.name,
+    account: currentCompany?.account,
+    mail: currentCompany?.mail || '',
+    address: currentCompany?.address || '',
+    phone: currentCompany?.phone || '',
+    description: currentCompany?.description || '',
+  };
 
   const methods = useForm({
     resolver: yupResolver(CompanySchema),
