@@ -39,7 +39,7 @@ const parseStatus = (status: RequestStatus) => {
   } else if (status === 'editing') {
     return <Chip label="Editing" color="secondary" size="small" />;
   } else if (status === 'canceled') {
-    return <Chip label="Canceled" size="small" />;
+    return <Chip label="Canceled" color="error" size="small" />;
   }
   return <Chip label="Default" size="small" />;
 };

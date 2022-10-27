@@ -19,7 +19,7 @@ import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hoo
 // ----------------------------------------------------------------------
 
 type FormValuesProps = {
-  userName: string;
+  username: string;
   password: string;
   remember: boolean;
   afterSubmit?: string;
@@ -33,12 +33,12 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({
-    userName: Yup.string().required('Username is required'),
+    username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
   });
 
   const defaultValues = {
-    userName: '',
+    username: '',
     password: '',
     remember: false,
   };
@@ -57,7 +57,7 @@ export default function LoginForm() {
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
-      await login(data.userName, data.password);
+      await login(data.username, data.password);
     } catch (error) {
       reset();
       if (isMountedRef.current) {
@@ -71,7 +71,7 @@ export default function LoginForm() {
       <Stack spacing={3}>
         {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
-        <RHFTextField name="userName" label="UserName" />
+        <RHFTextField name="username" label="Username" />
 
         <RHFTextField
           name="password"

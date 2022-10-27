@@ -25,7 +25,7 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
     } else if (status === 'editing') {
       return <Chip label="Editing" color="secondary" />;
     } else if (status === 'canceled') {
-      return <Chip label="Canceled" />;
+      return <Chip label="Canceled" color="error" />;
     }
     return <Chip label="Default" />;
   };
