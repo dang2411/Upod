@@ -1,22 +1,33 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
-import TechnicianTableToolbar from 'src/sections/@dashboard/technician/list/TechnicianTableToolbar';
-import TechnicianTableRow from 'src/sections/@dashboard/technician/list/TechnicianTableRow';
+import AccountTableToolbar from 'src/sections/@dashboard/account/list/AccountTableToolbar';
+import AccountTableRow from 'src/sections/@dashboard/account/list/AccountTableRow';
+import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
-  { id: 'name', label: 'Name', align: 'left' },
-  { id: 'skill', label: 'Skill', align: 'left' },
-  { id: 'area', label: 'Area', align: 'left' },
+  { id: 'role', label: 'Role', align: 'left' },
+  { id: 'username', label: 'Username', align: 'left' },
+  { id: 'active', label: 'Active', align: 'left' },
 ];
 
 export default function AccountList() {
@@ -38,7 +49,7 @@ export default function AccountList() {
     navigate(PATH_DASHBOARD.admin.account.edit(value));
   };
 
-  const data = [];
+  const [data, setData] = useState<any[]>([]);
 
   const {
     dense,
@@ -53,6 +64,34 @@ export default function AccountList() {
     onChangeRowsPerPage,
   } = useTable();
 
+  const fetch = useCallback(async () => {
+    try {
+      const response: any = await axiosInstance.get('/api/accounts/get_all_accounts', {
+        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      });
+
+      setTotal(response.total);
+
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.contract_name,
+        role: x.role.role_name,
+        username: x.username,
+        active: !x.is_delete,
+      }));
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
+
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, filterText]);
   const [total, setTotal] = useState(0);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -70,7 +109,7 @@ export default function AccountList() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Technician',
+              name: 'Account',
               href: PATH_DASHBOARD.admin.account.root,
             },
             { name: 'Listing' },
@@ -83,7 +122,7 @@ export default function AccountList() {
         />
 
         <Card>
-          <TechnicianTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
+          <AccountTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
@@ -97,7 +136,7 @@ export default function AccountList() {
 
               <TableBody>
                 {data.map((row: any) => (
-                  <TechnicianTableRow
+                  <AccountTableRow
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.id)}
