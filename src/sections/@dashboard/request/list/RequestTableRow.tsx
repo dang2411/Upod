@@ -21,6 +21,8 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       return <Chip label="Resolving" color="warning" />;
     } else if (status === 'resolved') {
       return <Chip label="Resolved" color="success" />;
+    } else if (status === 'editing') {
+      return <Chip label="Editing" color="secondary" size="small" />;
     }
     return <Chip label="Default" />;
   };

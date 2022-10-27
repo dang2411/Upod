@@ -36,6 +36,8 @@ const parseStatus = (status: RequestStatus) => {
     return <Chip label="Resolving" color="warning" size="small" />;
   } else if (status === 'resolved') {
     return <Chip label="Resolved" color="success" size="small" />;
+  } else if (status === 'editing') {
+    return <Chip label="Editing" color="secondary" size="small" />;
   }
   return <Chip label="Default" size="small" />;
 };
