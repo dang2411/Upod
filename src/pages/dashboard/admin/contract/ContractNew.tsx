@@ -24,6 +24,8 @@ export default function ContractNew() {
             { name: 'New' },
           ]}
         />
+
+        
       </Container>
     </Page>
   );
