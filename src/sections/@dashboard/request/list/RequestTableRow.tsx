@@ -17,15 +17,15 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
     } else if (status === 'preparing') {
       return <Chip label="Preparing" color="info" />;
     } else if (status === 'rejected') {
-      return <Chip label="Rejected" color="error" size="small" />;
+      return <Chip label="Rejected" color="error" />;
     } else if (status === 'resolving') {
       return <Chip label="Resolving" color="warning" />;
     } else if (status === 'resolved') {
       return <Chip label="Resolved" color="success" />;
     } else if (status === 'editing') {
-      return <Chip label="Editing" color="secondary" size="small" />;
+      return <Chip label="Editing" color="secondary" />;
     } else if (status === 'canceled') {
-      return <Chip label="Canceled" size="small" />;
+      return <Chip label="Canceled" />;
     }
     return <Chip label="Default" />;
   };
