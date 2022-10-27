@@ -3,6 +3,7 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import AgencyNewEditForm from 'src/sections/@dashboard/agency/form/AgencyNewEditForm';
 
 export default function AgencyNew() {
   const { themeStretch } = useSettings();
@@ -24,6 +25,7 @@ export default function AgencyNew() {
             { name: 'New' },
           ]}
         />
+        <AgencyNewEditForm isEdit={false} currentAgency={null} />
       </Container>
     </Page>
   );

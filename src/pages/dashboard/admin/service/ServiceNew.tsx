@@ -3,6 +3,7 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import ServiceNewEditForm from 'src/sections/@dashboard/service/form/ServiceNewEditForm';
 
 export default function ServiceNew() {
   const { themeStretch } = useSettings();
@@ -24,6 +25,7 @@ export default function ServiceNew() {
             { name: 'New' },
           ]}
         />
+        <ServiceNewEditForm isEdit={false} currentService={null} />
       </Container>
     </Page>
   );
