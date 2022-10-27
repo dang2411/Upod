@@ -27,7 +27,7 @@ export default function RequestDetail() {
             },
             {
               name: 'Request',
-              href: PATH_DASHBOARD.request.root,
+              href: PATH_DASHBOARD.admin.request.root,
             },
             { name: title },
           ]}

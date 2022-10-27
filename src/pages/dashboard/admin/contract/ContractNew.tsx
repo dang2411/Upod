@@ -1,4 +1,30 @@
+import { Container } from '@mui/material';
+import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
+import Page from 'src/components/Page';
+import useSettings from 'src/hooks/useSettings';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+
 export default function ContractNew() {
-    return <div />;
-  }
-  
+  const { themeStretch } = useSettings();
+
+  return (
+    <Page title="Contract: New">
+      <Container maxWidth={themeStretch ? false : 'xl'}>
+        <HeaderBreadcrumbs
+          heading="Create Contract"
+          links={[
+            {
+              name: 'Dashboard',
+              href: PATH_DASHBOARD.root,
+            },
+            {
+              name: 'Contract',
+              href: PATH_DASHBOARD.admin.contract.root,
+            },
+            { name: 'New' },
+          ]}
+        />
+      </Container>
+    </Page>
+  );
+}

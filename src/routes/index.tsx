@@ -99,9 +99,7 @@ export default function Router() {
             },
             {
               path: 'request',
-              children: [
-                { path: 'view/:id', element: <CustomerContractDetailPage /> },
-              ],
+              children: [{ path: 'view/:id', element: <CustomerContractDetailPage /> }],
             },
             {
               path: 'agency',
@@ -116,9 +114,7 @@ export default function Router() {
             },
             {
               path: 'ticket',
-              children: [
-                { path: 'view/:id', element: <CustomerTicketDetailPage /> },
-              ],
+              children: [{ path: 'view/:id', element: <CustomerTicketDetailPage /> }],
             },
           ],
         },
@@ -142,7 +138,6 @@ export default function Router() {
                 { path: 'edit/:id', element: <AdminRequestEditPage /> },
                 { path: 'view/:id', element: <AdminRequestDetailPage /> },
               ],
-              
             },
             {
               path: 'agency',
@@ -156,7 +151,6 @@ export default function Router() {
                 { path: 'edit/:id', element: <AdminAgenEditPage /> },
                 { path: 'view/:id', element: <AdminAgencyDetailPage /> },
               ],
-              
             },
             {
               path: 'service',
@@ -170,7 +164,6 @@ export default function Router() {
                 { path: 'edit/:id', element: <AdminServiceEditPage /> },
                 { path: 'view/:id', element: <AdminServiceDetailPage /> },
               ],
-              
             },
             {
               path: 'ticket',
@@ -183,10 +176,9 @@ export default function Router() {
                 { path: 'edit/:id', element: <AdminTicketEditPage /> },
                 { path: 'view/:id', element: <AdminTicketDetailPage /> },
               ],
-              
             },
             {
-              path: 'tecnician',
+              path: 'technician',
               children: [
                 {
                   element: <Navigate to={PATH_DASHBOARD.admin.technician.list} replace />,
@@ -197,7 +189,19 @@ export default function Router() {
                 { path: 'edit/:id', element: <AdminTechnicianEditPage /> },
                 { path: 'view/:id', element: <AdminTechnicianDetailPage /> },
               ],
-              
+            },
+            {
+              path: 'account',
+              children: [
+                {
+                  element: <Navigate to={PATH_DASHBOARD.admin.account.list} replace />,
+                  index: true,
+                },
+                { path: 'list', element: <AdminAccountListPage /> },
+                { path: 'new', element: <AdminAccountNewPage /> },
+                { path: 'edit/:id', element: <AdminAccountEditPage /> },
+                { path: 'view/:id', element: <AdminAccountDetailPage /> },
+              ],
             },
             {
               path: 'device',
@@ -209,7 +213,6 @@ export default function Router() {
                 { path: 'list', element: <AdminDeviceListPage /> },
                 { path: 'view/:id', element: <AdminDeviceDetailPage /> },
               ],
-              
             },
             {
               path: 'company',
@@ -223,16 +226,19 @@ export default function Router() {
                 { path: 'edit/:id', element: <AdminCompanyEditPage /> },
                 { path: 'view/:id', element: <AdminCompanyDetailPage /> },
               ],
-              
             },
             {
               path: 'contract',
               children: [
+                {
+                  element: <Navigate to={PATH_DASHBOARD.admin.contract.list} replace />,
+                  index: true,
+                },
+                { path: 'list', element: <AdminContractListPage /> },
                 { path: 'new', element: <AdminContractNewPage /> },
                 { path: 'edit/:id', element: <AdminContractEditPage /> },
                 { path: 'view/:id', element: <AdminContractDetailPage /> },
               ],
-              
             },
           ],
         },
@@ -306,11 +312,6 @@ const CustomerContractDetailPage = Loadable(
 const CustomerTicketDetailPage = Loadable(
   lazy(() => import('../pages/dashboard/customer/ticket/TicketDetail'))
 );
-
-
-
-
-
 
 const AdminRequestNewPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/request/RequestNew'))
@@ -394,7 +395,6 @@ const AdminAgencyNewPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/agency/AgencyNew'))
 );
 
-
 const AdminContractDetailPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/contract/ContractDetail'))
 );
@@ -403,4 +403,20 @@ const AdminContractEditPage = Loadable(
 );
 const AdminContractNewPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/contract/ContractNew'))
+);
+const AdminContractListPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/contract/ContractList'))
+);
+
+const AdminAccountDetailPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/account/AccountDetail'))
+);
+const AdminAccountEditPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/account/AccountEdit'))
+);
+const AdminAccountNewPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/account/AccountNew'))
+);
+const AdminAccountListPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/account/AccountList'))
 );

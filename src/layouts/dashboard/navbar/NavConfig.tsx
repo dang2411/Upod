@@ -50,7 +50,7 @@ const adminNavConfig = [
     items: [
       // { title: 'profile', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.profile },
       { title: 'technican', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.technican },
-      { title: 'account', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.account },
+      { title: 'account', path: PATH_DASHBOARD.admin.account.root, icon: ICONS.account },
     ],
   },
 ];

@@ -48,9 +48,10 @@ export const PATH_DASHBOARD = {
     },
     contract: {
       root: path(ROOTS_CUSTOMER, '/contract'),
-      new: path(ROOTS_CUSTOMER, '/agency/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/agency/edit/${id}`),
-      view: (id: string) => path(ROOTS_CUSTOMER, `/agency/view/${id}`),
+      list: path(ROOTS_CUSTOMER, '/contract/list'),
+      new: path(ROOTS_CUSTOMER, '/contract/new'),
+      edit: (id: string) => path(ROOTS_CUSTOMER, `/contract/edit/${id}`),
+      view: (id: string) => path(ROOTS_CUSTOMER, `/contract/view/${id}`),
     },
     ticket: {
       root: path(ROOTS_CUSTOMER, '/ticket'),
@@ -58,8 +59,6 @@ export const PATH_DASHBOARD = {
       edit: (id: string) => path(ROOTS_CUSTOMER, `/ticket/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/ticket/view/${id}`),
     },
-    
-    
   },
   admin: {
     request: {
@@ -114,8 +113,16 @@ export const PATH_DASHBOARD = {
     contract: {
       root: path(ROOTS_ADMIN, '/contract'),
       new: path(ROOTS_ADMIN, '/contract/new'),
+      list: path(ROOTS_ADMIN, '/contract/list'),
       edit: (id: string) => path(ROOTS_ADMIN, `/contract/edit/${id}`),
       view: (id: string) => path(ROOTS_ADMIN, `/contract/view/${id}`),
+    },
+    account: {
+      root: path(ROOTS_ADMIN, '/account'),
+      new: path(ROOTS_ADMIN, '/account/new'),
+      list: path(ROOTS_ADMIN, '/account/list'),
+      edit: (id: string) => path(ROOTS_ADMIN, `/account/edit/${id}`),
+      view: (id: string) => path(ROOTS_ADMIN, `/account/view/${id}`),
     },
   },
   permissionDenied: path(ROOTS_DASHBOARD, '/permission-denied'),
