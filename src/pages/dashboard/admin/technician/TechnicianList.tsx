@@ -41,7 +41,7 @@ export default function TechnicianList() {
     navigate(PATH_DASHBOARD.admin.technician.edit(value));
   };
 
-  const data = [];
+  const [data, setData] = useState<any[]>([]);
 
   const {
     dense,
@@ -55,6 +55,34 @@ export default function TechnicianList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+  const fetch = useCallback(async () => {
+    try {
+      const response: any = await axiosInstance.get('/api/agencies/get_list_agencies', {
+        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      });
+
+      setTotal(response.total);
+
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.agency_name,
+        company: x.customer.name,
+        address: x.address,
+        phone: x.telephone,
+      }));
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
+
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, filterText]);
 
   const [total, setTotal] = useState(0);
 
