@@ -6,19 +6,19 @@ import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
-import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
-import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
 import TechnicianTableToolbar from 'src/sections/@dashboard/technician/list/TechnicianTableToolbar';
 import TechnicianTableRow from 'src/sections/@dashboard/technician/list/TechnicianTableRow';
+import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'skill', label: 'Skill', align: 'left' },
-  { id: 'area', label: 'Area', align: 'left' },
+  { id: 'email', label: 'Email', align: 'left' },
+  { id: 'address', label: 'Address', align: 'left' },
+  { id: 'phone', label: 'Phone', align: 'left' },
 ];
 
 
@@ -66,8 +66,8 @@ export default function TechnicianList() {
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
         code: x.code,
-        name: x.agency_name,
-        company: x.customer.name,
+        name: x.technician_name,
+        mail: x.email,
         address: x.address,
         phone: x.telephone,
       }));

@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function TechnicianTableRow({ row, onRowClick }: Props) {
-  const { code, name, skill, area,  } = row;
+  const { code, name, email, address, phone  } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -16,8 +16,9 @@ export default function TechnicianTableRow({ row, onRowClick }: Props) {
         </Typography>
       </TableCell>
       <TableCell align="left">{name} </TableCell>
-      <TableCell align="left">{skill} </TableCell>
-      <TableCell align="left">{area} </TableCell>
+      <TableCell align="left">{email} </TableCell>
+      <TableCell align="left">{address} </TableCell>
+      <TableCell align="left">{phone} </TableCell>
     </TableRow>
   );
 }

@@ -19,7 +19,6 @@ const TABLE_HEAD = [
   { id: 'area', label: 'Area', align: 'left' },
 ];
 
-
 export default function AccountList() {
   const { themeStretch } = useSettings();
 

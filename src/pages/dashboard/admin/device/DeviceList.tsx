@@ -56,7 +56,7 @@ export default function DeviceList() {
 
   const fetch = useCallback(async () => {
     try {
-      const response: any = await axiosInstance.get('/api/devices/get_list_devices', {
+      const response: any = await axiosInstance.get('/api/technicians/get_list_technicians', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
 
