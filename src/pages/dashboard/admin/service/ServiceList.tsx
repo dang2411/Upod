@@ -1,5 +1,15 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
@@ -36,7 +46,7 @@ export default function ServiceList() {
   };
 
   const handleRowClick = (value: string) => {
-    navigate(PATH_DASHBOARD.admin.contract.edit(value));
+    navigate(PATH_DASHBOARD.admin.service.edit(value));
   };
 
   const data = [];

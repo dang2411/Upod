@@ -1,26 +1,35 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
-import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
-import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
 import TechnicianTableToolbar from 'src/sections/@dashboard/technician/list/TechnicianTableToolbar';
 import TechnicianTableRow from 'src/sections/@dashboard/technician/list/TechnicianTableRow';
+import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'skill', label: 'Skill', align: 'left' },
-  { id: 'area', label: 'Area', align: 'left' },
+  { id: 'email', label: 'Email', align: 'left' },
+  { id: 'address', label: 'Address', align: 'left' },
+  { id: 'phone', label: 'Phone', align: 'left' },
 ];
-
 
 export default function TechnicianList() {
   const { themeStretch } = useSettings();
@@ -57,7 +66,7 @@ export default function TechnicianList() {
   } = useTable();
   const fetch = useCallback(async () => {
     try {
-      const response: any = await axiosInstance.get('/api/agencies/get_list_agencies', {
+      const response: any = await axiosInstance.get('/api/technicians/get_list_technicians', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
 
@@ -66,8 +75,8 @@ export default function TechnicianList() {
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
         code: x.code,
-        name: x.agency_name,
-        company: x.customer.name,
+        name: x.technician_name,
+        mail: x.email,
         address: x.address,
         phone: x.telephone,
       }));

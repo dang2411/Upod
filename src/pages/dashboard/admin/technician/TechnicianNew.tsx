@@ -3,6 +3,7 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import TechnicianNewEditForm from 'src/sections/@dashboard/technician/form/TechnicianNewEditForm';
 
 export default function TechnicianNew() {
   const { themeStretch } = useSettings();
@@ -24,6 +25,7 @@ export default function TechnicianNew() {
             { name: 'New' },
           ]}
         />
+        <TechnicianNewEditForm isEdit={false} currentTechnician={null} />
       </Container>
     </Page>
   );

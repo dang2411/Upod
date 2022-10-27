@@ -4,6 +4,7 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import CompanyNewEditForm from 'src/sections/@dashboard/company/form/CompanyNewEditForm';
 
 export default function CompanyDetail() {
   const { themeStretch } = useSettings();

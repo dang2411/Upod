@@ -26,6 +26,14 @@ type TitleSectionProps = {
   label: string;
   status: RequestStatus;
 };
+function TitleSection({ label, status }: TitleSectionProps) {
+  return (
+    <Stack direction="row" spacing={2}>
+      <Typography variant="subtitle1">{label}</Typography>
+      {parseStatus(status)}
+    </Stack>
+  );
+}
 
 const parseStatus = (status: RequestStatus) => {
   if (status === 'pending') {
@@ -45,15 +53,6 @@ const parseStatus = (status: RequestStatus) => {
   }
   return <Chip label="Default" size="small" />;
 };
-
-function TitleSection({ label, status }: TitleSectionProps) {
-  return (
-    <Stack direction="row" spacing={2}>
-      <Typography variant="subtitle1">{label}</Typography>
-      {parseStatus(status)}
-    </Stack>
-  );
-}
 
 type Props = {
   currentRequest: any;

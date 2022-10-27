@@ -3,6 +3,7 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import CompanyNewEditForm from 'src/sections/@dashboard/company/form/CompanyNewEditForm';
 
 export default function CompanyNew() {
   const { themeStretch } = useSettings();
@@ -23,7 +24,8 @@ export default function CompanyNew() {
             },
             { name: 'New' },
           ]}
-        />
+        />{' '}
+        <CompanyNewEditForm isEdit={false} currentCompany={null} />
       </Container>
     </Page>
   );
