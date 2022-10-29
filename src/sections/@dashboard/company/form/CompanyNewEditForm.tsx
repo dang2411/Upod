@@ -3,6 +3,8 @@ import { useSnackbar } from 'notistack';
 import useAuth from 'src/hooks/useAuth';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
+import { Box, Card, Stack, Typography } from '@mui/material';
 
 type Props = {
   currentCompany: any;
@@ -22,7 +24,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const defaultValues = {
     code: currentCompany?.code || '',
-    name: currentCompany?.name,
+    name: currentCompany?.name || '',
     account: currentCompany?.account,
     mail: currentCompany?.mail || '',
     address: currentCompany?.address || '',
@@ -35,5 +37,35 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     defaultValues,
   });
 
-  return <div />;
+  const { handleSubmit, getValues } = methods;
+
+  const onSubmit = (data: any) => {
+    //
+  };
+
+  return (
+    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+      <Card sx={{ p: 3 }}>
+        <Stack spacing={3}>
+          <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
+            {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
+            <RHFTextField name="code" label="Code" disabled />
+            <RHFTextField name="name" label="Name" />
+            <RHFTextField name="mail" label="Mail" />
+            <RHFTextField name="address" label="Address" />
+            <RHFTextField name="phone" label="Phone" />
+            <RHFTextField name="description" label="Description" />
+            <RHFAutocomplete
+              name="account"
+              label="Account"
+              variant="outlined"
+              options={[]}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+        </Stack>
+      </Card>
+    </FormProvider>
+  );
 }

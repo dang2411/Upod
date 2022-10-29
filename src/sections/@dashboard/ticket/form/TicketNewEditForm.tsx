@@ -27,5 +27,11 @@ export default function TicketNewEditForm({ currentTicket, isEdit }: Props) {
     defaultValues,
   });
 
+  const { handleSubmit, getValues } = methods;
+
+  const onSubmit = (data: any) => {
+    //
+  };
+
   return <div />;
 }

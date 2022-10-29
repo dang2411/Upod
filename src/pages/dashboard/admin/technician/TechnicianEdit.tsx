@@ -40,11 +40,12 @@ export default function TechnicianEdit() {
         address: response.data.address,
         rating: response.data.rating_avg,
         busy: response.data.is_busy,
-        service: {
-          id: response.data.service.id,
-          name: response.data.service.service_name,
-        },
+        service: response.data.service.map((x) => ({
+          id: x.id,
+          name: x.service_name,
+        })),
       };
+      console.log(result);
       if (response.status === 200) {
         setData(result);
       } else {

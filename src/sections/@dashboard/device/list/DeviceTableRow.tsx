@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function DeviceTableRow({ row, onRowClick }: Props) {
-  const { code, name, type, createdAt } = row;
+  const { code, name, type } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -17,7 +17,6 @@ export default function DeviceTableRow({ row, onRowClick }: Props) {
       </TableCell>
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{type}</TableCell>
-      <TableCell align="left">{createdAt} </TableCell>
     </TableRow>
   );
 }

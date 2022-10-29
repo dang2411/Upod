@@ -68,8 +68,8 @@ export default function AccountEdit() {
             { name: title },
           ]}
         />
+        <AccountNewEditForm isEdit={true} currentAccount={data} />
       </Container>
-      <AccountNewEditForm isEdit={true} currentAccount={data} />
     </Page>
   );
 }

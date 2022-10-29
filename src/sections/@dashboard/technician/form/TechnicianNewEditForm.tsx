@@ -2,9 +2,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import useAuth from 'src/hooks/useAuth';
 import * as Yup from 'yup';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Box, Card, Stack, Typography } from '@mui/material';
+import { Autocomplete, Box, Card, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'src/utils/axios';
 
@@ -71,13 +71,15 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     address: currentTechnician?.address || '',
     rating: currentTechnician?.rating_avg || '',
     busy: currentTechnician?.Busy || '',
-    service: currentTechnician?.service,
+    service: currentTechnician?.service || [],
   };
+
   const methods = useForm({
     resolver: yupResolver(technicianSchema),
     defaultValues,
   });
-  const { handleSubmit, getValues } = methods;
+
+  const { handleSubmit, getValues, control } = methods;
 
   const onSubmit = (data: any) => {
     //
@@ -85,6 +87,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   useEffect(() => {
     fetchAreas();
+    fetchServices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -93,7 +96,6 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
       <Card sx={{ p: 3 }}>
         <Stack spacing={3}>
           <Typography variant="subtitle1">{getValues('code')}</Typography>
-
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             <RHFTextField name="name" label="Name" />
             <RHFTextField name="telephone" label="Telephone" />
@@ -111,14 +113,33 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
             />
 
             <RHFTextField name="account" label="Account" disabled />
-            {/* <RHFAutocomplete
+            <Controller
               name="service"
-              label="Service"
-              variant="outlined"
-              options={services}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-            /> */}
+              control={control}
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <Autocomplete
+                  multiple
+                  options={services}
+                  getOptionLabel={(option: any) => option.name}
+                  value={value}
+                  onChange={(_: any, newValue: any) => {
+                    onChange(newValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={!!error}
+                      helperText={error?.message}
+                      label="Service"
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: <>{params.InputProps.endAdornment}</>,
+                      }}
+                    />
+                  )}
+                />
+              )}
+            />
           </Box>
         </Stack>
       </Card>
