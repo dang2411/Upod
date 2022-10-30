@@ -27,7 +27,7 @@ import axios from 'axios';
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'company', label: 'Company', align: 'left' },
+  { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'address', label: 'Address', align: 'left' },
   { id: 'phone', label: 'Phone', align: 'left' },
 ];
@@ -78,7 +78,7 @@ export default function AgencyList() {
         id: x.id,
         code: x.code,
         name: x.agency_name,
-        company: x.customer.name,
+        customer: x.customer.name,
         address: x.address,
         phone: x.telephone,
       }));

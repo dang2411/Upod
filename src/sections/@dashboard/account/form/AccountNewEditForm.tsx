@@ -51,25 +51,25 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const createAccount = useCallback(async (data: any) => {
     try {
-      await axios.post('/api/accounts/create_account', data);
-      enqueueSnackbar('Create account successfully', { variant: 'success' });
+      const response = await axios.post('/api/accounts/create_account', data);
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Create account successfully', { variant: 'success' });
+      }
     } catch (error) {
       enqueueSnackbar('Create account failed', { variant: 'error' });
-      console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateAccount = useCallback(async (data: any) => {
     try {
-      await axios.put(
-        '/api/accounts/update_account_by_id',
-        { role_id: data!.role_id, password: data.password },
-        {
-          params: { id: currentAccount!.id },
-        }
-      );
-      enqueueSnackbar('Update account successfully', { variant: 'success' });
+      const response = await axios.put('/api/accounts/update_account_by_id', data, {
+        params: { id: currentAccount!.id },
+      });
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Update account successfully', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.account.root);
+      }
     } catch (error) {
       enqueueSnackbar('Update account failed', { variant: 'error' });
       console.error(error);
@@ -79,15 +79,19 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const deleteAccount = useCallback(async () => {
     try {
-      await axios.put(
+      const response = await axios.put(
         '/api/accounts/disable_account_by_id',
         {},
         {
           params: { id: currentAccount!.id },
         }
       );
-      enqueueSnackbar('Delete account successfully', { variant: 'success' });
-      navigate(PATH_DASHBOARD.admin.account.root);
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Delete account successfully', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.account.root);
+      } else {
+        enqueueSnackbar('Delete account failed', { variant: 'error' });
+      }
     } catch (error) {
       enqueueSnackbar('Delete account failed', { variant: 'error' });
       console.error(error);

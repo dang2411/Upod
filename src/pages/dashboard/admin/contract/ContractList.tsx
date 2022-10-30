@@ -47,7 +47,7 @@ export default function ContractList() {
   };
 
   const handleRowClick = (value: string) => {
-    navigate(PATH_DASHBOARD.admin.contract.edit(value));
+    navigate(PATH_DASHBOARD.admin.contract.view(value));
   };
 
   const [data, setData] = useState<any[]>([]);

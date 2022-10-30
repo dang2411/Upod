@@ -3,18 +3,25 @@ import { useSnackbar } from 'notistack';
 import useAuth from 'src/hooks/useAuth';
 import * as Yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
-import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
+import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import { Autocomplete, Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'src/utils/axios';
 import { LoadingButton } from '@mui/lab';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
+import { phoneNumber } from 'src/_mock/phoneNumber';
 
 type Props = {
   currentTechnician: any;
   isEdit: boolean;
 };
+
+const GENDER_OPTIONS = [
+  { text: 'Male', value: '0' },
+  { text: 'Female', value: '1' },
+  { text: 'Other', value: '2' },
+];
 
 export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Props) {
   const navigate = useNavigate();
@@ -23,8 +30,6 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   });
 
   const [areas, setAreas] = useState([]);
-
-  const [accounts, setAccounts] = useState([]);
 
   const [services, setServices] = useState([]);
 
@@ -67,13 +72,12 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     code: currentTechnician?.code || '',
     name: currentTechnician?.name || '',
     area: currentTechnician?.area,
-    account: currentTechnician?.account?.name,
-    telephone: currentTechnician?.telephone || '',
+    account: currentTechnician?.account,
+    phone: currentTechnician?.telephone || '',
     email: currentTechnician?.email || '',
     gender: currentTechnician?.gender || '',
     address: currentTechnician?.address || '',
-    rating: currentTechnician?.rating_avg || '',
-    busy: currentTechnician?.busy || '',
+    rating: currentTechnician?.rating || '',
     service: currentTechnician?.service || [],
   };
 
@@ -89,17 +93,63 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     formState: { isSubmitting },
   } = methods;
 
+  const [accounts, setAccounts] = useState([]);
+
+  const fetchAccount = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/accounts/get_all_accounts', {
+        params: { pageNumber: 1, pageSize: 1000 },
+      });
+      setAccounts(response.data.map((x) => ({ id: x.id, name: x.username })));
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createTechnician = useCallback(async (data: any) => {
+    try {
+      const response = await axios.post('/api/technicians/create_technician', data);
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Create technician successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Create technician failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateTechnician = useCallback(async (data: any) => {
+    try {
+      const response = await axios.put('/api/technicians/update_technician_by_id', data, {
+        params: { id: currentTechnician!.id },
+      });
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Update technician successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Update technician failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const deleteTechnician = useCallback(async () => {
     try {
-      await axios.put(
+      const response = await axios.put(
         '/api/technicians/disable_technician_by_id',
         {},
         {
           params: { id: currentTechnician!.id },
         }
       );
-      enqueueSnackbar('Delete technician successfully', { variant: 'success' });
-      navigate(PATH_DASHBOARD.admin.technician.root);
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Delete account successfully', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.technician.root);
+      } else {
+        enqueueSnackbar('Delete account failed', { variant: 'error' });
+      }
     } catch (error) {
       enqueueSnackbar('Delete technician failed', { variant: 'error' });
       console.error(error);
@@ -108,7 +158,34 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   }, []);
 
   const onSubmit = (data: any) => {
-    //
+    if (isEdit) {
+      // update
+      const params = {
+        area_id: data!.area.id,
+        technician_name: data.name,
+        account_id: data.account.id,
+        telephone: data.phone,
+        email: data.email,
+        gender: data.gender,
+        address: data.address,
+        rating_avg: data.rating,
+        service_id: data.service.map((x: any) => x.id),
+      };
+      updateTechnician(params);
+    } else {
+      const params = {
+        area_id: data!.area.id,
+        technician_name: data.name,
+        account_id: data.account.id,
+        telephone: data.phone,
+        email: data.email,
+        gender: data.gender,
+        address: data.address,
+        rating_avg: data.rating,
+        service_id: data.service.map((x: any) => x.id),
+      };
+      createTechnician(params);
+    }
   };
 
   const disable = !isEdit && currentTechnician != null;
@@ -120,6 +197,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   useEffect(() => {
     fetchAreas();
     fetchServices();
+    fetchAccount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -130,11 +208,17 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
           <Typography variant="subtitle1">{getValues('code')}</Typography>
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             <RHFTextField name="name" label="Name" disabled={disable} />
-            <RHFTextField name="telephone" label="Telephone" disabled={disable} />
+            <RHFTextField name="phone" label="Phone" disabled={disable} />
+            <RHFSelect disabled={disable} name="gender" label="Gender">
+              {GENDER_OPTIONS.map((option) => (
+                <option key={option.text} value={option.value}>
+                  {option.text}
+                </option>
+              ))}
+            </RHFSelect>
             <RHFTextField name="email" label="Email" disabled={disable} />
             <RHFTextField name="rating" label="Average Rating" disabled={disable} />
             <RHFTextField name="address" label="Address" disabled={disable} />
-            <RHFTextField name="busy" label="Busy" disabled={disable} />
             <RHFAutocomplete
               name="area"
               label="Area"
@@ -144,8 +228,15 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
               InputLabelProps={{ shrink: true }}
               disabled={disable}
             />
-
-            <RHFTextField name="account" label="Account" disabled />
+            <RHFAutocomplete
+              name="account"
+              label="Account"
+              variant="outlined"
+              options={accounts}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              disabled={disable}
+            />
             <Controller
               name="service"
               control={control}
@@ -155,7 +246,6 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                   options={services}
                   getOptionLabel={(option: any) => option.name}
                   isOptionEqualToValue={(option: any, value: any) => {
-                    console.log({ option, value });
                     return option.id === value.id;
                   }}
                   value={value}

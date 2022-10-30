@@ -341,8 +341,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   };
 
   const disabled = getValues('status') !== 'pending';
-
-  console.log({ createdBy: currentRequest?.createdBy, id: user!.account!.id });
+  console.log(services);
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>

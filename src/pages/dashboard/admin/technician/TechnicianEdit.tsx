@@ -45,7 +45,6 @@ export default function TechnicianEdit() {
           name: x.service_name,
         })),
       };
-      console.log(result);
       if (response.status === 200) {
         setData(result);
       } else {

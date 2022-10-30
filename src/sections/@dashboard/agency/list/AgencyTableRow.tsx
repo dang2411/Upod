@@ -6,7 +6,7 @@ type Props = {
 };
 
 export default function AgencyTableRow({ row, onRowClick }: Props) {
-  const { code, name, customer, address, telephone } = row;
+  const { code, name, customer, address, phone } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -17,7 +17,7 @@ export default function AgencyTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{customer} </TableCell>
       <TableCell align="left">{address} </TableCell>
-      <TableCell align="left">{telephone} </TableCell>
+      <TableCell align="left">{phone} </TableCell>
     </TableRow>
   );
 }

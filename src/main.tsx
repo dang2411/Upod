@@ -11,13 +11,16 @@ import { store, persistor } from './redux/store';
 // contexts
 import { SettingsProvider } from './contexts/SettingsContext';
 import { CollapseDrawerProvider } from './contexts/CollapseDrawerContext';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <AuthProvider>
-      <HelmetProvider>
-        <ReduxProvider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <AuthProvider>
+        <HelmetProvider>
+          <ReduxProvider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
               <SettingsProvider>
                 <CollapseDrawerProvider>
                   <BrowserRouter>
@@ -25,11 +28,10 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                   </BrowserRouter>
                 </CollapseDrawerProvider>
               </SettingsProvider>
-          </PersistGate>
-        </ReduxProvider>
-      </HelmetProvider>
-    </AuthProvider>
+            </PersistGate>
+          </ReduxProvider>
+        </HelmetProvider>
+      </AuthProvider>
+    </LocalizationProvider>
   </React.StrictMode>
 );
-
-console.log('index.tsx');

@@ -35,8 +35,11 @@ export default function ContractEdit() {
         description: response.data.description,
         frequencyMaintain: response.data.frequency_maintain,
         service: response.data.service.map((x) => ({
-          id: x.id,
-          name: x.service_name,
+          value: {
+            id: x.id,
+            name: x.service_name,
+          },
+          frequencyMaintain: x.frequency_maintain,
         })),
       };
       if (response.status === 200) {

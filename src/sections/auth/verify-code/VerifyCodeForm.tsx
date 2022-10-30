@@ -119,7 +119,6 @@ export default function VerifyCodeForm() {
   const onSubmit = async (data: FormValuesProps) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      console.log('data', Object.values(data).join(''));
 
       enqueueSnackbar('Verify success!');
 

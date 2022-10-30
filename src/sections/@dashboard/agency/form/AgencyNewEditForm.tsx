@@ -95,18 +95,19 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const createAgency = useCallback(async (data: any) => {
     try {
-      await axios.post('/api/agencies/create_agency', data);
-      enqueueSnackbar('Create agenycies successfully', { variant: 'success' });
+      const response = await axios.post('/api/agencies/create_agency', data);
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Create agenycy successfully', { variant: 'success' });
+      }
     } catch (error) {
-      enqueueSnackbar('Create agencies failed', { variant: 'error' });
-      console.error(error);
+      enqueueSnackbar('Create agenycy failed', { variant: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateAgency = useCallback(async (data: any) => {
     try {
-      await axios.put(
+      const response = await axios.put(
         '/api/agencies/update_agency_by_id',
         {
           agency_name: data!.agency_name,
@@ -120,7 +121,9 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
           params: { id: currentAgency!.id },
         }
       );
-      enqueueSnackbar('Update agencies successfully', { variant: 'success' });
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Update agencies successfully', { variant: 'success' });
+      }
     } catch (error) {
       enqueueSnackbar('Update agencies failed', { variant: 'error' });
       console.error(error);
@@ -130,15 +133,19 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const deleteAgency = useCallback(async () => {
     try {
-      await axios.put(
+      const response = await axios.put(
         '/api/agencies/disable_agency_by_id',
         {},
         {
           params: { id: currentAgency!.id },
         }
       );
-      enqueueSnackbar('Delete agency successfully', { variant: 'success' });
-      navigate(PATH_DASHBOARD.admin.agency.root);
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Delete account successfully', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.agency.root);
+      } else {
+        enqueueSnackbar('Delete agency successfully', { variant: 'success' });
+      }
     } catch (error) {
       enqueueSnackbar('Delete agency failed', { variant: 'error' });
       console.error(error);
