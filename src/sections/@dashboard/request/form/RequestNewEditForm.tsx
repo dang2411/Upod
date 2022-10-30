@@ -4,7 +4,7 @@ import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mu
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { RequestStatus } from 'src/@types/request';
 import { Technician } from 'src/@types/user';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
@@ -26,6 +26,7 @@ type TitleSectionProps = {
   label: string;
   status: RequestStatus;
 };
+
 function TitleSection({ label, status }: TitleSectionProps) {
   return (
     <Stack direction="row" spacing={2}>
@@ -62,6 +63,9 @@ type Props = {
 export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   const RequestSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    service: Yup.object().required('Service is required'),
+    priority: Yup.number().required('Priority is required').min(1).max(3),
+    agency: Yup.object().required('Agency is required'),
   });
 
   const navigate = useNavigate();
@@ -88,15 +92,13 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const [services, setServices] = useState([]);
 
-  const _empty = { id: '', name: '' };
-
   const defaultValues = {
     code: currentRequest?.code || '',
     name: currentRequest?.name || '',
-    service: currentRequest?.service || _empty, // fetch model
+    service: currentRequest?.service,
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
-    agency: currentRequest?.agency || _empty, // fetch model
+    agency: currentRequest?.agency,
     priority: currentRequest?.priority || 2,
     description: currentRequest?.description || '',
     status: currentRequest?.status || 'pending',
@@ -303,8 +305,10 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   }, [isEdit, agencies, services, currentRequest]);
 
   useEffect(() => {
-    setValue('address', getValues('agency').address);
-    setValue('phone', getValues('agency').phone);
+    if (getValues('agency')) {
+      setValue('address', getValues('agency').address);
+      setValue('phone', getValues('agency').phone);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch('agency')]);
 

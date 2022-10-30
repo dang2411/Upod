@@ -134,6 +134,7 @@ export default function NewPasswordForm() {
   const onSubmit = async (data: FormValuesProps) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log('data', {
         email: data.email,
         code: `${data.code1}${data.code2}${data.code3}${data.code4}${data.code5}${data.code6}`,
         password: data.password,
@@ -148,6 +149,7 @@ export default function NewPasswordForm() {
       console.error(error);
     }
   };
+
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>

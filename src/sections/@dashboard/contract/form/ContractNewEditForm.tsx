@@ -1,8 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Card, Grid, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { getRandomValues } from 'crypto';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
@@ -37,13 +36,23 @@ const PRIORITY_OPTIONS = [
 
 export default function ContractNewEditForm({ currentContract, isEdit }: Props) {
   const navigate = useNavigate();
+
   const ContractSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    service: Yup.array().of(
+      Yup.object().shape({
+        value: Yup.object().required('Service is required'),
+        frequencyMaintain: Yup.number()
+          .required('Frequency maintain is required')
+          .min(1, 'Frequency maintain must be greater than 0'),
+      })
+    ).length(1, 'At least 1 service is required'),
   });
 
   const { user } = useAuth();
 
   const [services, setServices] = useState([]);
+
   const [customers, setCustomers] = useState([]);
 
   const isCustomer = user?.account?.roleName === 'Customer';
