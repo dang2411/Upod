@@ -112,11 +112,11 @@ export default function DeviceList() {
             },
             { name: 'Listing' },
           ]}
-          action={
-            <Button variant="contained" onClick={() => handleBtnClick()}>
-              Create
-            </Button>
-          }
+          // action={
+          //   <Button variant="contained" onClick={() => handleBtnClick()}>
+          //     Create
+          //   </Button>
+          // }
         />
 
         <Card>

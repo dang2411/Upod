@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function CompanyTableRow({ row, onRowClick }: Props) {
-  const { code, name, address, phone, description, createDate } = row;
+  const { code, name, address, phone, createDate } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -18,7 +18,6 @@ export default function CompanyTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{address} </TableCell>
       <TableCell align="left">{phone} </TableCell>
-      <TableCell align="left">{description} </TableCell>
       <TableCell align="left">{format(new Date(createDate), 'dd/MM/yyyy')} </TableCell>
     </TableRow>
   );

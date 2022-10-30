@@ -6,7 +6,8 @@ import { useCallback, useState, useEffect } from 'react';
 import axios from 'src/utils/axios';
 import { Controller, useForm } from 'react-hook-form';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Autocomplete, Box, Card, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 type Props = {
   currentContract: any;
@@ -61,7 +62,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     defaultValues,
   });
 
-  const { handleSubmit, getValues, control } = methods;
+  const {
+    handleSubmit,
+    getValues,
+    control,
+    formState: { isSubmitting },
+  } = methods;
 
   const onSubmit = (data: any) => {
     //
@@ -71,6 +77,13 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     fetchServices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const disable = !isEdit && currentContract != null;
+
+  const onDeleteClick = () => {
+    // deleteAccount();
+  };
+
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
@@ -78,11 +91,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
             <RHFTextField name="code" label="Code" disabled />
-            <RHFTextField name="name" label="Name" />
-            <RHFTextField name="startDate" label="Start Date" />
-            <RHFTextField name="endDate" label="End Date" />
-            <RHFTextField name="description" label="Description" />
-            <RHFTextField name="frequencyMaintain" label="Frequency Maintain" />
+            <RHFTextField name="name" label="Name" disabled={disable} />
+            <RHFTextField name="startDate" label="Start Date" disabled={disable} />
+            <RHFTextField name="endDate" label="End Date" disabled={disable} />
+            <RHFTextField name="description" label="Description" disabled={disable} />
+            <RHFTextField name="frequencyMaintain" label="Frequency Maintain" disabled={disable} />
             <Controller
               name="service"
               control={control}
@@ -112,6 +125,16 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
             />
           </Box>
         </Stack>
+        {!disable && (
+          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+              Delete
+            </Button>
+            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+              {isEdit ? 'Save' : 'Create'}
+            </LoadingButton>
+          </Stack>
+        )}
       </Card>
     </FormProvider>
   );

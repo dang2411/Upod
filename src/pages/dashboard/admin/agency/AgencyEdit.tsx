@@ -24,10 +24,20 @@ export default function AgencyEdit() {
       });
       const result = {
         id: response.data.id,
+        code: response.data.code,
         name: response.data.agency_name,
-        customer: response.data.customer,
-        area: response.data.area.area_name,
-        description: response.data.area.description,
+        customer: {
+          id: response.data.customer.id,
+          name: response.data.customer.name,
+        },
+        area: {
+          id: response.data.area.id,
+          name: response.data.area.area_name,
+        },
+        technician: {
+          id: response.data.technician.id,
+          name: response.data.technician.name,
+        },
         address: response.data.address,
         telephone: response.data.telephone,
         manager: response.data.manager_name,

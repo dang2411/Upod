@@ -4,8 +4,9 @@ import useAuth from 'src/hooks/useAuth';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Box, Card, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 type Props = {
   currentService: any;
@@ -38,9 +39,18 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     defaultValues,
   });
 
-  const { handleSubmit, getValues } = methods;
+  const {
+    handleSubmit,
+    getValues,
+    formState: { isSubmitting },
+  } = methods;
 
   const onSubmit = (data: any) => {};
+  const disable = !isEdit && currentService != null;
+
+  const onDeleteClick = () => {
+    // deleteAccount();
+  };
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -48,10 +58,11 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
         <Stack spacing={3}>
           {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
-            <RHFTextField name="name" label="Name" />
-            <RHFTextField name="telephone" label="Telephone" />
+            <RHFTextField name="name" label="Name" disabled={disable} />
+            <RHFTextField name="telephone" label="Telephone" disabled={disable} />
             <RHFAutocomplete
               name="area"
+              disabled={disable}
               label="Area"
               variant="outlined"
               options={areas}
@@ -62,6 +73,16 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
             <RHFTextField name="account" label="Account" disabled />
           </Box>
         </Stack>
+        {!disable && (
+          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+              Delete
+            </Button>
+            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+              {isEdit ? 'Save' : 'Create'}
+            </LoadingButton>
+          </Stack>
+        )}
       </Card>
     </FormProvider>
   );

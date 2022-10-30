@@ -67,6 +67,7 @@ export default function TechnicianEdit() {
   if (!data) {
     return <div />;
   }
+
   return (
     <Page title="Technician: Edit">
       <Container maxWidth={themeStretch ? false : 'xl'}>
