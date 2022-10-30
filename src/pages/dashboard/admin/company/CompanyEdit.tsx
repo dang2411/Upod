@@ -1,12 +1,12 @@
 import { Container } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import CompanyNewEditForm from 'src/sections/@dashboard/company/form/CompanyNewEditForm';
-import axiosInstance from 'src/utils/axios';
+import { useCallback, useEffect, useState } from 'react';
+import axios from 'src/utils/axios';
 
 export default function CompanyEdit() {
   const { themeStretch } = useSettings();
@@ -19,14 +19,17 @@ export default function CompanyEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(`/api/customers/get_customer_details_by_id`, {
+      const response = await axios.get(`/api/customers/get_customer_details_by_id`, {
         params: { id },
       });
       const result = {
         id: response.data[0].id,
         code: response.data[0].code,
         name: response.data[0].name,
-        account: response.data[0].account,
+        account: {
+          id: response.data[0].account.id,
+          name: response.data[0].account.username,
+        },
         mail: response.data[0].mail,
         address: response.data[0].address,
         phone: response.data[0].phone,

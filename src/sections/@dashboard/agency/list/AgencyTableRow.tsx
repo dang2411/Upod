@@ -1,5 +1,4 @@
 import { TableCell, TableRow, Typography } from '@mui/material';
-import { format } from 'date-fns';
 
 type Props = {
   row: any;
@@ -7,7 +6,7 @@ type Props = {
 };
 
 export default function AgencyTableRow({ row, onRowClick }: Props) {
-  const { code, name, company, address, phone } = row;
+  const { code, name, customer, address, telephone } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -16,9 +15,9 @@ export default function AgencyTableRow({ row, onRowClick }: Props) {
         </Typography>
       </TableCell>
       <TableCell align="left">{name} </TableCell>
-      <TableCell align="left">{company} </TableCell>
+      <TableCell align="left">{customer} </TableCell>
       <TableCell align="left">{address} </TableCell>
-      <TableCell align="left">{phone} </TableCell>
+      <TableCell align="left">{telephone} </TableCell>
     </TableRow>
   );
 }

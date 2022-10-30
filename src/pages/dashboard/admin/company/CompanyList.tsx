@@ -1,5 +1,15 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
@@ -18,7 +28,6 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'address', label: 'Address', align: 'left' },
   { id: 'phone', label: 'Phone', align: 'left' },
-  { id: 'description', label: 'Description', align: 'left' },
   { id: 'createDate', label: 'CreateDate', align: 'left' },
 ];
 
@@ -63,7 +72,7 @@ export default function CompanyList() {
       });
 
       setTotal(response.total);
-// 
+      //
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
         code: x.code,

@@ -25,8 +25,10 @@ export default function AccountEdit() {
       const result = {
         id: response.data.id,
         code: response.data.code,
-        roleId: response.data.role.id,
-        roleName: response.data.role.role_name,
+        role: {
+          id: response.data.role.id,
+          name: response.data.role.role_name,
+        },
         username: response.data.username,
         isDelete: response.data.is_delete,
       };
@@ -68,8 +70,8 @@ export default function AccountEdit() {
             { name: title },
           ]}
         />
+        <AccountNewEditForm isEdit={true} currentAccount={data} />
       </Container>
-      <AccountNewEditForm isEdit={true} currentAccount={data} />
     </Page>
   );
 }

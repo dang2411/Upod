@@ -27,7 +27,6 @@ const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'type', label: 'Type', align: 'left' },
-  { id: 'createdAt', label: 'CreatedAt', align: 'left' },
 ];
 
 export default function DeviceList() {
@@ -113,11 +112,11 @@ export default function DeviceList() {
             },
             { name: 'Listing' },
           ]}
-          action={
-            <Button variant="contained" onClick={() => handleBtnClick()}>
-              Create
-            </Button>
-          }
+          // action={
+          //   <Button variant="contained" onClick={() => handleBtnClick()}>
+          //     Create
+          //   </Button>
+          // }
         />
 
         <Card>
