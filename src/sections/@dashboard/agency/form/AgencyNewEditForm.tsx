@@ -20,7 +20,13 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const navigate = useNavigate();
 
   const AgencySchema = Yup.object().shape({
-    // name: Yup.string().required('Name is required'),
+    name: Yup.string().required('Name is required'),
+    address: Yup.string().required('Address is required'),
+    phone: Yup.string().required('Phone is required'),
+    area: Yup.string().required('Area is required'),
+    manager: Yup.string().required('Manager name is required'),
+    customer: Yup.object().required('Customer is required'),
+    technician: Yup.object().required('Technician is required'),
   });
 
   const { user } = useAuth();
@@ -39,7 +45,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     customer: currentAgency?.customer,
     area: currentAgency?.area,
     address: currentAgency?.address || '',
-    telephone: currentAgency?.telephone || '',
+    phone: currentAgency?.telephone || '',
     manager: currentAgency?.manager || '',
     technician: currentAgency?.technician,
   };
@@ -202,7 +208,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
             {isEdit && <RHFTextField name="code" label="Code" disabled />}
             <RHFTextField name="name" label="Name" disabled={disable} />
             <RHFTextField name="address" label="Address" disabled={disable} />
-            <RHFTextField name="telephone" label="Phone" disabled={disable} />
+            <RHFTextField name="phone" label="Phone" disabled={disable} />
             <RHFTextField name="manager" label="Manager" disabled={disable} />
             <RHFAutocomplete
               name="area"

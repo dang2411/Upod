@@ -21,6 +21,10 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const CompanySchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    email: Yup.string().required('Email is required'),
+    address: Yup.string().required('Address is required'),
+    phone: Yup.string().required('Phone is required'),
+    account: Yup.object().required('Account is required'),
   });
 
   const { user } = useAuth();
@@ -77,7 +81,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     code: currentCompany?.code || '',
     name: currentCompany?.name || '',
     account: currentCompany?.account,
-    mail: currentCompany?.mail || '',
+    email: currentCompany?.mail || '',
     address: currentCompany?.address || '',
     phone: currentCompany?.phone || '',
     description: currentCompany?.description || '',
@@ -159,9 +163,10 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
             {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
             {currentCompany != null && <RHFTextField name="code" label="Code" disabled />}
             <RHFTextField name="name" label="Name" />
-            <RHFTextField name="mail" label="Email" />
+            <RHFTextField name="email" label="Email" />
             <RHFTextField name="address" label="Address" />
             <RHFTextField name="phone" label="Phone" />
+            <RHFTextField name="description" label="Description" multiline minRows={4} />
             <RHFAutocomplete
               name="account"
               label="Account"
@@ -170,7 +175,6 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
               fullWidth
               InputLabelProps={{ shrink: true }}
             />
-            <RHFTextField name="description" label="Description" multiline minRows={4} />
           </Box>
         </Stack>
         {!disable && (

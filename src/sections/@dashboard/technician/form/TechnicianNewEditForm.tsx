@@ -27,6 +27,13 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   const navigate = useNavigate();
   const technicianSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    area: Yup.object().required('Area is required'),
+    account: Yup.object().required('Name is required'),
+    phone: Yup.string().required('Phone is required'),
+    gender: Yup.string().required('Gender is required'),
+    address: Yup.string().required('Address is required'),
+    service: Yup.object().required('Service is required'),
+    email: Yup.string().required('Email is required'),
   });
 
   const [areas, setAreas] = useState([]);

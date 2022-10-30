@@ -20,7 +20,9 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   const navigate = useNavigate();
 
   const AccountSchema = Yup.object().shape({
-    // name: Yup.string().required('Name is required'),
+    role: Yup.string().required('Role is required'),
+    username: Yup.string().required('Username is required'),
+    password: Yup.string().required('Password is required'),
   });
 
   const [roles, setRoles] = useState([]);

@@ -39,14 +39,19 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   const ContractSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    service: Yup.array().of(
-      Yup.object().shape({
-        value: Yup.object().required('Service is required'),
-        frequencyMaintain: Yup.number()
-          .required('Frequency maintain is required')
-          .min(1, 'Frequency maintain must be greater than 0'),
-      })
-    ).length(1, 'At least 1 service is required'),
+    service: Yup.array()
+      .of(
+        Yup.object().shape({
+          value: Yup.object().required('Service is required'),
+          frequencyMaintain: Yup.number()
+            .required('Frequency maintain is required')
+            .min(1, 'Frequency maintain must be greater than 0'),
+        })
+      )
+      .length(1, 'At least 1 service is required'),
+    customer: Yup.object().required('Name is required'),
+    startDate: Yup.date().required('Start date is required'),
+    endDate: Yup.date().required('End date is required'),
   });
 
   const { user } = useAuth();
