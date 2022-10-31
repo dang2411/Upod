@@ -1,31 +1,30 @@
 import {
-  Box,
-  Button,
-  Card,
+  Box, Card,
   Container,
   FormControlLabel,
   Switch,
   Table,
   TableBody,
   TableContainer,
-  TablePagination,
+  TablePagination
 } from '@mui/material';
-import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
-import Page from 'src/components/Page';
-import useSettings from 'src/hooks/useSettings';
-import { PATH_DASHBOARD } from 'src/routes/paths';
-import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
+import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
+import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
-import DeviceTableToolbar from 'src/sections/@dashboard/device/list/DeviceTableToolbar';
+import { PATH_DASHBOARD } from 'src/routes/paths';
 import DeviceTableRow from 'src/sections/@dashboard/device/list/DeviceTableRow';
+import DeviceTableToolbar from 'src/sections/@dashboard/device/list/DeviceTableToolbar';
 import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
+  { id: 'agency', label: 'Agency', align: 'left' },
   { id: 'type', label: 'Type', align: 'left' },
 ];
 
@@ -75,6 +74,7 @@ export default function DeviceList() {
         id: x.id,
         code: x.code,
         name: x.device_name,
+        agency: x.agency.agency_name,
         type: x.devicetype.device_type_name,
       }));
       setData(result);

@@ -201,7 +201,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   const onDeleteClick = () => {
     deleteContract();
   };
-  console.log(defaultValues);
+
+  const serviceList = services.filter(
+    (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)
+  ) as any[];
+
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
@@ -278,32 +282,35 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
             <Typography variant="h6" fontWeight={600}>
               Service
             </Typography>
-            {fields.map((_, index) => (
-              <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Box display="grid" sx={{ gridTemplateColumns: 'auto auto', flexGrow: 1, gap: 2 }}>
-                  <RHFAutocomplete
-                    name={`service[${index}].value`}
-                    label="Service"
-                    variant="outlined"
-                    options={services}
-                    fullWidth
-                    disabled={disable}
-                  />
-                  <RHFTextField
-                    name={`service[${index}].frequencyMaintain`}
-                    label="Frequency Maintain"
-                    disabled={disable}
-                  />
-                </Box>
-                {!disable && (
-                  <Box>
-                    <IconButton onClick={() => handleRemove(index)} color="error">
-                      <Iconify icon="fluent:delete-12-regular" sx={{ color: 'error.main' }} />
-                    </IconButton>
+            {fields.map((item: any, index) => (
+                <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <Box
+                    display="grid"
+                    sx={{ gridTemplateColumns: 'auto auto', flexGrow: 1, gap: 2 }}
+                  >
+                    <RHFAutocomplete
+                      name={`service[${index}].value`}
+                      label="Service"
+                      variant="outlined"
+                      options={item?.value ? [item!.value, ...serviceList] : serviceList}
+                      fullWidth
+                      disabled={disable}
+                    />
+                    <RHFTextField
+                      name={`service[${index}].frequencyMaintain`}
+                      label="Frequency Maintain"
+                      disabled={disable}
+                    />
                   </Box>
-                )}
-              </Box>
-            ))}
+                  {!disable && (
+                    <Box>
+                      <IconButton onClick={() => handleRemove(index)} color="error">
+                        <Iconify icon="fluent:delete-12-regular" sx={{ color: 'error.main' }} />
+                      </IconButton>
+                    </Box>
+                  )}
+                </Box>
+              ))}
           </Stack>
           {!disable && (
             <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={2}>
