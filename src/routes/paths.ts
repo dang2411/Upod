@@ -42,21 +42,19 @@ export const PATH_DASHBOARD = {
     agency: {
       root: path(ROOTS_CUSTOMER, '/agency'),
       list: path(ROOTS_CUSTOMER, '/agency/list'),
-      new: path(ROOTS_CUSTOMER, '/agency/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/agency/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/agency/view/${id}`),
+    },
+    device: {
+      view: (id: string) => path(ROOTS_CUSTOMER, `/device/view/${id}`),
     },
     contract: {
       root: path(ROOTS_CUSTOMER, '/contract'),
       list: path(ROOTS_CUSTOMER, '/contract/list'),
-      new: path(ROOTS_CUSTOMER, '/contract/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/contract/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/contract/view/${id}`),
     },
     ticket: {
       root: path(ROOTS_CUSTOMER, '/ticket'),
-      new: path(ROOTS_CUSTOMER, '/ticket/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/ticket/edit/${id}`),
+      list: path(ROOTS_CUSTOMER, '/ticket/list'),
       view: (id: string) => path(ROOTS_CUSTOMER, `/ticket/view/${id}`),
     },
   },

@@ -10,59 +10,49 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
-import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Priority, Request } from 'src/@types/request';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
-import { TableHeadCustom, TableNoData } from 'src/components/table';
-import useAuth from 'src/hooks/useAuth';
 import useSettings from 'src/hooks/useSettings';
-import useTable from 'src/hooks/useTable';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import RequestTableRow from 'src/sections/@dashboard/request/list/RequestTableRow';
-import RequestTableToolbar from 'src/sections/@dashboard/request/list/RequestTableToolbar';
-import axios from 'src/utils/axios';
+import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import useTable from 'src/hooks/useTable';
+import { useSnackbar } from 'notistack';
+import { TableHeadCustom, TableNoData } from 'src/components/table';
+import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
+import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
+import axiosInstance from 'src/utils/axios';
+import useAuth from 'src/hooks/useAuth';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
-  { id: 'name', label: 'RequestName', align: 'left' },
-  { id: 'agency', label: 'Agency', align: 'left' },
-  { id: 'service', label: 'Service', align: 'left' },
-  { id: 'createdAt', label: 'createdAt', align: 'left' },
-  { id: 'description', label: 'Description', align: 'left' },
-  { id: 'status', label: 'Status', align: 'left' },
+  { id: 'name', label: 'Name', align: 'left' },
+  { id: 'company', label: 'Company', align: 'left' },
+  { id: 'createdAt', label: 'Created At', align: 'left' },
+  { id: 'expiredAt', label: 'Expired At', align: 'left' },
 ];
 
-function parsePriority(value: number): Priority {
-  if (value <= 1) {
-    return 'Low';
-  } else if (value === 2) {
-    return 'Medium';
-  }
-  return 'High';
-}
-
-export default function RequestList() {
+export default function ContractList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState('');
 
+  const handleBtnClick = () => {
+    navigate(PATH_DASHBOARD.admin.contract.new);
+  };
+
   const handleFilterTextChange = (value: string) => {
-    //
     setFilterText(value);
   };
 
   const handleRowClick = (value: string) => {
-    //
-    navigate(PATH_DASHBOARD.customer.request.edit(value));
+    navigate(PATH_DASHBOARD.customer.contract.view(value));
   };
-  const handleBtnClick = () => {
-    navigate(PATH_DASHBOARD.customer.request.new);
-  };
+
+  const [data, setData] = useState<any[]>([]);
+
   const {
     dense,
     page,
@@ -76,43 +66,28 @@ export default function RequestList() {
     onChangeRowsPerPage,
   } = useTable();
 
-  const [data, setData] = useState<Request[]>([]);
-
-  const [total, setTotal] = useState(0);
-
-  const { enqueueSnackbar } = useSnackbar();
-
-  const isNotFound = !data.length;
-
   const { user } = useAuth();
 
   const fetch = useCallback(async () => {
     try {
       const id = user?.account.id;
-      const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
-        params: { id: id, pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      const response: any = await axiosInstance.get('/api/customers/get_contracts_by_customer_id', {
+        params: { id: id },
       });
-      console.log(response);
+
       setTotal(response.total);
-      // setData(response.data);
-      const result = Array.from(response.data).map(
-        (x: any) =>
-          ({
-            id: x.id,
-            code: x.code,
-            createdAt: new Date(x.create_date),
-            name: x.request_name,
-            service: { id: x.service.id, name: x.service.code },
-            agency: { id: x.agency.id, name: x.agency.code },
-            priority: parsePriority(x.priority),
-            description: x.description,
-            status: x.request_status.toLowerCase(),
-            technician: x.technician,
-          } as Request)
-      );
+
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.contract_name,
+        company: x.customer.name,
+        createdAt: x.start_date,
+        expiredAt: x.end_date,
+      }));
       setData(result);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       enqueueSnackbar('Cannot fetch data', { variant: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,31 +98,32 @@ export default function RequestList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 
+  const [total, setTotal] = useState(0);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isNotFound = !data.length;
+
   return (
-    <Page title="Request: Listing">
+    <Page title="Contract: Listing">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
-          heading="Request: Listing"
+          heading="Contract: Listing"
           links={[
             {
               name: 'Dashboard',
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Request',
-              href: PATH_DASHBOARD.customer.request.root,
+              name: 'Contract',
+              href: PATH_DASHBOARD.customer.contract.list,
             },
             { name: 'Listing' },
-          ]}
-          action={
-            <Button variant="contained" onClick={() => handleBtnClick()}>
-              Create
-            </Button>
-          }
+          ]}           
         />
 
         <Card>
-          <RequestTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
+          <ContractTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
@@ -160,15 +136,15 @@ export default function RequestList() {
               />
 
               <TableBody>
-                {data.map((row: Request) => (
-                  <RequestTableRow
+                {data.map((row: any) => (
+                  <ContractTableRow
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.id)}
                   />
                 ))}
-
-                {/* <TableEmptyRows
+                {/* 
+                <TableEmptyRows
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}

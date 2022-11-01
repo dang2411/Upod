@@ -98,8 +98,15 @@ export default function Router() {
               ],
             },
             {
-              path: 'request',
-              children: [{ path: 'view/:id', element: <CustomerContractDetailPage /> }],
+              path: 'contract',
+              children: [
+                {
+                  element: <Navigate to={PATH_DASHBOARD.customer.contract.list} replace />,
+                  index: true,
+                },
+                { path: 'list', element: <CustomerContractListPage /> },
+                { path: 'view/:id', element: <CustomerContractDetailPage /> },
+              ],
             },
             {
               path: 'agency',
@@ -299,9 +306,14 @@ const CustomerRequestListPage = Loadable(
   lazy(() => import('../pages/dashboard/customer/request/RequestList'))
 );
 
+const CustomerContractListPage = Loadable(
+  lazy(() => import('../pages/dashboard/customer/contract/ContractList'))
+);
+
 const CustomerAgencyDetailPage = Loadable(
   lazy(() => import('../pages/dashboard/customer/agency/AgencyDetail'))
 );
+
 const CustomerAgencyListPage = Loadable(
   lazy(() => import('../pages/dashboard/customer/agency/AgencyList'))
 );
