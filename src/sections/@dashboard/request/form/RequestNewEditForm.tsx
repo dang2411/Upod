@@ -345,7 +345,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   };
 
   const disabled = getValues('status') !== 'pending';
-  console.log(services);
+
+  const newPage = !isEdit && !currentRequest;
+
+  const editPage = isEdit && currentRequest;
+
+  const currentStatus = getValues('status');
+
+  const isCreatedByCurrentUser = currentRequest?.createdBy === user?.account?.id;
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -416,20 +423,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            {((!isCustomer && isEdit) || watch('status') !== 'pending') && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  value={watch('technician')?.name ?? ''}
-                  label="Technician"
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => setOpenConfirmDialog(true)}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{ readOnly: true }}
-                  disabled={disabled}
-                />
-              </Grid>
-            )}
+            <Grid item xs={12} md={6}>
+              <TextField
+                value={watch('technician')?.name ?? ''}
+                label="Technician"
+                variant="outlined"
+                fullWidth
+                onClick={() => setOpenConfirmDialog(true)}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ readOnly: true }}
+                disabled={disabled}
+              />
+            </Grid>
             <Grid item xs={12} md={6}>
               <RHFTextField
                 name="description"
@@ -443,56 +448,49 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               />
             </Grid>
           </Grid>
-          {getValues('status') === 'pending' && (
-            <Box mt={3} display="flex" justifyContent="end" textAlign="end">
+          <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
+            {/* Pending thì có quyền reject, comfirm, delete nếu là rq admin tạo
+            Preparing thì có quyền Cancel nếu là rq admin tạo, có quyền edit và re-asigntech và nút Save            
+            Resolved thì có thể re-open 
+            Pending thì cus có quyền edit, có nút Save, Delete
+            Preparing thì cus có nút Cancel
+            */}
+            {(currentStatus === 'pending' || currentStatus === 'preparing') &&
+              editPage && (
+                <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                  Save
+                </LoadingButton>
+              )}
+            {newPage && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                {isEdit ? 'Save' : 'Create'}
+                Create
               </LoadingButton>
-            </Box>
-          )}
-        </Card>
-        {isEdit && !isCustomer && getValues('status') === 'pending' && (
-          <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
-            {currentRequest!.createdBy === user!.account!.id && (
-              <>
-                <Button onClick={handleDeleteClick} color="error" variant="outlined">
-                  Delete
-                </Button>
-                <Button onClick={handleCancelClick} color="error" variant="outlined">
-                  Cancel
-                </Button>
-              </>
             )}
-            <Button onClick={handleShowReject} color="error" variant="outlined">
-              Reject
+
+            {/* <Button onClick={handleDeleteClick} color="error" variant="outlined">
+              Delete
             </Button>
-            {watch('technician') && (
+            <Button onClick={handleCancelClick} color="error" variant="outlined">
+              Cancel
+            </Button> */}
+            {currentStatus === 'pending' && !isCustomer && editPage &&(
+              <Button onClick={handleShowReject} color="error" variant="outlined">
+                Reject
+              </Button>
+            )}
+            {currentStatus === 'pending' && !isCustomer && watch('technician') && (
               <Button variant="contained" onClick={handleConfirm}>
                 Confirm
               </Button>
             )}
-          </Stack>
-        )}
-        {isEdit &&
-          currentRequest!.createdBy === user!.account!.id &&
-          getValues('status') === 'preparing' && (
-            <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
-              {currentRequest!.createdBy === user!.account!.id && (
-                <>
-                  <Button onClick={handleCancelClick} color="error" variant="outlined">
-                    Cancel
-                  </Button>
-                </>
-              )}
-            </Stack>
-          )}
-        {isEdit && !isCustomer && getValues('status') === 'resolved' && (
-          <Stack sx={{ width: '100%' }} direction="row" justifyContent="start" spacing={2}>
-            <Button onClick={handleReopenClick} color="info" variant="outlined">
-              Reopen
-            </Button>
-          </Stack>
-        )}
+            {currentStatus === 'resolved' && !isCustomer && (
+              <Button onClick={handleReopenClick} color="info" variant="outlined">
+                Reopen
+              </Button>
+            )}
+            {/* Khi technician != null */}
+          </Box>
+        </Card>
       </Stack>
       <TechnicianDialog
         open={openConfirmDialog}
