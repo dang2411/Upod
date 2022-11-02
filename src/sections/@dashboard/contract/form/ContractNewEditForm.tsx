@@ -202,6 +202,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     deleteContract();
   };
 
+  const editPage = isEdit && currentContract;
+
+  const newPage = !isEdit && !currentContract;
+
+  const detailPage = !isEdit && currentContract;
+
   const serviceList = services.filter(
     (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)
   ) as any[];
@@ -323,9 +329,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       )}
       {!disable && (
         <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-          <Button variant="outlined" color="error" onClick={onDeleteClick}>
-            Delete
-          </Button>
+          {editPage && !isCustomer && (
+            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+              Delete
+            </Button>
+          )}
           {!isEdit && (
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               Create

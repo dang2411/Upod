@@ -1,15 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Stack } from '@mui/material';
+import { Autocomplete, Box, Button, Card, ListItem, Stack, TextField } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
+import CreateAccountDialog from '../../account/CreateAccountDialog';
 
 type Props = {
   currentCompany: any;
@@ -29,7 +31,9 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const { user } = useAuth();
 
-  const [accounts, setAccounts] = useState([]);
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const [accounts, setAccounts] = useState([{ id: 'new', name: '' }]);
 
   const isCustomer = user?.account?.roleName === 'Customer';
 
@@ -37,11 +41,16 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const fetchAccount = useCallback(async () => {
     try {
-      const response = await axios.get('/api/accounts/get_all_accounts', {
-        params: { pageNumber: 1, pageSize: 1000 },
+      const response = await axios.get('/api/accounts/get_all_accounts_is_not_assign', {
+        params: { search: 'Customer', pageNumber: 1, pageSize: 1000 },
       });
-      setAccounts(response.data.map((x) => ({ id: x.id, name: x.username })));
-    } catch (error) {}
+      setAccounts([
+        { id: 'new', name: '' },
+        ...response.data.map((x) => ({ id: x.id, name: x.username })),
+      ]);
+    } catch (error) {
+      console.error(error);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -80,7 +89,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   const defaultValues = {
     code: currentCompany?.code || '',
     name: currentCompany?.name || '',
-    account: currentCompany?.account,
+    account: currentCompany?.account || { id: '', name: '' },
     email: currentCompany?.mail || '',
     address: currentCompany?.address || '',
     phone: currentCompany?.phone || '',
@@ -95,6 +104,8 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   const {
     handleSubmit,
     getValues,
+    setValue,
+    control,
     formState: { isSubmitting },
   } = methods;
 
@@ -144,6 +155,12 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     }
   };
 
+  const onCreateAccountSuccess = (account: any) => {
+    const { id, username: name } = account;
+    setValue('account', { id, name });
+    fetchAccount();
+  };
+
   useEffect(() => {
     fetchAccount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,39 +172,92 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     deleteCompany();
   };
 
+  const editPage = isEdit && currentCompany;
+
+  const newPage = !isEdit && !currentCompany;
+
+  const detailPage = !isEdit && currentCompany;
+
+  const handleCreateAccountClick = () => {
+    setOpenDialog(true);
+  };
+
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Card sx={{ p: 3 }}>
-        <Stack spacing={3}>
-          <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
-            {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
-            {currentCompany != null && <RHFTextField name="code" label="Code" disabled />}
-            <RHFTextField name="name" label="Name" />
-            <RHFTextField name="email" label="Email" />
-            <RHFTextField name="address" label="Address" />
-            <RHFTextField name="phone" label="Phone" />
-            <RHFTextField name="description" label="Description" multiline minRows={4} />
-            <RHFAutocomplete
-              name="account"
-              label="Account"
-              variant="outlined"
-              options={accounts}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-        </Stack>
-        {!disable && (
-          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              {isEdit ? 'Save' : 'Create'}
-            </LoadingButton>
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Card sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            <Box
+              display="grid"
+              sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}
+            >
+              {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
+              {currentCompany != null && <RHFTextField name="code" label="Code" disabled />}
+              <RHFTextField name="name" label="Name" />
+              <RHFTextField name="email" label="Email" />
+              <RHFTextField name="address" label="Address" />
+              <RHFTextField name="phone" label="Phone" />
+              <Controller
+                name="account"
+                control={control}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                  <Autocomplete
+                    isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+                    getOptionLabel={(option: any) => option.name}
+                    renderOption={(props, { id, name }: any) => {
+                      if (id === 'new') {
+                        return (
+                          <ListItem {...props} onClick={handleCreateAccountClick}>
+                            Create an account
+                          </ListItem>
+                        );
+                      } else {
+                        return <ListItem {...props}>{name}</ListItem>;
+                      }
+                    }}
+                    options={accounts}
+                    onChange={(_: any, newValue: any) => onChange(newValue)}
+                    disableClearable
+                    disabled={disable}
+                    value={value}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={!!error}
+                        helperText={error?.message}
+                        label="Account"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: <>{params.InputProps.endAdornment}</>,
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+              <RHFTextField name="description" label="Description" multiline minRows={4} />
+            </Box>
           </Stack>
-        )}
-      </Card>
-    </FormProvider>
+          {!disable && (
+            <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+              {editPage && !isCustomer && (
+                <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                  Delete
+                </Button>
+              )}
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                {isEdit ? 'Save' : 'Create'}
+              </LoadingButton>
+            </Stack>
+          )}
+        </Card>
+      </FormProvider>
+      <CreateAccountDialog
+        open={openDialog}
+        onClose={onCloseDialog}
+        role="Customer"
+        onSuccess={onCreateAccountSuccess}
+      />
+    </>
   );
 }

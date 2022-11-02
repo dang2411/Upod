@@ -1,16 +1,26 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useSnackbar } from 'notistack';
-import useAuth from 'src/hooks/useAuth';
-import * as Yup from 'yup';
-import { Controller, useForm } from 'react-hook-form';
-import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
-import { Autocomplete, Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-import axios from 'src/utils/axios';
 import { LoadingButton } from '@mui/lab';
-import { PATH_DASHBOARD } from 'src/routes/paths';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  ListItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useSnackbar } from 'notistack';
+import { useCallback, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { phoneNumber } from 'src/_mock/phoneNumber';
+import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
+import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+import axios from 'src/utils/axios';
+import * as Yup from 'yup';
+import CreateAccountDialog from '../../account/CreateAccountDialog';
 
 type Props = {
   currentTechnician: any;
@@ -35,6 +45,8 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     service: Yup.object().required('Service is required'),
     email: Yup.string().required('Email is required'),
   });
+
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
 
   const [areas, setAreas] = useState([]);
 
@@ -96,18 +108,22 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   const {
     handleSubmit,
     getValues,
+    setValue,
     control,
     formState: { isSubmitting },
   } = methods;
 
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState([{ id: 'new', name: '' }]);
 
   const fetchAccount = useCallback(async () => {
     try {
-      const response = await axios.get('/api/accounts/get_all_accounts', {
-        params: { pageNumber: 1, pageSize: 1000 },
+      const response = await axios.get('/api/accounts/get_all_accounts_is_not_assign', {
+        params: { search: 'Technician', pageNumber: 1, pageSize: 1000 },
       });
-      setAccounts(response.data.map((x) => ({ id: x.id, name: x.username })));
+      setAccounts([
+        { id: 'new', name: '' },
+        ...response.data.map((x) => ({ id: x.id, name: x.username })),
+      ]);
     } catch (error) {
       console.error(error);
     }
@@ -201,6 +217,12 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     deleteTechnician();
   };
 
+  const onCreateAccountSuccess = (account: any) => {
+    const { id, username: name } = account;
+    setValue('account', { id, name });
+    fetchAccount();
+  };
+
   useEffect(() => {
     fetchAreas();
     fetchServices();
@@ -208,86 +230,136 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleCreateAccountClick = () => {
+    setOpenDialog(true);
+  };
+
+  const editPage = isEdit && currentTechnician;
+
+  const newPage = !isEdit && !currentTechnician;
+
+  const detailPage = !isEdit && currentTechnician;
+
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Card sx={{ p: 3 }}>
-        <Stack spacing={3}>
-          <Typography variant="subtitle1">{getValues('code')}</Typography>
-          <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
-            <RHFTextField name="name" label="Name" disabled={disable} />
-            <RHFTextField name="phone" label="Phone" disabled={disable} />
-            <RHFSelect disabled={disable} name="gender" label="Gender">
-              {GENDER_OPTIONS.map((option) => (
-                <option key={option.text} value={option.value}>
-                  {option.text}
-                </option>
-              ))}
-            </RHFSelect>
-            <RHFTextField name="email" label="Email" disabled={disable} />
-            <RHFTextField name="rating" label="Average Rating" disabled={disable} />
-            <RHFTextField name="address" label="Address" disabled={disable} />
-            <RHFAutocomplete
-              name="area"
-              label="Area"
-              variant="outlined"
-              options={areas}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable}
-            />
-            <RHFAutocomplete
-              name="account"
-              label="Account"
-              variant="outlined"
-              options={accounts}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable}
-            />
-            <Controller
-              name="service"
-              control={control}
-              render={({ field: { value, onChange }, fieldState: { error } }) => (
-                <Autocomplete
-                  multiple
-                  options={services}
-                  getOptionLabel={(option: any) => option.name}
-                  isOptionEqualToValue={(option: any, value: any) => {
-                    return option.id === value.id;
-                  }}
-                  value={value}
-                  filterSelectedOptions
-                  onChange={(_: any, newValue: any) => {
-                    onChange(newValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={!!error}
-                      helperText={error?.message}
-                      label="Service"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: <>{params.InputProps.endAdornment}</>,
-                      }}
-                    />
-                  )}
-                />
-              )}
-            />
-          </Box>
-        </Stack>
-        {!disable && (
-          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              {isEdit ? 'Save' : 'Create'}
-            </LoadingButton>
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Card sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            <Typography variant="subtitle1">{getValues('code')}</Typography>
+            <Box
+              display="grid"
+              sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}
+            >
+              <RHFTextField name="name" label="Name" disabled={disable} />
+              <RHFTextField name="phone" label="Phone" disabled={disable} />
+              <RHFSelect disabled={disable} name="gender" label="Gender">
+                {GENDER_OPTIONS.map((option) => (
+                  <option key={option.text} value={option.value}>
+                    {option.text}
+                  </option>
+                ))}
+              </RHFSelect>
+              <RHFTextField name="email" label="Email" disabled={disable} />
+              <RHFTextField name="rating" label="Average Rating" disabled={disable} />
+              <RHFTextField name="address" label="Address" disabled={disable} />
+              <RHFAutocomplete
+                name="area"
+                label="Area"
+                variant="outlined"
+                options={areas}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                disabled={disable}
+              />
+              <Controller
+                name="account"
+                control={control}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                  <Autocomplete
+                    isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+                    getOptionLabel={(option: any) => option.name}
+                    renderOption={(props, { id, name }: any) => {
+                      if (id === 'new') {
+                        return (
+                          <ListItem {...props} onClick={handleCreateAccountClick}>
+                            Create an account
+                          </ListItem>
+                        );
+                      } else {
+                        return <ListItem {...props}>{name}</ListItem>;
+                      }
+                    }}
+                    options={accounts}
+                    onChange={(_: any, newValue: any) => onChange(newValue)}
+                    disableClearable
+                    disabled={disable}
+                    value={value}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={!!error}
+                        helperText={error?.message}
+                        label="Account"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: <>{params.InputProps.endAdornment}</>,
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                name="service"
+                control={control}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                  <Autocomplete
+                    multiple
+                    options={services}
+                    getOptionLabel={(option: any) => option.name}
+                    isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+                    value={value}
+                    filterSelectedOptions
+                    onChange={(_: any, newValue: any) => {
+                      onChange(newValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={!!error}
+                        helperText={error?.message}
+                        label="Service"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: <>{params.InputProps.endAdornment}</>,
+                        }}
+                      />
+                    )}
+                  />
+                )}
+              />
+            </Box>
           </Stack>
-        )}
-      </Card>
-    </FormProvider>
+          {!disable && (
+            <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+              {editPage && !isCustomer && (
+                <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                  Delete
+                </Button>
+              )}
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                {isEdit ? 'Save' : 'Create'}
+              </LoadingButton>
+            </Stack>
+          )}
+        </Card>
+      </FormProvider>
+      <CreateAccountDialog
+        open={openDialog}
+        onClose={onCloseDialog}
+        role="Technician"
+        onSuccess={onCreateAccountSuccess}
+      />
+    </>
   );
 }

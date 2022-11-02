@@ -20,7 +20,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   const navigate = useNavigate();
 
   const AccountSchema = Yup.object().shape({
-    role: Yup.string().required('Role is required'),
+    role: Yup.object().required('Role is required'),
     username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
   });
@@ -140,6 +140,12 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const disable = !isEdit && currentAccount != null;
 
+  const editPage = isEdit && currentAccount;
+
+  const newPage = !isEdit && !currentAccount;
+
+  const detailPage = !isEdit && currentAccount;
+
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
@@ -162,9 +168,11 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
         </Stack>
         {!disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
+            {editPage && !isCustomer && (
+              <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                Delete
+              </Button>
+            )}
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               {isEdit ? 'Save' : 'Create'}
             </LoadingButton>
