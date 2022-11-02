@@ -52,6 +52,12 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     // deleteAccount();
   };
 
+  const editPage = isEdit && currentService;
+
+  const newPage = !isEdit && !currentService;
+
+  const detailPage = !isEdit && currentService;
+
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
@@ -75,9 +81,11 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
         </Stack>
         {!disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
+            {editPage && !isCustomer && (
+              <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                Delete
+              </Button>
+            )}
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               {isEdit ? 'Save' : 'Create'}
             </LoadingButton>

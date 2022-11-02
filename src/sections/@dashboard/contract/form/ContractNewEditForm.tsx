@@ -202,6 +202,13 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     deleteContract();
   };
   console.log(defaultValues);
+
+  const editPage = isEdit && currentContract;
+
+  const newPage = !isEdit && !currentContract;
+
+  const detailPage = !isEdit && currentContract;
+
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
@@ -316,9 +323,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       )}
       {!disable && (
         <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-          <Button variant="outlined" color="error" onClick={onDeleteClick}>
-            Delete
-          </Button>
+          {editPage && !isCustomer && (
+            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+              Delete
+            </Button>
+          )}
           {!isEdit && (
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               Create

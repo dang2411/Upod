@@ -121,7 +121,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
             <RHFTextField name="devicePassword" label="Device Password" disabled={disable} />
             <RHFTextField name="settingDate" label="Setting Date" disabled={disable} />
             <RHFTextField name="gurantyStartDate" label="Guranty Start Date" disabled={disable} />
-            <RHFTextField name="guarantyEndDate" label="Guaranty End Date" disabled={disable} />
+            <RHFTextField name="guarantyEndDate" label="Guranty End Date" disabled={disable} />
           </Box>
         </Stack>
         {!disable && (

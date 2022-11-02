@@ -57,16 +57,18 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const {
     handleSubmit,
+    watch,
+    getValues,
     formState: { isSubmitting },
   } = methods;
 
-  const fetchTechnician = useCallback(async () => {
+  const fetchTechnician = useCallback(async (data: any) => {
     try {
-      const response = await axios.get('/api/technicians/get_list_technicians', {
-        params: { pageNumber: 1, pageSize: 1000 },
+      const response = await axios.get('/api/areas/get_list_technicians_by_area_id', {
+        params: { pageNumber: 1, pageSize: 1000, id: data?.id },
       });
 
-      setTechnicians(response.data.map((x) => ({ id: x.id, name: x.technician_name })));
+      setTechnicians(response.data.map((x) => ({ id: x.id, name: x.name })));
     } catch (error) {
       console.error(error);
     }
@@ -195,9 +197,21 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   useEffect(() => {
     fetchAreas();
     fetchCustomer();
-    fetchTechnician();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (getValues('area')) {
+      fetchTechnician(getValues('area'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('area')]);
+
+  const editPage = isEdit && currentAgency;
+
+  const newPage = !isEdit && !currentAgency;
+
+  const detailPage = !isEdit && currentAgency;
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -219,15 +233,17 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
               InputLabelProps={{ shrink: true }}
               disabled={disable}
             />
-            <RHFAutocomplete
-              name="technician"
-              label="Technician"
-              variant="outlined"
-              options={technicians}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable}
-            />
+            {watch('area') && technicians != null && (
+              <RHFAutocomplete
+                name="technician"
+                label="Technician"
+                variant="outlined"
+                options={technicians}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                disabled={disable}
+              />
+            )}
             <RHFAutocomplete
               name="customer"
               label="Customer"
@@ -241,9 +257,11 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
         </Stack>
         {!disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
+            {editPage && !isCustomer && (
+              <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                Delete
+              </Button>
+            )}
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               {isEdit ? 'Save' : 'Create'}
             </LoadingButton>

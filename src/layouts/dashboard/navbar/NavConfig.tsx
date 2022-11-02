@@ -21,6 +21,7 @@ const customerNavConfig = [
       { title: 'request', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.customer.contract.root, icon: ICONS.contract },
       { title: 'agency', path: PATH_DASHBOARD.customer.agency.root, icon: ICONS.agency },
+      { title: 'device', path: PATH_DASHBOARD.customer.agency.root, icon: ICONS.device },
     ],
   },
 
@@ -28,7 +29,8 @@ const customerNavConfig = [
     subheader: 'account',
     items: [
       // { title: 'profile', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.profile },
-      { title: 'technican', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.technican },
+      { title: 'technican', path: PATH_DASHBOARD.customer.technician.root, icon: ICONS.technican },
+      { title: 'account', path: PATH_DASHBOARD.customer.technician.root, icon: ICONS.account },
     ],
   },
 ];
@@ -38,7 +40,7 @@ const adminNavConfig = [
     items: [
       { title: 'request', path: PATH_DASHBOARD.admin.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.admin.contract.root, icon: ICONS.contract },
-      { title: 'company', path: PATH_DASHBOARD.admin.company.root, icon: ICONS.company },
+      { title: 'customer', path: PATH_DASHBOARD.admin.company.root, icon: ICONS.company },
       { title: 'agency', path: PATH_DASHBOARD.admin.agency.root, icon: ICONS.agency },
       { title: 'device', path: PATH_DASHBOARD.admin.device.root, icon: ICONS.device },
       // { title: 'ticket', path: PATH_DASHBOARD.admin.ticket.root, icon: ICONS.device },

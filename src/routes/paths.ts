@@ -32,6 +32,16 @@ export const PATH_PAGE = {
 export const PATH_DASHBOARD = {
   root: ROOTS_DASHBOARD,
   customer: {
+    account: {
+      root: path(ROOTS_ADMIN, '/account'),
+      list: path(ROOTS_ADMIN, '/account/list'),
+      view: (id: string) => path(ROOTS_ADMIN, `/account/view/${id}`),
+    },
+    technician: {
+      root: path(ROOTS_CUSTOMER, '/technician'),
+      list: path(ROOTS_CUSTOMER, '/technician/list'),
+      view: (id: string) => path(ROOTS_ADMIN, `/technician/view/${id}`),
+    },
     request: {
       root: path(ROOTS_CUSTOMER, '/request'),
       list: path(ROOTS_CUSTOMER, '/request/list'),
@@ -39,24 +49,23 @@ export const PATH_DASHBOARD = {
       edit: (id: string) => path(ROOTS_CUSTOMER, `/request/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/request/view/${id}`),
     },
+    device: {
+      root: path(ROOTS_CUSTOMER, '/device'),
+      list: path(ROOTS_CUSTOMER, '/device/list'),
+      view: (id: string) => path(ROOTS_CUSTOMER, `/device/view/${id}`),
+    },
     agency: {
       root: path(ROOTS_CUSTOMER, '/agency'),
       list: path(ROOTS_CUSTOMER, '/agency/list'),
-      new: path(ROOTS_CUSTOMER, '/agency/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/agency/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/agency/view/${id}`),
     },
     contract: {
       root: path(ROOTS_CUSTOMER, '/contract'),
       list: path(ROOTS_CUSTOMER, '/contract/list'),
-      new: path(ROOTS_CUSTOMER, '/contract/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/contract/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/contract/view/${id}`),
     },
     ticket: {
       root: path(ROOTS_CUSTOMER, '/ticket'),
-      new: path(ROOTS_CUSTOMER, '/ticket/new'),
-      edit: (id: string) => path(ROOTS_CUSTOMER, `/ticket/edit/${id}`),
       view: (id: string) => path(ROOTS_CUSTOMER, `/ticket/view/${id}`),
     },
   },
