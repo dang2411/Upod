@@ -16,7 +16,7 @@ const ICONS = {
 
 const customerNavConfig = [
   {
-    subheader: 'general',
+    subheader: 'Application',
     items: [
       { title: 'request', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.customer.contract.root, icon: ICONS.contract },

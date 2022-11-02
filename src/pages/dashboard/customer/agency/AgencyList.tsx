@@ -1,16 +1,30 @@
-
-import { Box, Button, Card, Container, FormControlLabel, Switch, Table, TableBody, TableContainer, TablePagination } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControlLabel,
+  Switch,
+  Table,
+  TableBody,
+  TableContainer,
+  TablePagination,
+} from '@mui/material';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { useSnackbar } from 'notistack';
+import { useCallback, useEffect, useState } from 'react';
+import useAuth from 'src/hooks/useAuth';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
 import AgencyTableToolbar from 'src/sections/@dashboard/agency/list/AgencyTableToolbar';
 import AgencyTableRow from 'src/sections/@dashboard/agency/list/AgencyTableRow';
+import axiosInstance from 'src/utils/axios';
+import axios from 'axios';
+import { id } from 'date-fns/locale';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -39,7 +53,7 @@ export default function AgencyList() {
     navigate(PATH_DASHBOARD.customer.agency.view(value));
   };
 
-  const data = [];
+  const [data, setData] = useState<any[]>([]);
 
   const {
     dense,
@@ -53,6 +67,40 @@ export default function AgencyList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const { user } = useAuth();
+
+  const fetch = useCallback(async () => {
+    try {
+      const id = user?.account.id;
+      const response: any = await axiosInstance.get('api/customers/get_agencies_by_customer_id', {
+        params: { id : id},
+      });
+
+      console.log(response);
+
+      setTotal(response.total);
+
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.agency_name,
+        customer: x.manager_name,
+        address: x.address,
+        phone: x.phone,
+      }));
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
+
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, filterText]);
 
   const [total, setTotal] = useState(0);
 
