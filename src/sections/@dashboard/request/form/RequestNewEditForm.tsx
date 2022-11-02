@@ -455,12 +455,26 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             Pending thì cus có quyền edit, có nút Save, Delete
             Preparing thì cus có nút Cancel
             */}
-            {(currentStatus === 'pending' || currentStatus === 'preparing') &&
-              editPage && (
-                <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                  Save
-                </LoadingButton>
-              )}
+            {currentStatus === 'pending' && !isCustomer && editPage && (
+              <Button onClick={handleShowReject} color="error" variant="outlined">
+                Reject
+              </Button>
+            )}
+            {currentStatus === 'pending' && !isCustomer && watch('technician') && (
+              <Button variant="contained" color="info" onClick={handleConfirm}>
+                Confirm
+              </Button>
+            )}
+            {currentStatus === 'resolved' && !isCustomer && (
+              <Button onClick={handleReopenClick} color="info" variant="outlined">
+                Reopen
+              </Button>
+            )}
+            {(currentStatus === 'pending' || currentStatus === 'preparing') && editPage && (
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                Save
+              </LoadingButton>
+            )}
             {newPage && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                 Create
@@ -473,21 +487,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             <Button onClick={handleCancelClick} color="error" variant="outlined">
               Cancel
             </Button> */}
-            {currentStatus === 'pending' && !isCustomer && editPage &&(
-              <Button onClick={handleShowReject} color="error" variant="outlined">
-                Reject
-              </Button>
-            )}
-            {currentStatus === 'pending' && !isCustomer && watch('technician') && (
-              <Button variant="contained" onClick={handleConfirm}>
-                Confirm
-              </Button>
-            )}
-            {currentStatus === 'resolved' && !isCustomer && (
-              <Button onClick={handleReopenClick} color="info" variant="outlined">
-                Reopen
-              </Button>
-            )}
             {/* Khi technician != null */}
           </Box>
         </Card>

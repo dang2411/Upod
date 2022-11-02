@@ -59,9 +59,6 @@ export const PATH_DASHBOARD = {
       list: path(ROOTS_CUSTOMER, '/agency/list'),
       view: (id: string) => path(ROOTS_CUSTOMER, `/agency/view/${id}`),
     },
-    device: {
-      view: (id: string) => path(ROOTS_CUSTOMER, `/device/view/${id}`),
-    },
     contract: {
       root: path(ROOTS_CUSTOMER, '/contract'),
       list: path(ROOTS_CUSTOMER, '/contract/list'),
