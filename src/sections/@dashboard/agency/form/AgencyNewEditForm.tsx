@@ -115,20 +115,9 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const updateAgency = useCallback(async (data: any) => {
     try {
-      const response = await axios.put(
-        '/api/agencies/update_agency_by_id',
-        {
-          agency_name: data!.agency_name,
-          address: data!.address,
-          telephone: data!.telephone,
-          area_id: data!.area_id,
-          technician_id: data!.technician_id,
-          manager_name: data!.manager_name,
-        },
-        {
-          params: { id: currentAgency!.id },
-        }
-      );
+      const response = await axios.put('/api/agencies/update_agency_by_id', data, {
+        params: { id: currentAgency!.id },
+      });
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Update agencies successfully', { variant: 'success' });
       }
@@ -167,7 +156,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
         id: currentAgency!.id,
         agency_name: data.name,
         address: data.address,
-        telephone: data.telephone,
+        telephone: data.phone,
         area_id: data.area.id,
         technician_id: data.technician.id,
         manager_name: data.manager,
@@ -179,7 +168,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
         technician_id: data.technician.id,
         agency_name: data.name,
         address: data.address,
-        telephone: data.telephone,
+        telephone: data.phone,
         area_id: data.area.id,
         manager_name: data.manager,
       };
