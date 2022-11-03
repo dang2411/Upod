@@ -1,12 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { Box, Button, Card, Stack } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import useAuth from 'src/hooks/useAuth';
-import * as Yup from 'yup';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Box, Button, Card, Stack, Typography } from '@mui/material';
-import { useState } from 'react';
-import LoadingButton from '@mui/lab/LoadingButton';
+import useAuth from 'src/hooks/useAuth';
+import * as Yup from 'yup';
 
 type Props = {
   currentService: any;

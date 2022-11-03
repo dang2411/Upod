@@ -3,9 +3,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { Autocomplete, Box, Button, Card, ListItem, Stack, TextField } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
+import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
@@ -23,9 +23,17 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const CompanySchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required'),
+    email: Yup.string().email('Email is invalid').required('Email is required'),
     address: Yup.string().required('Address is required'),
-    phone: Yup.string().required('Phone is required'),
+    phone: Yup.string()
+      .matches(
+        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
+        {
+          message: 'Please enter valid number.',
+          excludeEmptyString: false,
+        }
+      )
+      .required('Phone is required'),
     account: Yup.object().required('Account is required'),
   });
 
@@ -89,7 +97,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   const defaultValues = {
     code: currentCompany?.code || '',
     name: currentCompany?.name || '',
-    account: currentCompany?.account || { id: '', name: '' },
+    account: currentCompany?.account,
     email: currentCompany?.mail || '',
     address: currentCompany?.address || '',
     phone: currentCompany?.phone || '',

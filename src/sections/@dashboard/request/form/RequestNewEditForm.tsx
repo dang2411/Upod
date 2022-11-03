@@ -92,6 +92,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const [services, setServices] = useState([]);
 
+  const [customers, setCustomers] = useState([]);
+
   const defaultValues = {
     code: currentRequest?.code || '',
     name: currentRequest?.name || '',
@@ -99,8 +101,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
     agency: currentRequest?.agency,
-    priority: currentRequest?.priority || 2,
+    priority: currentRequest?.priority || 1,
     description: currentRequest?.description || '',
+    customer: currentRequest?.customer,
     status: currentRequest?.status || 'pending',
     technician: currentRequest?.technician,
   };
@@ -109,6 +112,23 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     resolver: yupResolver(RequestSchema),
     defaultValues,
   });
+
+  const fetchCustomer = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/customers/get_all_customers', {
+        params: { pageSize: 10000, pageNumber: 1 },
+      });
+      setCustomers(
+        response.data.map((x) => ({
+          id: x.id,
+          name: x.name,
+        }))
+      );
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchAgencies = useCallback(async () => {
     try {
@@ -291,6 +311,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   useEffect(() => {
     fetchAgencies();
     fetchServices();
+    fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -352,7 +373,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const currentStatus = getValues('status');
 
-  const isCreatedByCurrentUser = currentRequest?.createdBy === user?.account?.id;
+  const isCreatedByAdmin = currentRequest?.createdBy.role === 'Admin';
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -392,13 +413,25 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             </Grid>
             <Grid item xs={12} md={6}>
               <RHFSelect disabled={disabled} name="priority" label="Priority">
-                {PRIORITY_OPTIONS.map((option) => (
-                  <option key={option.text} value={option.value}>
-                    {option.text}
+                {PRIORITY_OPTIONS.map(({ text, value }) => (
+                  <option key={text} value={value}>
+                    {text}
                   </option>
                 ))}
               </RHFSelect>
             </Grid>
+            {editPage && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  value={getValues('customer')?.name ?? ''}
+                  label="Customer"
+                  variant="outlined"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  disabled={true}
+                />
+              </Grid>
+            )}
             {watch('address') && (
               <Grid item xs={12} md={6}>
                 <RHFTextField
@@ -455,19 +488,29 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             Pending thì cus có quyền edit, có nút Save, Delete
             Preparing thì cus có nút Cancel
             */}
-            {currentStatus === 'pending' && !isCustomer && editPage && (
-              <Button onClick={handleShowReject} color="error" variant="outlined">
-                Reject
+            {currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
+              <Button onClick={handleDeleteClick} color="error" variant="contained">
+                Delete
               </Button>
             )}
-            {currentStatus === 'pending' && !isCustomer && watch('technician') && (
-              <Button variant="contained" color="info" onClick={handleConfirm}>
-                Confirm
+            {currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
+              <Button onClick={handleCancelClick} color="error" variant="outlined">
+                Cancel
+              </Button>
+            )}
+            {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
+              <Button onClick={handleShowReject} color="error" variant="outlined">
+                Reject
               </Button>
             )}
             {currentStatus === 'resolved' && !isCustomer && (
               <Button onClick={handleReopenClick} color="info" variant="outlined">
                 Reopen
+              </Button>
+            )}
+            {currentStatus === 'pending' && !isCustomer && watch('technician') && (
+              <Button variant="contained" color="info" onClick={handleConfirm}>
+                Confirm
               </Button>
             )}
             {(currentStatus === 'pending' || currentStatus === 'preparing') && editPage && (
@@ -480,13 +523,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 Create
               </LoadingButton>
             )}
-
-            {/* <Button onClick={handleDeleteClick} color="error" variant="outlined">
-              Delete
-            </Button>
-            <Button onClick={handleCancelClick} color="error" variant="outlined">
-              Cancel
-            </Button> */}
             {/* Khi technician != null */}
           </Box>
         </Card>

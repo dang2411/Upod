@@ -22,7 +22,15 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const AgencySchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     address: Yup.string().required('Address is required'),
-    phone: Yup.string().required('Phone is required'),
+    phone: Yup.string()
+      .matches(
+        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
+        {
+          message: 'Please enter valid number.',
+          excludeEmptyString: false,
+        }
+      )
+      .required('Phone is required'),
     area: Yup.object().required('Area is required'),
     manager: Yup.string().required('Manager name is required'),
     customer: Yup.object().required('Customer is required'),

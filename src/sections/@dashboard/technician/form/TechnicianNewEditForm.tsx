@@ -35,15 +35,29 @@ const GENDER_OPTIONS = [
 
 export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Props) {
   const navigate = useNavigate();
-  const technicianSchema = Yup.object().shape({
+
+  const TechnicianSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     area: Yup.object().required('Area is required'),
-    account: Yup.object().required('Name is required'),
-    phone: Yup.string().required('Phone is required'),
-    gender: Yup.string().required('Gender is required'),
+    account: Yup.object().required('Account is required'),
+    gender: Yup.number().required('Gender is required'),
     address: Yup.string().required('Address is required'),
-    service: Yup.object().required('Service is required'),
-    email: Yup.string().required('Email is required'),
+    service: Yup.array()
+      .required('Service is required')
+      .test({
+        message: 'At least one service is required',
+        test: (arr) => arr!.length > 0,
+      }),
+    email: Yup.string().email('Email is invalid').required('Email is required'),
+    phone: Yup.string()
+      .matches(
+        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
+        {
+          message: 'Please enter valid number.',
+          excludeEmptyString: false,
+        }
+      )
+      .required('Phone is required'),
   });
 
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
@@ -94,14 +108,14 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     account: currentTechnician?.account,
     phone: currentTechnician?.telephone || '',
     email: currentTechnician?.email || '',
-    gender: currentTechnician?.gender || '',
+    gender: currentTechnician?.gender || 0,
     address: currentTechnician?.address || '',
     rating: currentTechnician?.rating || '',
     service: currentTechnician?.service || [],
   };
 
   const methods = useForm({
-    resolver: yupResolver(technicianSchema),
+    resolver: yupResolver(TechnicianSchema),
     defaultValues,
   });
 

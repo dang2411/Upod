@@ -2,11 +2,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { add } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Priority } from 'src/@types/request';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import Iconify from 'src/components/Iconify';
 import useAuth from 'src/hooks/useAuth';
@@ -18,15 +18,6 @@ type Props = {
   currentContract: any;
   isEdit: boolean;
 };
-
-function parsePriority(value: number): Priority {
-  if (value <= 1) {
-    return 'Low';
-  } else if (value === 2) {
-    return 'Medium';
-  }
-  return 'High';
-}
 
 const PRIORITY_OPTIONS = [
   { text: 'Low', value: 0 },
@@ -48,8 +39,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
             .min(1, 'Frequency maintain must be greater than 0'),
         })
       )
-      .length(1, 'At least 1 service is required'),
-    customer: Yup.object().required('Name is required'),
+      .required('Service is required')
+      .test({
+        message: 'At least one service is required',
+        test: (arr) => arr!.length > 0,
+      }),
     startDate: Yup.date().required('Start date is required'),
     endDate: Yup.date().required('End date is required'),
   });
@@ -70,13 +64,14 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     code: currentContract?.code || '',
     name: currentContract?.name || '',
     customer: currentContract?.customer,
-    startDate: currentContract?.startDate || null,
-    endDate: currentContract?.endDate || null,
+    startDate: currentContract?.startDate ? new Date(currentContract?.startDate) : new Date(),
+    endDate: currentContract?.endDate
+      ? new Date(currentContract?.endDate)
+      : add(new Date(), { months: 6 }),
     attachment: currentContract?.attachment || '',
     img: currentContract?.img || '',
     description: currentContract?.description || '',
-    service:
-      currentContract?.service || (disable ? null : [{ value: null, frequencyMaintain: null }]),
+    service: currentContract?.service || (disable ? null : [{ frequencyMaintain: 0 }]),
   };
 
   const fetchServices = useCallback(async () => {
@@ -116,11 +111,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   const createContract = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/contracts/create_contract', data);
+      const response: any = await axios.post('/api/contracts/create_contract', data);
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Create contract successfully', { variant: 'success' });
       } else {
-        enqueueSnackbar('Create contract failed', { variant: 'error' });
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create contract failed', { variant: 'error' });
@@ -154,13 +149,13 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting },
+    formState: { errors, isSubmitting },
   } = methods;
 
   const { fields, append, remove } = useFieldArray({ control, name: 'service' });
 
   const handleAppend = () => {
-    append({});
+    append({ frequencyMaintain: 0 });
   };
 
   const handleRemove = (index: number) => {
@@ -236,6 +231,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                 <DatePicker
                   label="Start Date"
                   value={field.value}
+                  inputFormat="dd/MM/yyyy"
                   onChange={(newValue) => {
                     field.onChange(newValue);
                   }}
@@ -252,6 +248,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   label="End Date"
+                  inputFormat="dd/MM/yyyy"
                   value={field.value}
                   onChange={(newValue) => {
                     field.onChange(newValue);
@@ -289,34 +286,37 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
               Service
             </Typography>
             {fields.map((item: any, index) => (
-                <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <Box
-                    display="grid"
-                    sx={{ gridTemplateColumns: 'auto auto', flexGrow: 1, gap: 2 }}
-                  >
-                    <RHFAutocomplete
-                      name={`service[${index}].value`}
-                      label="Service"
-                      variant="outlined"
-                      options={item?.value ? [item!.value, ...serviceList] : serviceList}
-                      fullWidth
-                      disabled={disable}
-                    />
-                    <RHFTextField
-                      name={`service[${index}].frequencyMaintain`}
-                      label="Frequency Maintain"
-                      disabled={disable}
-                    />
-                  </Box>
-                  {!disable && (
-                    <Box>
-                      <IconButton onClick={() => handleRemove(index)} color="error">
-                        <Iconify icon="fluent:delete-12-regular" sx={{ color: 'error.main' }} />
-                      </IconButton>
-                    </Box>
-                  )}
+              <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Box display="grid" sx={{ gridTemplateColumns: 'auto auto', flexGrow: 1, gap: 2 }}>
+                  <RHFAutocomplete
+                    name={`service[${index}].value`}
+                    label="Service"
+                    variant="outlined"
+                    options={item?.value ? [item!.value, ...serviceList] : serviceList}
+                    fullWidth
+                    disabled={disable}
+                  />
+                  <RHFTextField
+                    name={`service[${index}].frequencyMaintain`}
+                    label="Frequency Maintain"
+                    type="number"
+                    disabled={disable}
+                  />
                 </Box>
-              ))}
+                {!disable && (
+                  <Box>
+                    <IconButton onClick={() => handleRemove(index)} color="error">
+                      <Iconify icon="fluent:delete-12-regular" sx={{ color: 'error.main' }} />
+                    </IconButton>
+                  </Box>
+                )}
+              </Box>
+            ))}
+            {errors.service?.message && (
+              <Typography variant="body1" color="error">
+                {`${errors.service?.message ?? 'Invalid list of service'}`}
+              </Typography>
+            )}
           </Stack>
           {!disable && (
             <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={2}>

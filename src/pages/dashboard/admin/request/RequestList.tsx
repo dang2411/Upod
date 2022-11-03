@@ -26,10 +26,10 @@ import axios from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
-  { id: 'name', label: 'RequestName', align: 'left' },
+  { id: 'name', label: 'Name', align: 'left' },
   { id: 'agency', label: 'Agency', align: 'left' },
   { id: 'service', label: 'Service', align: 'left' },
-  { id: 'createdAt', label: 'createdAt', align: 'left' },
+  { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'description', label: 'Description', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
 ];
@@ -101,6 +101,7 @@ export default function RequestList() {
             agency: { id: x.agency.id, name: x.agency.agency_name },
             priority: parsePriority(x.priority),
             description: x.description,
+            customer: x.customer,
             status: x.request_status.toLowerCase(),
             technician: x.technician,
           } as Request)

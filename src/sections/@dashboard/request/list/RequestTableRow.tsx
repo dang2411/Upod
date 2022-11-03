@@ -1,5 +1,4 @@
 import { Chip, TableCell, TableRow, Typography } from '@mui/material';
-import { format } from 'date-fns';
 import { Request, RequestStatus } from 'src/@types/request';
 import { cutOut } from 'src/utils/cutOut';
 
@@ -9,7 +8,7 @@ type Props = {
 };
 
 export default function RequestTableRow({ row, onRowClick }: Props) {
-  const { code, name, agency, service, createdAt, description, status } = row;
+  const { code, name, agency, service, customer, description, status } = row;
 
   const parseStatus = (status: RequestStatus) => {
     if (status === 'pending') {
@@ -40,7 +39,7 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{agency.name} </TableCell>
       <TableCell align="left">{service.name} </TableCell>
-      <TableCell align="left">{format(createdAt, 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{customer.name} </TableCell>
       {/* <TableCell align="left">{createdAt} </TableCell> */}
       <TableCell align="left">{cutOut(description)} </TableCell>
       <TableCell align="left">{parseStatus(status)} </TableCell>
