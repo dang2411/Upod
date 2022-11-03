@@ -73,6 +73,7 @@ export default function CompanyEdit() {
             { name: title },
           ]}
         />
+
         <CompanyNewEditForm isEdit={true} currentCompany={data} />
       </Container>
     </Page>
