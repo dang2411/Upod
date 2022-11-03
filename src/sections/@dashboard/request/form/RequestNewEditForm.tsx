@@ -352,7 +352,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const currentStatus = getValues('status');
 
-  const isCreatedByCurrentUser = currentRequest?.createdBy === user?.account?.id;
+  const isCreatedByAdmin = currentRequest?.createdBy.role === 'Admin';
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -455,25 +455,27 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             Pending thì cus có quyền edit, có nút Save, Delete
             Preparing thì cus có nút Cancel
             */}
-            {(currentStatus === 'pending' || currentStatus === 'preparing') &&
-              editPage && (
-                <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                  Save
-                </LoadingButton>
-              )}
+            {(currentStatus === 'pending' || currentStatus === 'preparing') && editPage && (
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                Save
+              </LoadingButton>
+            )}
             {newPage && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                 Create
               </LoadingButton>
             )}
-
-            {/* <Button onClick={handleDeleteClick} color="error" variant="outlined">
-              Delete
-            </Button>
-            <Button onClick={handleCancelClick} color="error" variant="outlined">
-              Cancel
-            </Button> */}
-            {currentStatus === 'pending' && !isCustomer && editPage &&(
+            {currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
+              <Button onClick={handleDeleteClick} color="error" variant="outlined">
+                Delete
+              </Button>
+            )}
+            {currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
+              <Button onClick={handleCancelClick} color="error" variant="outlined">
+                Cancel
+              </Button>
+            )}
+            {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
               <Button onClick={handleShowReject} color="error" variant="outlined">
                 Reject
               </Button>
