@@ -23,7 +23,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     name: Yup.string().required('Name is required'),
     address: Yup.string().required('Address is required'),
     phone: Yup.string().required('Phone is required'),
-    area: Yup.string().required('Area is required'),
+    area: Yup.object().required('Area is required'),
     manager: Yup.string().required('Manager name is required'),
     customer: Yup.object().required('Customer is required'),
     technician: Yup.object().required('Technician is required'),
