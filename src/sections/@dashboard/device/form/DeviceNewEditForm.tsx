@@ -2,12 +2,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useSnackbar } from 'notistack';
 import useAuth from 'src/hooks/useAuth';
 import * as Yup from 'yup';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'src/utils/axios';
+import { DatePicker } from '@mui/x-date-pickers';
 
 type Props = {
   currentDevice: any;
@@ -59,9 +60,9 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     agency: currentDevice?.agency,
     deviceAccount: currentDevice?.deviceAccount || '',
     devicePassword: currentDevice?.devicePassword || '',
-    settingDate: currentDevice?.settingDate || '',
-    gurantyStartDate: currentDevice?.gurantyStartDate || new Date(),
-    guarantyEndDate: currentDevice?.guarantyEndDate || new Date(),
+    settingDate: currentDevice?.settingDate,
+    guarantyStartDate: currentDevice?.guarantyStartDate,
+    guarantyEndDate: currentDevice?.guarantyEndDate,
   };
 
   const methods = useForm({
@@ -71,7 +72,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
 
   const {
     handleSubmit,
-    getValues,
+    control,
     formState: { isSubmitting },
   } = methods;
 
@@ -119,9 +120,60 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
             <RHFTextField name="port" label="port" disabled={disable} />
             <RHFTextField name="deviceAccount" label="Device Account" disabled={disable} />
             <RHFTextField name="devicePassword" label="Device Password" disabled={disable} />
-            <RHFTextField name="settingDate" label="Setting Date" disabled={disable} />
-            <RHFTextField name="gurantyStartDate" label="Guranty Start Date" disabled={disable} />
-            <RHFTextField name="guarantyEndDate" label="Guranty End Date" disabled={disable} />
+            <Controller
+              name="settingDate"
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <DatePicker
+                  label="Setting Date"
+                  inputFormat="dd/MM/yyyy"
+                  value={field.value}
+                  onChange={(newValue) => {
+                    field.onChange(newValue);
+                  }}
+                  disabled={disable}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
+                  )}
+                />
+              )}
+            />
+            <Controller
+              name="guarantyStartDate"
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <DatePicker
+                  label="Guaranty Start Date"
+                  inputFormat="dd/MM/yyyy"
+                  value={field.value}
+                  onChange={(newValue) => {
+                    field.onChange(newValue);
+                  }}
+                  disabled={disable}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
+                  )}
+                />
+              )}
+            />
+            <Controller
+              name="guarantyEndDate"
+              control={control}
+              render={({ field, fieldState: { error } }) => (
+                <DatePicker
+                  label="Guaranty End Date"
+                  inputFormat="dd/MM/yyyy"
+                  value={field.value}
+                  onChange={(newValue) => {
+                    field.onChange(newValue);
+                  }}
+                  disabled={disable}
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
+                  )}
+                />
+              )}
+            />
           </Box>
         </Stack>
         {!disable && (

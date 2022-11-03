@@ -23,8 +23,8 @@ export default function DeviceDetail() {
         params: { id },
       });
       const result = {
-        code: response.data.code || '',
-        name: response.data.device_name || '',
+        code: response.data.code,
+        name: response.data.device_name,
         type: {
           id: response.data.devicetype.id,
           name: response.data.devicetype.device_type_name,
@@ -33,11 +33,11 @@ export default function DeviceDetail() {
           id: response.data.agency.id,
           name: response.data.agency.agency_name,
         },
-        ip: response.data.ip || '',
-        port: response.data.port || '',
-        deviceAccount: response.data.device_account || '',
-        devicePassword: response.data.device_password || '',
-        settingDate: response.data.setting_date || '',
+        ip: response.data.ip,
+        port: response.data.port,
+        deviceAccount: response.data.device_account,
+        devicePassword: response.data.device_password,
+        settingDate: response.data.setting_date,
       };
       if (response.status === 200) {
         setData(result);

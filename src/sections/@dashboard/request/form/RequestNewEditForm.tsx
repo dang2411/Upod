@@ -365,13 +365,13 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     rejectRequest(value);
   };
 
-  const disabled = getValues('status') !== 'pending';
-
   const newPage = !isEdit && !currentRequest;
 
   const editPage = isEdit && currentRequest;
 
   const currentStatus = getValues('status');
+
+  const disabled = currentStatus !== 'pending' && (currentStatus === 'preparing' && isCustomer);
 
   const isCreatedByAdmin = currentRequest?.createdBy.role === 'Admin';
 
