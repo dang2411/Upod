@@ -71,12 +71,12 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agencyId]);
 
-//   const deviceList = devices.filter(
-//     (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)
-//   ) as any[];
+  //   const deviceList = devices.filter(
+  //     (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)
+  //   ) as any[];
   return (
     <>
-      {fields && (
+      {fields && (fields.length > 0 || editable) && (
         <Card sx={{ p: 3 }}>
           <Stack spacing={2}>
             <Typography variant="h6" fontWeight={600}>
@@ -106,27 +106,36 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
                         variant="outlined"
                         // options={item?.value ? [item!.value, ...deviceList] : deviceList}
                         options={devices}
+                        disabled={!editable}
                         fullWidth
                       />
-                      <RHFTextField name={`ticket[${index}].solution`} label="Solution" fullWidth />
+                      <RHFTextField
+                        name={`ticket[${index}].solution`}
+                        label="Solution"
+                        fullWidth
+                        disabled={!editable}
+                      />
                       <RHFTextField
                         name={`ticket[${index}].description`}
                         label="Description"
                         fullWidth
+                        disabled={!editable}
                       />
                     </Box>
                   </Box>
-                  <Box textAlign="end">
-                    <Button variant="text" onClick={() => handleRemove(index)} color="error">
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        Delete
-                        <Iconify
-                          icon="fluent:delete-12-regular"
-                          sx={{ width: 20, height: 20, ml: 1, color: 'error.main' }}
-                        />
-                      </Stack>
-                    </Button>
-                  </Box>
+                  {editable && (
+                    <Box textAlign="end">
+                      <Button variant="text" onClick={() => handleRemove(index)} color="error">
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          Delete
+                          <Iconify
+                            icon="fluent:delete-12-regular"
+                            sx={{ width: 20, height: 20, ml: 1, color: 'error.main' }}
+                          />
+                        </Stack>
+                      </Button>
+                    </Box>
+                  )}
                 </Stack>
               </>
             ))}
@@ -136,11 +145,13 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
               </Typography>
             )}
           </Stack>
-          <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={2}>
-            <Button variant="outlined" color="info" onClick={handleAppend}>
-              Add
-            </Button>
-          </Stack>
+          {editable && (
+            <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={2}>
+              <Button variant="outlined" color="info" onClick={handleAppend}>
+                Add
+              </Button>
+            </Stack>
+          )}
         </Card>
       )}
     </>

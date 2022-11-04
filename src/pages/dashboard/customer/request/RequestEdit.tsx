@@ -8,16 +8,7 @@ import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestNewEditForm from 'src/sections/@dashboard/request/form/RequestNewEditForm';
 import axiosInstance from 'src/utils/axios';
-import { Priority, Request } from 'src/@types/request';
-
-function parsePriority(value: number): Priority {
-  if (value <= 1) {
-    return 'Low';
-  } else if (value === 2) {
-    return 'Medium';
-  }
-  return 'High';
-}
+import { Request } from 'src/@types/request';
 
 export default function RequestEdit() {
   const { themeStretch } = useSettings();

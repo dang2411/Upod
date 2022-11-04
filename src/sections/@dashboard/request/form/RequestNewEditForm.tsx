@@ -377,7 +377,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const currentStatus = getValues('status');
 
-  const disabled = currentStatus !== 'pending' && !(currentStatus === 'preparing' && !isCustomer);
+  const disabled = currentStatus !== 'pending';
 
   const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
 
@@ -462,18 +462,32 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            <Grid item xs={12} md={6}>
-              <TextField
-                value={watch('technician')?.name ?? ''}
-                label="Technician"
-                variant="outlined"
-                fullWidth
-                onClick={() => setOpenConfirmDialog(true)}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ readOnly: true }}
-                disabled={disabled}
-              />
-            </Grid>
+            {editPage && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  value={watch('technician')?.name ?? ''}
+                  helperText={
+                    currentStatus === 'pending' ? (
+                      <Typography sx={{ color: 'error.main' }} variant="body2">
+                        Please assign a technician
+                      </Typography>
+                    ) : undefined
+                  }
+                  error={
+                    (currentStatus === 'pending' || currentStatus === 'preparing') && !isCustomer
+                  }
+                  label="Technician"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => setOpenConfirmDialog(true)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
+                  disabled={
+                    !((currentStatus === 'pending' || currentStatus === 'preparing') && !isCustomer)
+                  }
+                />
+              </Grid>
+            )}
             <Grid item xs={12} md={6}>
               <RHFTextField
                 name="description"
