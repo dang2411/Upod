@@ -379,7 +379,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const disabled = currentStatus !== 'pending' && !(currentStatus === 'preparing' && !isCustomer);
 
-  const isCreatedByAdmin = currentRequest?.createdBy.role === 'Admin';
+  const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>

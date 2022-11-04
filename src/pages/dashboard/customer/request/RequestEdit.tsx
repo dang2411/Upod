@@ -48,10 +48,12 @@ export default function RequestEdit() {
           phone: response.data.agency.phone,
           address: response.data.agency.address,
         },
-        priority: parsePriority(response.data.priority),
+        contract: response.data.contract,
+        priority: response.data.priority,
         description: response.data.description,
         status: response.data.request_status.toLowerCase(),
-        technician: response.data.technician,
+        technician: response.data.technicican,
+        createdBy: response.data.create_by,
       } as Request;
       if (response.status === 200) {
         setRequest(result);

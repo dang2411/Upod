@@ -89,10 +89,11 @@ export default function RequestList() {
   const fetch = useCallback(async () => {
     try {
       const id = user?.account.id;
+
       const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
         params: { id: id, pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
-      console.log(response);
+
       setTotal(response.total);
       // setData(response.data);
       const result = Array.from(response.data).map(
@@ -103,6 +104,7 @@ export default function RequestList() {
             createdAt: new Date(x.create_date),
             name: x.request_name,
             service: { id: x.service.id, name: x.service.service_name },
+            customer: { id: x.customer.id, name: x.customer.name },
             agency: { id: x.agency.id, name: x.agency.agency_name },
             priority: parsePriority(x.priority),
             description: x.description,

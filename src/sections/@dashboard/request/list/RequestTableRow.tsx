@@ -9,6 +9,7 @@ type Props = {
 
 export default function RequestTableRow({ row, onRowClick }: Props) {
   const { code, name, agency, service, customer, description, status } = row;
+  console.log({ code, name, agency, service, customer, description, status });
 
   const parseStatus = (status: RequestStatus) => {
     if (status === 'pending') {

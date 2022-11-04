@@ -21,16 +21,6 @@ const customerNavConfig = [
       { title: 'request', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.customer.contract.root, icon: ICONS.contract },
       { title: 'agency', path: PATH_DASHBOARD.customer.agency.root, icon: ICONS.agency },
-      { title: 'device', path: PATH_DASHBOARD.customer.agency.root, icon: ICONS.device },
-    ],
-  },
-
-  {
-    subheader: 'account',
-    items: [
-      // { title: 'profile', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.profile },
-      { title: 'technican', path: PATH_DASHBOARD.customer.technician.root, icon: ICONS.technican },
-      { title: 'account', path: PATH_DASHBOARD.customer.technician.root, icon: ICONS.account },
     ],
   },
 ];
