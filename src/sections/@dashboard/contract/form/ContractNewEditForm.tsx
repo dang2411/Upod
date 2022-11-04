@@ -166,7 +166,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     if (isEdit) {
       //
     } else {
-      console.log(data);
 
       const params = {
         customer_id: data.customer.id,

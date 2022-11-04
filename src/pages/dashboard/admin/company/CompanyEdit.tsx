@@ -51,13 +51,13 @@ export default function CompanyEdit() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const title = data?.name || 'Company';
+  const title = data?.name || 'Customer';
 
   if (!data) {
     return <div />;
   }
   return (
-    <Page title="Company: Edit">
+    <Page title="Customer: Edit">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
@@ -67,7 +67,7 @@ export default function CompanyEdit() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Company',
+              name: 'Customer',
               href: PATH_DASHBOARD.admin.company.root,
             },
             { name: title },

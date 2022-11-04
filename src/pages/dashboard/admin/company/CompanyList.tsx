@@ -102,17 +102,17 @@ export default function CompanyList() {
   const isNotFound = !data.length;
 
   return (
-    <Page title="Company: Listing">
+    <Page title="Customer: Listing">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
-          heading="Company: Listing"
+          heading="Customer: Listing"
           links={[
             {
               name: 'Dashboard',
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Company',
+              name: 'Customer',
               href: PATH_DASHBOARD.admin.company.root,
             },
             { name: 'Listing' },

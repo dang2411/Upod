@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { RequestStatus } from 'src/@types/request';
@@ -15,6 +15,7 @@ import axios from 'src/utils/axios';
 import * as Yup from 'yup';
 import RequestRejectDialog from '../dialog/RequestRejectDialog';
 import TechnicianDialog from '../dialog/TechnicianDialog';
+import RequestNewEditTicketForm from './RequestNewEditTicketForm';
 
 const PRIORITY_OPTIONS = [
   { text: 'Low', value: 1 },
@@ -92,43 +93,48 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const [services, setServices] = useState([]);
 
-  const [customers, setCustomers] = useState([]);
+  // const [customers, setCustomers] = useState([]);
 
-  const defaultValues = {
-    code: currentRequest?.code || '',
-    name: currentRequest?.name || '',
-    service: currentRequest?.service,
-    address: currentRequest?.agency?.address || '',
-    phone: currentRequest?.agency?.phone || '',
-    agency: currentRequest?.agency,
-    priority: currentRequest?.priority || 1,
-    description: currentRequest?.description || '',
-    customer: currentRequest?.customer,
-    status: currentRequest?.status || 'pending',
-    technician: currentRequest?.technician,
-  };
+  const id = currentRequest?.id;
 
-  const methods = useForm({
+  const defaultValues = useMemo(
+    () => ({
+      code: currentRequest?.code || '',
+      name: currentRequest?.name || '',
+      service: currentRequest?.service,
+      address: currentRequest?.agency?.address || '',
+      phone: currentRequest?.agency?.phone || '',
+      agency: currentRequest?.agency,
+      priority: currentRequest?.priority || 1,
+      description: currentRequest?.description || '',
+      customer: currentRequest?.customer,
+      status: currentRequest?.status || 'pending',
+      technician: currentRequest?.technician,
+    }),
+    [currentRequest]
+  );
+
+  const methods = useForm<any>({
     resolver: yupResolver(RequestSchema),
     defaultValues,
   });
 
-  const fetchCustomer = useCallback(async () => {
-    try {
-      const response = await axios.get('/api/customers/get_all_customers', {
-        params: { pageSize: 10000, pageNumber: 1 },
-      });
-      setCustomers(
-        response.data.map((x) => ({
-          id: x.id,
-          name: x.name,
-        }))
-      );
-    } catch (error) {
-      console.error(error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // const fetchCustomer = useCallback(async () => {
+  //   try {
+  //     const response = await axios.get('/api/customers/get_all_customers', {
+  //       params: { pageSize: 10000, pageNumber: 1 },
+  //     });
+  //     setCustomers(
+  //       response.data.map((x) => ({
+  //         id: x.id,
+  //         name: x.name,
+  //       }))
+  //     );
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const fetchAgencies = useCallback(async () => {
     try {
@@ -311,7 +317,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   useEffect(() => {
     fetchAgencies();
     fetchServices();
-    fetchCustomer();
+    // fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -371,7 +377,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const currentStatus = getValues('status');
 
-  const disabled = currentStatus !== 'pending' && (currentStatus === 'preparing' && isCustomer);
+  const disabled = currentStatus !== 'pending' && !(currentStatus === 'preparing' && !isCustomer);
 
   const isCreatedByAdmin = currentRequest?.createdBy.role === 'Admin';
 
@@ -481,57 +487,57 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               />
             </Grid>
           </Grid>
-          <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
-            {/* Pending thì có quyền reject, comfirm, delete nếu là rq admin tạo
-            Preparing thì có quyền Cancel nếu là rq admin tạo, có quyền edit và re-asigntech và nút Save            
-            Resolved thì có thể re-open 
-            Pending thì cus có quyền edit, có nút Save, Delete
-            Preparing thì cus có nút Cancel
-            */}
-            {currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
-              <Button onClick={handleDeleteClick} color="error" variant="contained">
-                Delete
-              </Button>
-            )}
-            {currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
-              <Button onClick={handleCancelClick} color="error" variant="outlined">
-                Cancel
-              </Button>
-            )}
-            {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
-              <Button onClick={handleShowReject} color="error" variant="outlined">
-                Reject
-              </Button>
-            )}
-            {currentStatus === 'resolved' && !isCustomer && (
-              <Button onClick={handleReopenClick} color="info" variant="outlined">
-                Reopen
-              </Button>
-            )}
-            {currentStatus === 'pending' && !isCustomer && watch('technician') && (
-              <Button variant="contained" color="info" onClick={handleConfirm}>
-                Confirm
-              </Button>
-            )}
-            {(currentStatus === 'pending' || currentStatus === 'preparing') && editPage && (
-              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                Save
-              </LoadingButton>
-            )}
-            {newPage && (
-              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                Create
-              </LoadingButton>
-            )}
-            {/* Khi technician != null */}
-          </Box>
         </Card>
+        {(currentStatus === 'editing' || currentStatus === 'resolved') && (
+          <RequestNewEditTicketForm
+            requestId={id}
+            agencyId={watch('agency').id}
+            editable={currentStatus === 'editing'}
+          />
+        )}
+        <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
+          {currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
+            <Button onClick={handleDeleteClick} color="error" variant="contained">
+              Delete
+            </Button>
+          )}
+          {currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
+            <Button onClick={handleCancelClick} color="error" variant="outlined">
+              Cancel
+            </Button>
+          )}
+          {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
+            <Button onClick={handleShowReject} color="error" variant="outlined">
+              Reject
+            </Button>
+          )}
+          {currentStatus === 'resolved' && !isCustomer && (
+            <Button onClick={handleReopenClick} color="info" variant="outlined">
+              Reopen
+            </Button>
+          )}
+          {currentStatus === 'pending' && !isCustomer && watch('technician') && (
+            <Button variant="contained" color="info" onClick={handleConfirm}>
+              Confirm
+            </Button>
+          )}
+          {(currentStatus === 'pending' || currentStatus === 'preparing') && editPage && (
+            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+              Save
+            </LoadingButton>
+          )}
+          {newPage && (
+            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+              Create
+            </LoadingButton>
+          )}
+        </Box>
       </Stack>
       <TechnicianDialog
         open={openConfirmDialog}
         onClose={onConfirmDialogClose}
         onSelect={onConfirm}
-        requestId={currentRequest?.id}
+        requestId={id}
       />
       <RequestRejectDialog
         open={openRejectDialog}

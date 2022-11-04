@@ -1,5 +1,6 @@
 import {
   Box,
+  Tabs,
   Button,
   Card,
   Container,
@@ -9,6 +10,7 @@ import {
   TableBody,
   TableContainer,
   TablePagination,
+  Tab,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -19,10 +21,22 @@ import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
+import useTabs from 'src/hooks/useTabs';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestTableRow from 'src/sections/@dashboard/request/list/RequestTableRow';
 import RequestTableToolbar from 'src/sections/@dashboard/request/list/RequestTableToolbar';
 import axios from 'src/utils/axios';
+
+const STATUS_OPTIONS = [
+  'all',
+  'pending',
+  'preparing',
+  'resolving',
+  'resolved',
+  'editing',
+  'rejected',
+  'canceled',
+];
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -50,6 +64,12 @@ export default function RequestList() {
 
   const [filterText, setFilterText] = useState('');
 
+  const {
+    currentTab: filterStatus,
+    onChangeTab: onChangeFilterStatus,
+    setCurrentTab: setFilterStatus,
+  } = useTabs('all');
+
   const handleFilterTextChange = (value: string) => {
     setFilterText(value);
   };
@@ -57,6 +77,7 @@ export default function RequestList() {
   const handleRowClick = (value: string) => {
     navigate(PATH_DASHBOARD.admin.request.edit(value));
   };
+
   const handleBtnClick = () => {
     navigate(PATH_DASHBOARD.admin.request.new);
   };
@@ -69,6 +90,7 @@ export default function RequestList() {
     rowsPerPage,
     //
     selected,
+    setPage,
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
@@ -85,7 +107,12 @@ export default function RequestList() {
   const fetch = useCallback(async () => {
     try {
       const response: any = await axios.get('/api/requests/get_list_requests', {
-        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+        params: {
+          pageNumber: page + 1,
+          pageSize: rowsPerPage,
+          search: filterText === '' ? undefined : filterText,
+          status: filterStatus === 'all' ? undefined : filterStatus,
+        },
       });
 
       setTotal(response.total);
@@ -112,12 +139,17 @@ export default function RequestList() {
       enqueueSnackbar('Cannot fetch data', { variant: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
+  }, [filterStatus, filterText, page, rowsPerPage]);
+
+  const handleChangeFilterStatus = (event: React.SyntheticEvent<Element, Event>, newValue: any) => {
+    setPage(0);
+    onChangeFilterStatus(event, newValue);
+  };
 
   useEffect(() => {
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filterText]);
+  }, [filterStatus, page, rowsPerPage, filterText]);
 
   return (
     <Page title="Request: Listing">
@@ -143,7 +175,25 @@ export default function RequestList() {
         />
 
         <Card>
-          <RequestTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
+          <Tabs
+            allowScrollButtonsMobile
+            variant="scrollable"
+            scrollButtons="auto"
+            value={filterStatus}
+            onChange={handleChangeFilterStatus}
+            sx={{ px: 2, bgcolor: 'background.neutral' }}
+          >
+            {STATUS_OPTIONS.map((tab) => (
+              <Tab disableRipple key={tab} label={tab} value={tab} />
+            ))}
+          </Tabs>
+
+          <RequestTableToolbar
+            filterText={filterText}
+            onFilterText={handleFilterTextChange}
+            filterStatus={filterStatus}
+            onChangeFilterStatus={(value) => setFilterStatus(value)}
+          />
 
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>

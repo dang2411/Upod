@@ -20,6 +20,7 @@ export type Request = {
     customer: FetchModel;
     name: string;
     createdAt: Date;
+    contract: any;
     service: FetchModel;
     agency: FetchModel;
     priority: Priority;

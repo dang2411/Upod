@@ -21,8 +21,7 @@ import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
 import AgencyTableToolbar from 'src/sections/@dashboard/agency/list/AgencyTableToolbar';
 import AgencyTableRow from 'src/sections/@dashboard/agency/list/AgencyTableRow';
-import axiosInstance from 'src/utils/axios';
-import axios from 'axios';
+import axios from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -68,7 +67,7 @@ export default function AgencyList() {
 
   const fetch = useCallback(async () => {
     try {
-      const response: any = await axiosInstance.get('/api/agencies/get_list_agencies', {
+      const response: any = await axios.get('/api/agencies/get_list_agencies', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
 
