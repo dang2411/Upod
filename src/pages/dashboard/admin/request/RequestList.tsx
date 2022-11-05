@@ -1,6 +1,5 @@
 import {
   Box,
-  Tabs,
   Button,
   Card,
   Container,
@@ -10,7 +9,6 @@ import {
   TableBody,
   TableContainer,
   TablePagination,
-  Tab,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -44,6 +42,7 @@ const TABLE_HEAD = [
   { id: 'agency', label: 'Agency', align: 'left' },
   { id: 'service', label: 'Service', align: 'left' },
   { id: 'customer', label: 'Customer', align: 'left' },
+  { id: 'contract', label: 'Contract', align: 'left' },
   { id: 'description', label: 'Description', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
 ];
@@ -66,7 +65,7 @@ export default function RequestList() {
 
   const {
     currentTab: filterStatus,
-    onChangeTab: onChangeFilterStatus,
+    // onChangeTab: onChangeFilterStatus,
     setCurrentTab: setFilterStatus,
   } = useTabs('all');
 
@@ -129,6 +128,7 @@ export default function RequestList() {
             priority: parsePriority(x.priority),
             description: x.description,
             customer: x.customer,
+            contract: x.contract,
             status: x.request_status.toLowerCase(),
             technician: x.technician,
           } as Request)
@@ -141,10 +141,10 @@ export default function RequestList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterStatus, filterText, page, rowsPerPage]);
 
-  const handleChangeFilterStatus = (event: React.SyntheticEvent<Element, Event>, newValue: any) => {
-    setPage(0);
-    onChangeFilterStatus(event, newValue);
-  };
+  // const handleChangeFilterStatus = (event: React.SyntheticEvent<Element, Event>, newValue: any) => {
+  //   setPage(0);
+  //   onChangeFilterStatus(event, newValue);
+  // };
 
   useEffect(() => {
     fetch();
@@ -175,7 +175,7 @@ export default function RequestList() {
         />
 
         <Card>
-          <Tabs
+          {/* <Tabs
             allowScrollButtonsMobile
             variant="scrollable"
             scrollButtons="auto"
@@ -186,13 +186,16 @@ export default function RequestList() {
             {STATUS_OPTIONS.map((tab) => (
               <Tab disableRipple key={tab} label={tab} value={tab} />
             ))}
-          </Tabs>
+          </Tabs> */}
 
           <RequestTableToolbar
             filterText={filterText}
             onFilterText={handleFilterTextChange}
             filterStatus={filterStatus}
-            onChangeFilterStatus={(value) => setFilterStatus(value)}
+            onChangeFilterStatus={(value) => {
+              setPage(0);
+              setFilterStatus(value);
+            }}
           />
 
           <TableContainer>

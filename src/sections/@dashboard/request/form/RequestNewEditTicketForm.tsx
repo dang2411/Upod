@@ -7,6 +7,7 @@ import Iconify from 'src/components/Iconify';
 import axios from 'src/utils/axios';
 
 export default function RequestNewEditTicketForm({ requestId, agencyId, editable }: any) {
+
   const {
     control,
     setValue,
@@ -18,8 +19,6 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
   const theme = useTheme();
 
   const [devices, setDevices] = useState([]);
-
-  const [ticket, setTicket] = useState([]);
 
   const handleAppend = () => {
     append({ frequencyMaintain: 0 });
@@ -34,14 +33,12 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
       const response = await axios.get('/api/technicians/get_ticket_by_request_id', {
         params: { id, pageSize: 10000, pageNumber: 1 },
       });
-      setTicket(
-        response.data.map((x) => ({
-          id: x.ticket_id,
-          device: { id: x.device_id, name: x.name },
-          solution: x.solution,
-          description: x.description,
-        }))
-      );
+      const ticket = response.data.map((x) => ({
+        id: x.ticket_id,
+        device: { id: x.device_id, name: x.name },
+        solution: x.solution,
+        description: x.description,
+      }));
       setValue('ticket', ticket);
     } catch (error) {
       console.error(error);
@@ -71,9 +68,10 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agencyId]);
 
-  //   const deviceList = devices.filter(
-  //     (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)
-  //   ) as any[];
+  const deviceList = devices.filter(
+    (x: { id: string; name: string }) => !fields.find((y: any) => y.device?.id === x.id)
+  ) as any[];
+
   return (
     <>
       {fields && (fields.length > 0 || editable) && (
@@ -104,8 +102,7 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
                         name={`ticket[${index}].device`}
                         label="Device"
                         variant="outlined"
-                        // options={item?.value ? [item!.value, ...deviceList] : deviceList}
-                        options={devices}
+                        options={item?.value ? [item!.value, ...deviceList] : deviceList}
                         disabled={!editable}
                         fullWidth
                       />

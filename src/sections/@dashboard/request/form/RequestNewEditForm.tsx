@@ -97,23 +97,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const id = currentRequest?.id;
 
-  const defaultValues = useMemo(
-    () => ({
-      code: currentRequest?.code || '',
-      name: currentRequest?.name || '',
-      service: currentRequest?.service,
-      address: currentRequest?.agency?.address || '',
-      phone: currentRequest?.agency?.phone || '',
-      agency: currentRequest?.agency,
-      priority: currentRequest?.priority || 1,
-      description: currentRequest?.description || '',
-      customer: currentRequest?.customer,
-      status: currentRequest?.status || 'pending',
-      technician: currentRequest?.technician,
-    }),
-    [currentRequest]
-  );
-
+  const defaultValues = {
+    code: currentRequest?.code || '',
+    name: currentRequest?.name || '',
+    service: currentRequest?.service,
+    address: currentRequest?.agency?.address || '',
+    phone: currentRequest?.agency?.phone || '',
+    agency: currentRequest?.agency,
+    priority: currentRequest?.priority || 1,
+    description: currentRequest?.description || '',
+    customer: currentRequest?.customer,
+    status: currentRequest?.status || 'pending',
+    technician: currentRequest?.technician,
+    rejectReason: currentRequest?.rejectReason || '',
+  };
   const methods = useForm<any>({
     resolver: yupResolver(RequestSchema),
     defaultValues,
@@ -218,6 +215,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
       );
 
       setValue('status', 'reject');
+      if (isCustomer) {
+        navigate(PATH_DASHBOARD.customer.request.root);
+      } else {
+        navigate(PATH_DASHBOARD.admin.request.root);
+      }
       enqueueSnackbar('Reject request successfully', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Reject request failed', { variant: 'error' });
@@ -306,7 +308,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   };
 
   const {
-    reset,
     watch,
     setValue,
     getValues,
@@ -321,15 +322,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (isEdit && currentRequest) {
-      reset(defaultValues);
-    }
-    if (!isEdit) {
-      reset(defaultValues);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, agencies, services, currentRequest]);
+  // useEffect(() => {
+  //   if (isEdit && currentRequest) {
+  //     reset(defaultValues);
+  //   }
+  //   if (!isEdit) {
+  //     reset(defaultValues);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isEdit, agencies, services, currentRequest]);
 
   useEffect(() => {
     if (getValues('agency')) {
@@ -500,6 +501,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 disabled={disabled}
               />
             </Grid>
+            {currentStatus === 'rejected' && (
+              <Grid item xs={12} md={6}>
+                <RHFTextField
+                  name="rejectReason"
+                  label="Reject Reason"
+                  variant="outlined"
+                  multiline
+                  minRows={6}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  disabled={true}
+                />
+              </Grid>
+            )}
           </Grid>
         </Card>
         {(currentStatus === 'editing' || currentStatus === 'resolved') && (
@@ -535,11 +550,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               Confirm
             </Button>
           )}
-          {(currentStatus === 'pending' || currentStatus === 'preparing') && editPage && (
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              Save
-            </LoadingButton>
-          )}
+          {(currentStatus === 'pending' ||
+            currentStatus === 'preparing' ||
+            currentStatus === 'editing') &&
+            editPage && (
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                Save
+              </LoadingButton>
+            )}
           {newPage && (
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               Create
