@@ -44,7 +44,9 @@ export default function AgencyDetail() {
   const TABLE_HEAD = [
     { id: 'code', label: 'Code', align: 'left' },
     { id: 'name', label: 'Name', align: 'left' },
+    { id: 'customer', label: 'Customer', align: 'left' },
     { id: 'agency', label: 'Agency', align: 'left' },
+    { id: 'service', label: 'Service', align: 'left' },
     { id: 'type', label: 'Type', align: 'left' },
   ];
 
@@ -204,6 +206,8 @@ export default function AgencyDetail() {
 
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
+        customer: x.customer.name,
+        service: x.service.service_name,
         code: x.code,
         name: x.device_name,
         agency: x.agency.agency_name,

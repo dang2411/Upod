@@ -380,7 +380,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const disabled = currentStatus !== 'pending';
 
-  const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
+  const isCreatedByAdmin = currentRequest?.create_By?.role === 'Admin';
+
+  const isCreatedByCurrentUser = currentRequest?.createdBy?.role === 'Customer' && currentRequest?.createdBy?.id === user?.account?.id;
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -525,12 +527,12 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
           />
         )}
         <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
-          {currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
+          {(currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin) || (currentStatus === 'pending' && editPage && isCustomer && isCreatedByCurrentUser) && (
             <Button onClick={handleDeleteClick} color="error" variant="contained">
               Delete
             </Button>
           )}
-          {currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
+          {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) || (currentStatus === 'preparing' && editPage && isCustomer && isCreatedByCurrentUser) && (
             <Button onClick={handleCancelClick} color="error" variant="outlined">
               Cancel
             </Button>
@@ -551,8 +553,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             </Button>
           )}
           {(currentStatus === 'pending' ||
-            currentStatus === 'preparing' ||
-            currentStatus === 'editing') &&
+            (currentStatus === 'preparing' && !isCustomer) || 
+            (currentStatus === 'editing' && !isCustomer)) &&
             editPage && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                 Save
