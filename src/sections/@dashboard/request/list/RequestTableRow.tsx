@@ -8,7 +8,8 @@ type Props = {
 };
 
 export default function RequestTableRow({ row, onRowClick }: Props) {
-  const { code, name, agency, service, customer,contract, description, status } = row;
+  const { code, name, agency, service, createdByAdmin, customer, contract, description, status } =
+    row;
 
   const parseStatus = (status: RequestStatus) => {
     if (status === 'pending') {
@@ -40,7 +41,8 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{agency.name} </TableCell>
       <TableCell align="left">{service.name} </TableCell>
       <TableCell align="left">{customer.name} </TableCell>
-      <TableCell align="left">{contract.code ?? ''} </TableCell>
+      <TableCell align="left">{contract.name ?? ''} </TableCell>
+      <TableCell align="left">{createdByAdmin ? 'Admin' : customer.name} </TableCell>
       {/* <TableCell align="left">{createdAt} </TableCell> */}
       <TableCell align="left">{cutOut(description)} </TableCell>
       <TableCell align="left">{parseStatus(status)} </TableCell>

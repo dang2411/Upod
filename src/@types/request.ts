@@ -27,6 +27,7 @@ export type Request = {
     priority: Priority;
     description: string;
     status: RequestStatus;
+    createdByAdmin?: boolean;
     technician: any;
     createdBy: Date;
 }
