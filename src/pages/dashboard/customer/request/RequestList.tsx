@@ -72,7 +72,6 @@ export default function RequestList() {
   } = useTabs('all');
 
   const handleFilterTextChange = (value: string) => {
-    //
     setFilterText(value);
   };
 
@@ -116,10 +115,11 @@ export default function RequestList() {
           id: id,
           pageNumber: page + 1,
           pageSize: rowsPerPage,
-          search: filterText === '' ? undefined : filterText,
+          search: filterText === '' ? '' : filterText,
           status: filterStatus === 'all' ? undefined : filterStatus,
         },
       });
+      console.log(filterText);
 
       setTotal(response.total);
       // setData(response.data);
@@ -136,6 +136,7 @@ export default function RequestList() {
             description: x.description,
             customer: x.customer,
             contract: x.contract,
+            createdByAdmin: x.admin_id != null,
             status: x.request_status.toLowerCase(),
             technician: x.technician,
           } as Request)
@@ -194,9 +195,9 @@ export default function RequestList() {
             filterText={filterText}
             onFilterText={handleFilterTextChange}
             filterStatus={filterStatus}
-            onChangeFilterStatus={(value) => {
+            onChangeFilterStatus={(event) => {
               setPage(0);
-              setFilterStatus(value);
+              setFilterStatus(event.valueOf);
             }}
           />
 
