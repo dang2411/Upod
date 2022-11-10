@@ -21,11 +21,13 @@ export type Request = {
     name: string;
     createdAt: Date;
     contract: any;
+    rejectReason: string;
     service: FetchModel;
     agency: FetchModel;
     priority: Priority;
     description: string;
     status: RequestStatus;
+    createdByAdmin?: boolean;
     technician: any;
     createdBy: Date;
 }

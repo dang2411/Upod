@@ -19,18 +19,33 @@ import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useAuth from 'src/hooks/useAuth';
 import useSettings from 'src/hooks/useSettings';
+import useTabs from 'src/hooks/useTabs';
 import useTable from 'src/hooks/useTable';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestTableRow from 'src/sections/@dashboard/request/list/RequestTableRow';
 import RequestTableToolbar from 'src/sections/@dashboard/request/list/RequestTableToolbar';
 import axios from 'src/utils/axios';
+import { debounce } from 'lodash';
+
+const STATUS_OPTIONS = [
+  'all',
+  'pending',
+  'preparing',
+  'resolving',
+  'resolved',
+  'editing',
+  'rejected',
+  'canceled',
+];
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
-  { id: 'name', label: 'RequestName', align: 'left' },
+  { id: 'name', label: 'Name', align: 'left' },
   { id: 'agency', label: 'Agency', align: 'left' },
   { id: 'service', label: 'Service', align: 'left' },
-  { id: 'createdAt', label: 'createdAt', align: 'left' },
+  { id: 'customer', label: 'Customer', align: 'left' },
+  { id: 'contract', label: 'Contract', align: 'left' },
+  { id: 'created', label: 'Created By', align: 'left' },
   { id: 'description', label: 'Description', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
 ];
@@ -51,8 +66,13 @@ export default function RequestList() {
 
   const [filterText, setFilterText] = useState('');
 
+  const {
+    currentTab: filterStatus,
+    // onChangeTab: onChangeFilterStatus,
+    setCurrentTab: setFilterStatus,
+  } = useTabs('all');
+
   const handleFilterTextChange = (value: string) => {
-    //
     setFilterText(value);
   };
 
@@ -71,6 +91,7 @@ export default function RequestList() {
     rowsPerPage,
     //
     selected,
+    setPage,
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
@@ -86,44 +107,65 @@ export default function RequestList() {
 
   const { user } = useAuth();
 
-  const fetch = useCallback(async () => {
-    try {
-      const id = user?.account.id;
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
+      try {
+        const id = user?.account.id;
 
-      const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
-        params: { id: id, pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
-      });
+        const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
+          params: {
+            id: id,
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? '' : value,
+            status: filterStatus === 'all' ? undefined : filterStatus,
+          },
+        });
 
-      setTotal(response.total);
-      // setData(response.data);
-      const result = Array.from(response.data).map(
-        (x: any) =>
-          ({
-            id: x.id,
-            code: x.code,
-            createdAt: new Date(x.create_date),
-            name: x.request_name,
-            service: { id: x.service.id, name: x.service.service_name },
-            customer: { id: x.customer.id, name: x.customer.name },
-            agency: { id: x.agency.id, name: x.agency.agency_name },
-            priority: parsePriority(x.priority),
-            description: x.description,
-            status: x.request_status.toLowerCase(),
-            technician: x.technician,
-          } as Request)
-      );
-      setData(result);
-    } catch (err) {
-      console.error(err);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
+        setTotal(response.total);
+        // setData(response.data);
+        const result = Array.from(response.data).map(
+          (x: any) =>
+            ({
+              id: x.id,
+              code: x.code,
+              createdAt: new Date(x.create_date),
+              name: x.request_name,
+              service: { id: x.service.id, name: x.service.service_name },
+              agency: { id: x.agency.id, name: x.agency.agency_name },
+              priority: parsePriority(x.priority),
+              description: x.description,
+              customer: x.customer,
+              contract: x.contract,
+              createdByAdmin: x.admin_id != null,
+              status: x.request_status.toLowerCase(),
+              technician: x.technician,
+            } as Request)
+        );
+        setData(result);
+      } catch (err) {
+        console.error(err);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
+    [filterStatus, page, rowsPerPage]
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) =>
+        fetch({ value, page, rowsPerPage, filterStatus }),
+      1000
+    ),
+    []
+  );
 
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filterText]);
+  }, [page, rowsPerPage, filterStatus, filterText]);
 
   return (
     <Page title="Request: Listing">
@@ -137,7 +179,7 @@ export default function RequestList() {
             },
             {
               name: 'Request',
-              href: PATH_DASHBOARD.customer.request.root,
+              href: PATH_DASHBOARD.admin.request.root,
             },
             { name: 'Listing' },
           ]}
@@ -149,7 +191,28 @@ export default function RequestList() {
         />
 
         <Card>
-          <RequestTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
+          {/* <Tabs
+            allowScrollButtonsMobile
+            variant="scrollable"
+            scrollButtons="auto"
+            value={filterStatus}
+            onChange={handleChangeFilterStatus}
+            sx={{ px: 2, bgcolor: 'background.neutral' }}
+          >
+            {STATUS_OPTIONS.map((tab) => (
+              <Tab disableRipple key={tab} label={tab} value={tab} />
+            ))}
+          </Tabs> */}
+
+          <RequestTableToolbar
+            filterText={filterText}
+            onFilterText={handleFilterTextChange}
+            filterStatus={filterStatus}
+            onChangeFilterStatus={(value) => {
+              setPage(0);
+              setFilterStatus(value);
+            }}
+          />
 
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
@@ -169,8 +232,8 @@ export default function RequestList() {
                     onRowClick={() => handleRowClick(row.id)}
                   />
                 ))}
-
-                {/* <TableEmptyRows
+                {/* 
+                <TableEmptyRows
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}

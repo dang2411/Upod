@@ -74,23 +74,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     service: currentContract?.service || (disable ? null : [{ frequencyMaintain: 0 }]),
   };
 
-  const fetchServices = useCallback(async () => {
-    try {
-      var response;
-      if (isCustomer) {
-        response = await axios.get('/api/customers/get_services_by_customer_id', {
-          params: { id: user?.account?.id },
-        });
-      } else {
-        response = await axios.get('/api/services/get_all_services');
-      }
-      setServices(response.data.map((x) => ({ id: x.id, name: x.service_name })));
-    } catch (error) {
-      console.error(error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchCustomer = useCallback(async () => {
     try {
       const response = await axios.get('/api/customers/get_all_customers', {
@@ -98,6 +81,25 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       });
 
       setCustomers(response.data.map((x) => ({ id: x.id, name: x.name })));
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchServices = useCallback(async (customerId: string) => {
+    try {
+      var response;
+      if (isCustomer) {
+        response = await axios.get('/api/customers/get_services_by_customer_id', {
+          params: { id: user?.account?.id },
+        });
+      } else {
+        response = await axios.get('/api/customers/get_services_not_in_contract_customer', {
+          params: { id: customerId },
+        });
+      }
+      setServices(response.data.map((x) => ({ id: x.id, name: x.service_name })));
     } catch (error) {
       console.error(error);
     }
@@ -149,6 +151,8 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   const {
     handleSubmit,
     control,
+    watch,
+    getValues,
     formState: { errors, isSubmitting },
   } = methods;
 
@@ -166,7 +170,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     if (isEdit) {
       //
     } else {
-
       const params = {
         customer_id: data.customer.id,
         contract_name: data.name,
@@ -187,10 +190,14 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   };
 
   useEffect(() => {
-    fetchServices();
     fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    fetchServices(getValues('customer')?.id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('customer')]);
 
   const onDeleteClick = () => {
     deleteContract();

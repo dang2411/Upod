@@ -97,6 +97,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const id = currentRequest?.id;
 
+  const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
+
   const defaultValues = {
     code: currentRequest?.code || '',
     name: currentRequest?.name || '',
@@ -108,6 +110,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     description: currentRequest?.description || '',
     customer: currentRequest?.customer,
     status: currentRequest?.status || 'pending',
+    createdBy: isCreatedByAdmin ? 'Admin' : currentRequest?.createdBy?.name,
     technician: currentRequest?.technician,
     rejectReason: currentRequest?.rejectReason || '',
   };
@@ -380,7 +383,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const disabled = currentStatus !== 'pending';
 
-  const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
+  const isCreatedByCurrentUser =
+    currentRequest?.createdBy?.role === 'Customer' &&
+    currentRequest?.createdBy?.id === user?.account?.id;
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -463,6 +468,16 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
+            <Grid item xs={12} md={6}>
+              <RHFTextField
+                value={getValues('createdBy')}
+                name="createdBy"
+                label="Created_By"
+                variant="outlined"
+                fullWidth
+                disabled={disabled}
+              />
+            </Grid>
             {editPage && (
               <Grid item xs={12} md={6}>
                 <TextField
@@ -525,16 +540,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
           />
         )}
         <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
-          {currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
-            <Button onClick={handleDeleteClick} color="error" variant="contained">
-              Delete
-            </Button>
-          )}
-          {currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
-            <Button onClick={handleCancelClick} color="error" variant="outlined">
-              Cancel
-            </Button>
-          )}
+          {(currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin) ||
+            (currentStatus === 'pending' && editPage && isCustomer && isCreatedByCurrentUser && (
+              <Button onClick={handleDeleteClick} color="error" variant="contained">
+                Delete
+              </Button>
+            ))}
+          {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+            (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser && (
+              <Button onClick={handleCancelClick} color="error" variant="outlined">
+                Cancel
+              </Button>
+            ))}
           {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
             <Button onClick={handleShowReject} color="error" variant="outlined">
               Reject
@@ -550,9 +567,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               Confirm
             </Button>
           )}
-          {(currentStatus === 'pending' ||
-            currentStatus === 'preparing' ||
-            currentStatus === 'editing') &&
+          {((currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||
+            (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+            (currentStatus === 'editing' && !isCustomer)) &&
             editPage && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                 Save
