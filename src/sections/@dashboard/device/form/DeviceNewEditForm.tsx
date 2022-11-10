@@ -60,10 +60,13 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     agency: currentDevice?.agency,
     deviceAccount: currentDevice?.deviceAccount || '',
     devicePassword: currentDevice?.devicePassword || '',
+    technician: currentDevice?.technician?.name || '',
     settingDate: currentDevice?.settingDate,
     guarantyStartDate: currentDevice?.guarantyStartDate,
     guarantyEndDate: currentDevice?.guarantyEndDate,
   };
+
+  console.log(currentDevice);
 
   const methods = useForm({
     resolver: yupResolver(deviceSchema),
@@ -120,6 +123,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
             <RHFTextField name="port" label="port" disabled={disable} />
             <RHFTextField name="deviceAccount" label="Device Account" disabled={disable} />
             <RHFTextField name="devicePassword" label="Device Password" disabled={disable} />
+            <RHFTextField name="technician" label="Created By" disabled={disable} />
             <Controller
               name="settingDate"
               control={control}

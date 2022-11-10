@@ -38,6 +38,10 @@ export default function DeviceDetail() {
         deviceAccount: response.data.device_account,
         devicePassword: response.data.device_password,
         settingDate: response.data.setting_date,
+        technician: {
+          id: response.data.technician.id,
+          name: response.data.technician.name,
+        },
       };
       if (response.status === 200) {
         setData(result);

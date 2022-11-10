@@ -1,9 +1,7 @@
 import {
   Box,
-  Button,
   Card,
   Container,
-  DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
@@ -21,7 +19,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
-import { TableHeadCustom, TableNoData } from 'src/components/table';
+import { TableHeadCustom } from 'src/components/table';
 import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
 import { styled } from '@mui/material/styles';
@@ -60,9 +58,6 @@ export default function AgencyDetail() {
 
   const [devices, setDevices] = useState<any[]>([]);
 
-  const handleFilterTextChange = (value: string) => {
-    setFilterText(value);
-  };
 
   const handleClickOpen = () => {
     setOpen(true);

@@ -1,12 +1,13 @@
 import {
-  Box, Card,
+  Box,
+  Card,
   Container,
   FormControlLabel,
   Switch,
   Table,
   TableBody,
   TableContainer,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -24,8 +25,11 @@ import axiosInstance from 'src/utils/axios';
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
+  { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'agency', label: 'Agency', align: 'left' },
+  { id: 'service', label: 'Service', align: 'left' },
   { id: 'type', label: 'Type', align: 'left' },
+  { id: 'createdBy', label: 'Created By', align: 'left' },
 ];
 
 export default function DeviceList() {
@@ -74,8 +78,11 @@ export default function DeviceList() {
         id: x.id,
         code: x.code,
         name: x.device_name,
+        customer: { id: x.customer.id, name: x.customer.name },
+        service: { id: x.service.id, name: x.service.service_name },
         agency: x.agency.agency_name,
         type: x.devicetype.device_type_name,
+        technician: { id: x.technician.id, name: x.technician.name },
       }));
       setData(result);
     } catch (error) {
