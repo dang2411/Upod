@@ -31,7 +31,15 @@ export default function DeviceDetail() {
         },
         agency: {
           id: response.data.agency.id,
-          name: response.data.agency.agency_name,
+          agencyName: response.data.agency.agency_name,
+        },
+        service: {
+          id: response.data.service.id,
+          name: response.data.service.service_name,
+        },
+        customer: {
+          id: response.data.customer.id,
+          name: response.data.customer.name,
         },
         ip: response.data.ip,
         port: response.data.port,

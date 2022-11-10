@@ -8,7 +8,9 @@ export default function Input(theme: Theme) {
       styleOverrides: {
         root: {
           '&.Mui-disabled': {
-            '& svg': { color: theme.palette.text.disabled },
+            '& svg': {
+              color: theme.palette.text.disabled,
+            },
           },
         },
         input: {

@@ -115,6 +115,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     try {
       const response: any = await axios.post('/api/contracts/create_contract', data);
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.contract.root);
         enqueueSnackbar('Create contract successfully', { variant: 'success' });
       } else {
         enqueueSnackbar(response.message, { variant: 'error' });
@@ -136,8 +137,8 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         }
       );
       if (response.status === 200 || response.status === 201) {
-        enqueueSnackbar('Delete contract successfully', { variant: 'success' });
         navigate(PATH_DASHBOARD.admin.contract.root);
+        enqueueSnackbar('Delete contract successfully', { variant: 'success' });
       } else {
         enqueueSnackbar('Delete contract failed', { variant: 'error' });
       }
@@ -196,7 +197,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   useEffect(() => {
     fetchServices(getValues('customer')?.id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch('customer')]);
 
   const onDeleteClick = () => {

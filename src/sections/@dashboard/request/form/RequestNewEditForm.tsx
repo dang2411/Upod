@@ -179,11 +179,17 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const updateRequest = useCallback(async (data: any) => {
     try {
-      await axios.put('/api/requests/update_request_by_id', data, {
+      const response = await axios.put('/api/requests/update_request_by_id', data, {
         params: { id: currentRequest?.id },
       });
-
-      enqueueSnackbar('Update request successfully', { variant: 'success' });
+      if (response.status === 200 || response.status === 201) {
+        if (isCustomer) {
+          navigate(PATH_DASHBOARD.customer.agency.root);
+        } else {
+          navigate(PATH_DASHBOARD.admin.agency.root);
+        }
+        enqueueSnackbar('Update request successfully', { variant: 'success' });
+      }
     } catch (error) {
       enqueueSnackbar('Update request failed', { variant: 'error' });
       console.error(error);
@@ -193,13 +199,16 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const confirmRequest = useCallback(async (data: Technician) => {
     try {
-      await axios.put('/api/requests/mapping_technician_to_request_by_id', data, {
+      const response = await axios.put('/api/requests/mapping_technician_to_request_by_id', data, {
         params: { request_id: currentRequest?.id, technician_id: data.id },
       });
 
       setValue('status', 'preparing');
       setValue('technician', data);
-      enqueueSnackbar('Confirm request successfully', { variant: 'success' });
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.request.root);
+        enqueueSnackbar('Confirm request successfully', { variant: 'success' });
+      }
     } catch (error) {
       enqueueSnackbar('Confirm request failed', { variant: 'error' });
       console.error(error);
@@ -209,7 +218,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const rejectRequest = useCallback(async (data: string) => {
     try {
-      await axios.put(
+      const response = await axios.put(
         '/api/requests/reject_request_by_id',
         {},
         {
@@ -218,12 +227,10 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
       );
 
       setValue('status', 'reject');
-      if (isCustomer) {
-        navigate(PATH_DASHBOARD.customer.request.root);
-      } else {
+      if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.request.root);
+        enqueueSnackbar('Reject request successfully', { variant: 'success' });
       }
-      enqueueSnackbar('Reject request successfully', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Reject request failed', { variant: 'error' });
       console.error(error);
@@ -234,12 +241,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   const createRequest = useCallback(async (data: any) => {
     try {
       if (isCustomer) {
-        await axios.post('/api/requests/create_request', data);
+        const response = await axios.post('/api/requests/create_request', data);
+        if (response.status === 200 || response.status == 201) {
+          navigate(PATH_DASHBOARD.customer.request.root);
+          enqueueSnackbar('Create request successfully', { variant: 'success' });
+        }
       } else {
-        await axios.post('/api/requests/create_request_by_admin', data);
+        const response = await axios.post('/api/requests/create_request_by_admin', data);
+        if (response.status === 200 || response.status == 201) {
+          navigate(PATH_DASHBOARD.admin.request.root);
+          enqueueSnackbar('Create request successfully', { variant: 'success' });
+        }
       }
-
-      enqueueSnackbar('Create request successfully', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Create request failed', { variant: 'error' });
       console.error(error);
@@ -249,10 +262,12 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const reopenRequest = useCallback(async (data: any) => {
     try {
-      await axios.put('/api/requests/reopen_request_by_id', {}, { params: data });
-
-      enqueueSnackbar('Reopen request successfully', { variant: 'success' });
+      const response = await axios.put('/api/requests/reopen_request_by_id', {}, { params: data });
       setValue('status', 'editing');
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.request.root);
+        enqueueSnackbar('Reopen request successfully', { variant: 'success' });
+      }
     } catch (error) {
       enqueueSnackbar('Reopen request failed', { variant: 'error' });
       console.error(error);
@@ -262,9 +277,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const cancelRequest = useCallback(async (data: any) => {
     try {
-      await axios.put('/api/requests/cancel_request_by_id', {}, { params: data });
-
-      enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+      const response = await axios.put('/api/requests/cancel_request_by_id', {}, { params: data });
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.request.root);
+        enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+      }
       setValue('status', 'canceled');
     } catch (error) {
       enqueueSnackbar('Cancel request failed', { variant: 'error' });
@@ -275,7 +292,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const deleteRequest = useCallback(async (data: any) => {
     try {
-      await axios.put('/api/requests/disable_request_by_id', {}, { params: data });
+      const response = await axios.put('/api/requests/disable_request_by_id', {}, { params: data });
 
       enqueueSnackbar('Disable request successfully', { variant: 'success' });
       if (isCustomer) {

@@ -12,6 +12,8 @@ const ICONS = {
   profile: <Iconify icon="carbon:user-avatar-filled-alt" />,
   technican: <Iconify icon="carbon:user-access" />,
   account: <Iconify icon="bxs:user-account" />,
+  area: <Iconify icon="bxs:map-pin" />,
+  service: <Iconify icon="carbon:service-id" />,
 };
 
 const customerNavConfig = [
@@ -32,8 +34,8 @@ const adminNavConfig = [
       { title: 'contract', path: PATH_DASHBOARD.admin.contract.root, icon: ICONS.contract },
       { title: 'agency', path: PATH_DASHBOARD.admin.agency.root, icon: ICONS.agency },
       { title: 'device', path: PATH_DASHBOARD.admin.device.root, icon: ICONS.device },
-      { title: 'Area', path: PATH_DASHBOARD.admin.ticket.root, icon: ICONS.device },
-      { title: 'service', path: PATH_DASHBOARD.admin.service.root, icon: ICONS.device },
+      { title: 'Area', path: PATH_DASHBOARD.admin.area.root, icon: ICONS.area },
+      { title: 'service', path: PATH_DASHBOARD.admin.service.root, icon: ICONS.service },
     ],
   },
   {

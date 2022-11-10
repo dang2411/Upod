@@ -15,15 +15,15 @@ import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
-import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
-import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
-import ServiceTableToolbar from 'src/sections/@dashboard/service/list/ServiceTableToolbar';
-import ServiceTableRow from 'src/sections/@dashboard/service/list/ServiceTableRow';
+import CompanyTableToolbar from 'src/sections/@dashboard/company/list/CompanyTableToolbar';
+import CompanyTableRow from 'src/sections/@dashboard/company/list/CompanyTableRow';
 import axiosInstance from 'src/utils/axios';
+import AreaTableToolbar from 'src/sections/@dashboard/area/list/AreaTableToolbar';
+import AreaTableRow from 'src/sections/@dashboard/area/list/AreaTableRow';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -32,7 +32,7 @@ const TABLE_HEAD = [
   { id: 'description', label: 'Description', align: 'left' },
 ];
 
-export default function ServiceList() {
+export default function AreaList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function ServiceList() {
   const [filterText, setFilterText] = useState('');
 
   const handleBtnClick = () => {
-    navigate(PATH_DASHBOARD.admin.service.new);
+    navigate(PATH_DASHBOARD.admin.area.new);
   };
 
   const handleFilterTextChange = (value: string) => {
@@ -48,7 +48,7 @@ export default function ServiceList() {
   };
 
   const handleRowClick = (value: string) => {
-    navigate(PATH_DASHBOARD.admin.service.edit(value));
+    navigate(PATH_DASHBOARD.admin.area.edit(value));
   };
 
   const [data, setData] = useState<any[]>([]);
@@ -68,7 +68,7 @@ export default function ServiceList() {
 
   const fetch = useCallback(async () => {
     try {
-      const response: any = await axiosInstance.get('/api/services/get_all_services', {
+      const response: any = await axiosInstance.get('/api/areas/get_list_area', {
         params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
       });
 
@@ -77,10 +77,9 @@ export default function ServiceList() {
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
         code: x.code,
-        name: x.service_name,
+        name: x.area_name,
         description: x.description,
         createDate: x.create_date,
-        isDelete: x.is_delete,
       }));
       setData(result);
     } catch (error) {
@@ -102,18 +101,18 @@ export default function ServiceList() {
   const isNotFound = !data.length;
 
   return (
-    <Page title="Service: Listing">
+    <Page title="Area: Listing">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
-          heading="Service: Listing"
+          heading="Area: Listing"
           links={[
             {
               name: 'Dashboard',
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Service',
-              href: PATH_DASHBOARD.admin.service.root,
+              name: 'Area',
+              href: PATH_DASHBOARD.admin.area.root,
             },
             { name: 'Listing' },
           ]}
@@ -125,7 +124,7 @@ export default function ServiceList() {
         />
 
         <Card>
-          <ServiceTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
+          <AreaTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
@@ -139,17 +138,13 @@ export default function ServiceList() {
 
               <TableBody>
                 {data.map((row: any) => (
-                  <ServiceTableRow
-                    key={row.id}
-                    row={row}
-                    onRowClick={() => handleRowClick(row.id)}
-                  />
+                  <AreaTableRow key={row.id} row={row} onRowClick={() => handleRowClick(row.id)} />
                 ))}
                 {/* 
-                <TableEmptyRows
-                  height={denseHeight}
-                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                /> */}
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={emptyRows(page, rowsPerPage, data.length)}
+                  /> */}
 
                 <TableNoData isNotFound={isNotFound} />
               </TableBody>

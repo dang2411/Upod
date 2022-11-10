@@ -106,6 +106,13 @@ export const PATH_DASHBOARD = {
       edit: (id: string) => path(ROOTS_ADMIN, `/ticket/edit/${id}`),
       view: (id: string) => path(ROOTS_ADMIN, `/ticket/view/${id}`),
     },
+    area: {
+      root: path(ROOTS_ADMIN, '/area'),
+      list: path(ROOTS_ADMIN, '/area/list'),
+      new: path(ROOTS_ADMIN, '/area/new'),
+      edit: (id: string) => path(ROOTS_ADMIN, `/area/edit/${id}`),
+      view: (id: string) => path(ROOTS_ADMIN, `/area/view/${id}`),
+    },
     device: {
       root: path(ROOTS_ADMIN, '/device'),
       list: path(ROOTS_ADMIN, '/device/list'),
