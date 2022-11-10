@@ -1,10 +1,15 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Stack } from '@mui/material';
+import { Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
+import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+import axios from 'src/utils/axios';
 import * as Yup from 'yup';
 
 type Props = {
@@ -16,7 +21,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   const serviceSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
   });
-
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const isCustomer = user?.account?.roleName === 'Customer';
@@ -27,9 +32,59 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     code: currentService?.code || '',
     name: currentService?.name || '',
     description: currentService?.description || '',
-    createDate: currentService?.createDate || '',
     isDelete: currentService?.isDelete || '',
   };
+
+  const deleteService = useCallback(async () => {
+    try {
+      const response = await axios.put(
+        '/api/services/disable_service_by_id',
+        {},
+        {
+          params: { id: currentService!.id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        enqueueSnackbar('Delete service successfully', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.service.root);
+      } else {
+        enqueueSnackbar('Delete account failed', { variant: 'error' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Delete service failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateService = useCallback(async (data: any) => {
+    try {
+      const response = await axios.put('/api/services/update_service_by_id', data, {
+        params: { id: currentService!.id },
+      });
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.service.root);
+        enqueueSnackbar('Update service successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Update service failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createService = useCallback(async (data: any) => {
+    try {
+      const response = await axios.post('/api/services/create_service', data);
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.service.root);
+        enqueueSnackbar('Create service successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Create service failed', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const methods = useForm({
     resolver: yupResolver(serviceSchema),
@@ -42,11 +97,25 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = (data: any) => {};
+  const onSubmit = (data: any) => {
+    if (isEdit) {
+      const params = {
+        service_name: data.name,
+        description: data.description,
+      };
+      updateService(params);
+    } else {
+      const params = {
+        service_name: data.name,
+        description: data.description,
+      };
+      createService(params);
+    }
+  };
   const disable = !isEdit && currentService != null;
 
   const onDeleteClick = () => {
-    // deleteAccount();
+    deleteService();
   };
 
   const editPage = isEdit && currentService;
@@ -59,10 +128,17 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
         <Stack spacing={3}>
-          {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
+          <Typography variant="subtitle1">{getValues('code')}</Typography>
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             <RHFTextField name="name" label="Name" disabled={disable} />
-            <RHFTextField name="telephone" label="Telephone" disabled={disable} />
+            <RHFTextField name="description" label="Description " disabled={disable} />
+            {!newPage && (
+              <TextField
+                value={format(new Date(currentService!.createDate), 'dd/MM/yyyy')}
+                label="Create Date "
+                disabled
+              />
+            )}
           </Box>
         </Stack>
         {!disable && (

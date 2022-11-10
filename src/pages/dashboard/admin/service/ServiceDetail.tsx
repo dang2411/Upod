@@ -19,16 +19,15 @@ export default function ServiceDetail() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(``, {
+      const response = await axiosInstance.get(`/api/services/get_service_details`, {
         params: { id },
       });
       const result = {
         id: response.data.id,
         code: response.data.code,
-        roleId: response.data.role.id,
-        roleName: response.data.role.role_name,
-        username: response.data.username,
-        isDelete: response.data.is_delete,
+        name: response.data.service_name,
+        createDate: response.data.create_date,
+        description: response.data.description,
       };
       if (response.status === 200) {
         setData(result);
@@ -69,7 +68,7 @@ export default function ServiceDetail() {
             { name: title },
           ]}
         />
-        <ServiceNewEditForm isEdit={true} currentService={data} />
+        <ServiceNewEditForm isEdit={false} currentService={data} />
       </Container>
     </Page>
   );

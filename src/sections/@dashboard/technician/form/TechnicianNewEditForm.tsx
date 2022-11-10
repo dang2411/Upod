@@ -148,6 +148,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     try {
       const response = await axios.post('/api/technicians/create_technician', data);
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Create technician successfully', { variant: 'success' });
       }
     } catch (error) {
@@ -163,6 +164,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         params: { id: currentTechnician!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Update technician successfully', { variant: 'success' });
       }
     } catch (error) {
@@ -218,7 +220,6 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         email: data.email,
         gender: data.gender,
         address: data.address,
-        rating_avg: data.rating,
         service_id: data.service.map((x: any) => x.id),
       };
       createTechnician(params);
@@ -274,7 +275,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                 ))}
               </RHFSelect>
               <RHFTextField name="email" label="Email" disabled={disable} />
-              <RHFTextField name="rating" label="Average Rating" disabled={disable} />
+              {!newPage && <RHFTextField name="rating" label="Average Rating" disabled={disable} />}
               <RHFTextField name="address" label="Address" disabled={disable} />
               <RHFAutocomplete
                 name="area"

@@ -6,8 +6,8 @@ type Props = {
   onRowClick: VoidFunction;
 };
 
-export default function DeviceTableRow({ row, onRowClick }: Props) {
-  const { code, name, agency, deviceType, serviceName } = row;
+export default function AreaTableRow({ row, onRowClick }: Props) {
+  const { code, name, createDate, description } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -16,9 +16,8 @@ export default function DeviceTableRow({ row, onRowClick }: Props) {
         </Typography>
       </TableCell>
       <TableCell align="left">{name} </TableCell>
-      <TableCell align="left">{agency} </TableCell>
-      <TableCell align="left">{deviceType}</TableCell>
-      <TableCell align="left">{serviceName}</TableCell>
+      <TableCell align="left">{format(new Date(createDate), 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{description} </TableCell>
     </TableRow>
   );
 }

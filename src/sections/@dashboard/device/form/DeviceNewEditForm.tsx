@@ -54,10 +54,10 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
   const defaultValues = {
     code: currentDevice?.code || '',
     name: currentDevice?.name || '',
-    type: currentDevice?.type,
+    typeName: currentDevice?.type.name,
     ip: currentDevice?.ip || '',
     port: currentDevice?.port || '',
-    agency: currentDevice?.agency,
+    agencyName: currentDevice?.agency.agencyName,
     deviceAccount: currentDevice?.deviceAccount || '',
     devicePassword: currentDevice?.devicePassword || '',
     settingDate: currentDevice?.settingDate,
@@ -98,28 +98,23 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
             {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
             <RHFTextField name="code" label="Code" disabled />
             <RHFTextField name="name" label="Name" disabled={disable} />
-            <RHFAutocomplete
-              name="type"
-              label="Type"
-              variant="outlined"
-              options={deviceTypes}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
+            <TextField
+              label="Customer"
+              value={currentDevice!.customer.name ?? ''}
               disabled={disable}
             />
-            <RHFAutocomplete
-              name="agency"
-              label="Agency"
-              variant="outlined"
-              options={agencies}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
+            <RHFTextField name="agencyName" label="Agency" disabled={disable} />
+            <RHFTextField name="typeName" label="Device Type" disabled={disable} />
+            <TextField
+              label="Service"
+              value={currentDevice!.service.name ?? ''}
               disabled={disable}
             />
             <RHFTextField name="ip" label="Ip" disabled={disable} />
             <RHFTextField name="port" label="port" disabled={disable} />
             <RHFTextField name="deviceAccount" label="Device Account" disabled={disable} />
             <RHFTextField name="devicePassword" label="Device Password" disabled={disable} />
+
             <Controller
               name="settingDate"
               control={control}

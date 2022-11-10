@@ -66,6 +66,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     try {
       const response: any = await axios.post('/api/customers/create_customer', data);
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Create company successfully', { variant: 'success' });
       } else {
         enqueueSnackbar(response.message ?? 'Create company failed', {
@@ -85,6 +86,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         params: { id: currentCompany!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Update company successfully', { variant: 'success' });
       }
     } catch (error) {
@@ -98,7 +100,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     code: currentCompany?.code || '',
     name: currentCompany?.name || '',
     account: currentCompany?.account,
-    email: currentCompany?.mail || '',
+    email: currentCompany?.email || '',
     address: currentCompany?.address || '',
     phone: currentCompany?.phone || '',
     description: currentCompany?.description || '',
@@ -126,8 +128,8 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         }
       );
       if (response.status === 200 || response.status === 201) {
-        enqueueSnackbar('Delete company successfully', { variant: 'success' });
         navigate(PATH_DASHBOARD.admin.company.root);
+        enqueueSnackbar('Delete company successfully', { variant: 'success' });
       } else {
         enqueueSnackbar('Delete company failed', { variant: 'error' });
       }

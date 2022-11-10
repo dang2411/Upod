@@ -5,10 +5,11 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import AreaNewEditForm from 'src/sections/@dashboard/area/form/AreaNewEditForm';
 import ServiceNewEditForm from 'src/sections/@dashboard/service/form/ServiceNewEditForm';
 import axiosInstance from 'src/utils/axios';
 
-export default function ServiceEdit() {
+export default function AreaEdit() {
   const { themeStretch } = useSettings();
 
   const { id = '' } = useParams();
@@ -19,20 +20,20 @@ export default function ServiceEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(`/api/services/get_service_details`, {
+      const response = await axiosInstance.get(`/api/areas/get_area_details_by_id`, {
         params: { id },
       });
       const result = {
         id: response.data.id,
         code: response.data.code,
-        name: response.data.service_name,
+        name: response.data.area_name,
         createDate: response.data.create_date,
         description: response.data.description,
       };
       if (response.status === 200) {
         setData(result);
       } else {
-        navigate(PATH_DASHBOARD.admin.service.root);
+        navigate(PATH_DASHBOARD.admin.area.root);
       }
     } catch (e) {
       console.error(e);
@@ -45,13 +46,13 @@ export default function ServiceEdit() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const title = data?.name || 'Service';
+  const title = data?.name || 'Area';
 
   if (!data) {
     return <div />;
   }
   return (
-    <Page title="Service: Edit">
+    <Page title="Area: Edit">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
@@ -61,13 +62,13 @@ export default function ServiceEdit() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Service',
-              href: PATH_DASHBOARD.admin.service.root,
+              name: 'Area',
+              href: PATH_DASHBOARD.admin.area.root,
             },
             { name: title },
           ]}
         />
-        <ServiceNewEditForm isEdit={true} currentService={data} />
+        <AreaNewEditForm isEdit={true} currentArea={data} />
       </Container>
     </Page>
   );

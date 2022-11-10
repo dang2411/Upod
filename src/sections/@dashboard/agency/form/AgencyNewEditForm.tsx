@@ -44,7 +44,9 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [areas, setAreas] = useState([]);
+
   const [customers, setCustomers] = useState([]);
+
   const [technicians, setTechnicians] = useState([]);
 
   const defaultValues = {
@@ -113,6 +115,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     try {
       const response = await axios.post('/api/agencies/create_agency', data);
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.agency.root);
         enqueueSnackbar('Create agenycy successfully', { variant: 'success' });
       }
     } catch (error) {
@@ -127,6 +130,11 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
         params: { id: currentAgency!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        if (isCustomer) {
+          navigate(PATH_DASHBOARD.customer.agency.root);
+        } else {
+          navigate(PATH_DASHBOARD.admin.agency.root);
+        }
         enqueueSnackbar('Update agencies successfully', { variant: 'success' });
       }
     } catch (error) {

@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function ServiceTableRow({ row, onRowClick }: Props) {
-  const { code, name, createdAt, description, isDelete } = row;
+  const { code, name, createDate, description } = row;
   return (
     <TableRow hover onClick={onRowClick} sx={{ cursor: 'pointer' }}>
       <TableCell align="left">
@@ -16,9 +16,8 @@ export default function ServiceTableRow({ row, onRowClick }: Props) {
         </Typography>
       </TableCell>
       <TableCell align="left">{name} </TableCell>
+      <TableCell align="left">{format(new Date(createDate), 'dd/MM/yyyy')} </TableCell>
       <TableCell align="left">{description} </TableCell>
-      <TableCell align="left">{createdAt} </TableCell>
-      <TableCell align="left">{isDelete} </TableCell>
     </TableRow>
   );
 }

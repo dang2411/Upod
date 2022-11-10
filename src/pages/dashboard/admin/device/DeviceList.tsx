@@ -1,12 +1,13 @@
 import {
-  Box, Card,
+  Box,
+  Card,
   Container,
   FormControlLabel,
   Switch,
   Table,
   TableBody,
   TableContainer,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -25,7 +26,8 @@ const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'agency', label: 'Agency', align: 'left' },
-  { id: 'type', label: 'Type', align: 'left' },
+  { id: 'deviceType', label: 'Type', align: 'left' },
+  { id: 'serviceName', label: 'Service Name', align: 'left' },
 ];
 
 export default function DeviceList() {
@@ -75,7 +77,8 @@ export default function DeviceList() {
         code: x.code,
         name: x.device_name,
         agency: x.agency.agency_name,
-        type: x.devicetype.device_type_name,
+        deviceType: x.devicetype.device_type_name,
+        serviceName: x.service.service_name,
       }));
       setData(result);
     } catch (error) {

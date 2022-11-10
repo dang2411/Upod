@@ -185,6 +185,19 @@ export default function Router() {
               ],
             },
             {
+              path: 'area',
+              children: [
+                {
+                  element: <Navigate to={PATH_DASHBOARD.admin.area.list} replace />,
+                  index: true,
+                },
+                { path: 'list', element: <AdminAreaListPage /> },
+                { path: 'edit/:id', element: <AdminAreaEditPage /> },
+                { path: 'view/:id', element: <AdminAreaDetailPage /> },
+                { path: 'new', element: <AdminAreaNewPage /> },
+              ],
+            },
+            {
               path: 'technician',
               children: [
                 {
@@ -432,3 +445,10 @@ const AdminAccountNewPage = Loadable(
 const AdminAccountListPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/account/AccountList'))
 );
+
+const AdminAreaDetailPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/area/AreaDetail'))
+);
+const AdminAreaEditPage = Loadable(lazy(() => import('../pages/dashboard/admin/area/AreaEdit')));
+const AdminAreaNewPage = Loadable(lazy(() => import('../pages/dashboard/admin/area/AreaNew')));
+const AdminAreaListPage = Loadable(lazy(() => import('../pages/dashboard/admin/area/AreaList')));

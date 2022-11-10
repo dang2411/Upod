@@ -55,6 +55,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     try {
       const response = await axios.post('/api/accounts/create_account', data);
       if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.account.root);
         enqueueSnackbar('Create account successfully', { variant: 'success' });
       }
     } catch (error) {
@@ -69,8 +70,8 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
         params: { id: currentAccount!.id },
       });
       if (response.status === 200 || response.status === 201) {
-        enqueueSnackbar('Update account successfully', { variant: 'success' });
         navigate(PATH_DASHBOARD.admin.account.root);
+        enqueueSnackbar('Update account successfully', { variant: 'success' });
       }
     } catch (error) {
       enqueueSnackbar('Update account failed', { variant: 'error' });
