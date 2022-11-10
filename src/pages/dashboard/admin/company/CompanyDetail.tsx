@@ -30,7 +30,7 @@ export default function CompanyDetail() {
           code: response.data.code || '',
           roleName: response.data.role_name || '',
         },
-        mail: response.data.mail || '',
+        email: response.data.mail || '',
         address: response.data.address || '',
         phone: response.data.phone || '',
         description: response.data.description || '',

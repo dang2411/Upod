@@ -145,7 +145,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         account_id: data.account.id,
         description: data.description,
         address: data.address,
-        mail: data.mail,
+        mail: data.email,
         phone: data.phone,
       };
       updateCompany(params);
@@ -155,7 +155,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         account_id: data.account.id,
         description: data.description,
         address: data.address,
-        mail: data.mail,
+        mail: data.email,
         phone: data.phone,
       };
       createCompany(params);

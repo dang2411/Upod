@@ -30,7 +30,7 @@ export default function CompanyEdit() {
           id: response.data[0].account.id,
           name: response.data[0].account.username,
         },
-        mail: response.data[0].mail,
+        email: response.data[0].mail,
         address: response.data[0].address,
         phone: response.data[0].phone,
         description: response.data[0].description,

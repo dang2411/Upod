@@ -16,18 +16,21 @@ import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useTable from 'src/hooks/useTable';
 import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
 import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
 import ServiceTableToolbar from 'src/sections/@dashboard/service/list/ServiceTableToolbar';
 import ServiceTableRow from 'src/sections/@dashboard/service/list/ServiceTableRow';
+import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
+  { id: 'description', label: 'Description', align: 'left' },
   { id: 'createdAt', label: 'CreatedAt', align: 'left' },
+  { id: 'isDelete', label: 'isDelete', align: 'left' },
 ];
 
 export default function ServiceList() {
@@ -38,7 +41,7 @@ export default function ServiceList() {
   const [filterText, setFilterText] = useState('');
 
   const handleBtnClick = () => {
-    navigate(PATH_DASHBOARD.admin.contract.new);
+    navigate(PATH_DASHBOARD.admin.service.new);
   };
 
   const handleFilterTextChange = (value: string) => {
@@ -49,7 +52,7 @@ export default function ServiceList() {
     navigate(PATH_DASHBOARD.admin.service.edit(value));
   };
 
-  const data = [];
+  const [data, setData] = useState<any[]>([]);
 
   const {
     dense,
@@ -63,6 +66,35 @@ export default function ServiceList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const fetch = useCallback(async () => {
+    try {
+      const response: any = await axiosInstance.get('/api/services/get_all_services', {
+        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+      });
+
+      setTotal(response.total);
+      //
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.service_name,
+        description: x.description,
+        createDate: x.create_date,
+        isDelete: x.is_delete,
+      }));
+      setData(result);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterText, page, rowsPerPage]);
+
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, filterText]);
 
   const [total, setTotal] = useState(0);
 

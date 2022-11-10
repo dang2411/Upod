@@ -2,9 +2,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Button, Card, Stack } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
+import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import * as Yup from 'yup';
 
@@ -20,8 +19,6 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
 
   const { user } = useAuth();
 
-  const [areas, setAreas] = useState([]);
-
   const isCustomer = user?.account?.roleName === 'Customer';
 
   const { enqueueSnackbar } = useSnackbar();
@@ -29,9 +26,9 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   const defaultValues = {
     code: currentService?.code || '',
     name: currentService?.name || '',
-    area: currentService?.area,
-    account: currentService?.account,
-    telephone: currentService?.telephone || '',
+    description: currentService?.description || '',
+    createDate: currentService?.createDate || '',
+    isDelete: currentService?.isDelete || '',
   };
 
   const methods = useForm({
@@ -66,17 +63,6 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             <RHFTextField name="name" label="Name" disabled={disable} />
             <RHFTextField name="telephone" label="Telephone" disabled={disable} />
-            <RHFAutocomplete
-              name="area"
-              disabled={disable}
-              label="Area"
-              variant="outlined"
-              options={areas}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-            />
-
-            <RHFTextField name="account" label="Account" disabled />
           </Box>
         </Stack>
         {!disable && (
