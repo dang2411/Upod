@@ -7,6 +7,7 @@ import {
   DialogTitle,
   FormControlLabel,
   IconButton,
+  Stack,
   styled,
   Switch,
   Table,
@@ -15,9 +16,8 @@ import {
   TablePagination,
   Typography,
 } from '@mui/material';
-import { orderBy } from 'lodash';
 import { useSnackbar } from 'notistack';
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
@@ -53,6 +53,7 @@ export default function AgencyDetail() {
     { id: 'agency', label: 'Agency', align: 'left' },
     { id: 'service', label: 'Service', align: 'left' },
     { id: 'type', label: 'Type', align: 'left' },
+    { id: 'createdBy', label: 'Created By', align: 'left' },
   ];
 
   const [devices, setDevices] = useState<any[]>([]);
@@ -225,87 +226,88 @@ export default function AgencyDetail() {
     );
   }
   return (
-    <Page title="Agency: Detail">
-      <Container maxWidth={themeStretch ? false : 'xl'}>
-        <HeaderBreadcrumbs
-          heading={title}
-          links={[
-            {
-              name: 'Dashboard',
-              href: PATH_DASHBOARD.root,
-            },
-            {
-              name: 'Agency',
-              href: PATH_DASHBOARD.admin.agency.root,
-            },
-            { name: title },
-          ]}
-        />
-        <AgencyNewEditForm isEdit={false} currentAgency={data} />
-      </Container>
-      <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Typography variant="h5">Devices</Typography>
+    <>
+      <Page title="Agency: Detail">
+        <Container maxWidth={themeStretch ? false : 'xl'}>
+          <HeaderBreadcrumbs
+            heading={title}
+            links={[
+              {
+                name: 'Dashboard',
+                href: PATH_DASHBOARD.root,
+              },
+              {
+                name: 'Agency',
+                href: PATH_DASHBOARD.admin.agency.root,
+              },
+              { name: title },
+            ]}
+          />
+          <AgencyNewEditForm isEdit={false} currentAgency={data} />
 
-        <Card>
-          <TableContainer>
-            <Table size={dense ? 'small' : 'medium'}>
-              <TableHeadCustom
-                order={order}
-                orderBy={orderBy}
-                headLabel={TABLE_HEAD}
-                rowCount={data.length}
-                numSelected={selected.length}
-              />
+          {devices.length > 0 && (
+            <Stack mt={3} spacing={2}>
+              <Typography variant="h5">Devices</Typography>
 
-              <TableBody>
-                {devices.map((row: any) => (
-                  <DeviceTableRow
-                    key={row.id}
-                    row={row}
-                    onRowClick={() => handleRowClick(row.id)}
-                  />
-                ))}
-                {/* 
+              <Card>
+                <TableContainer>
+                  <Table size={dense ? 'small' : 'medium'}>
+                    <TableHeadCustom
+                      order={order}
+                      orderBy={orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={data.length}
+                      numSelected={selected.length}
+                    />
+
+                    <TableBody>
+                      {devices.map((row: any) => (
+                        <DeviceTableRow
+                          key={row.id}
+                          row={row}
+                          onRowClick={() => handleRowClick(row.id)}
+                        />
+                      ))}
+                      {/* 
                 <TableEmptyRows
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box sx={{ position: 'relative' }}>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={total}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={onChangePage}
-              onRowsPerPageChange={onChangeRowsPerPage}
-            />
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Box sx={{ position: 'relative' }}>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={total}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={onChangePage}
+                    onRowsPerPageChange={onChangeRowsPerPage}
+                  />
 
-            <FormControlLabel
-              control={<Switch checked={dense} onChange={onChangeDense} />}
-              label="Dense"
-              sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
-            />
-          </Box>
-        </Card>
-      </Container>
-      <div>
-        <BootstrapDialog
-          onClose={handleClose}
-          aria-labelledby="customized-dialog-title"
-          open={open}
-        >
-          <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+                  <FormControlLabel
+                    control={<Switch checked={dense} onChange={onChangeDense} />}
+                    label="Dense"
+                    sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
+                  />
+                </Box>
+              </Card>
+            </Stack>
+          )}
+        </Container>
+      </Page>
+      <>
+        <BootstrapDialog onClose={handleClose} open={open}>
+          <BootstrapDialogTitle onClose={handleClose} id="dialog">
             {device.code}
           </BootstrapDialogTitle>
           <DialogContent dividers>
             <DeviceNewEditForm isEdit={false} currentDevice={device} />
           </DialogContent>
         </BootstrapDialog>
-      </div>
-    </Page>
+      </>
+    </>
   );
 }

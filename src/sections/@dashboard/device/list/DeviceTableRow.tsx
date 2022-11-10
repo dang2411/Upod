@@ -15,11 +15,11 @@ export default function DeviceTableRow({ row, onRowClick }: Props) {
         </Typography>
       </TableCell>
       <TableCell align="left">{name} </TableCell>
-      <TableCell align="left">{customer.name} </TableCell>
+      <TableCell align="left">{customer?.name || ''} </TableCell>
       <TableCell align="left">{agency} </TableCell>
-      <TableCell align="left">{service.name} </TableCell>
+      <TableCell align="left">{service?.name || ''} </TableCell>
       <TableCell align="left">{type}</TableCell>
-      <TableCell align="left">{technician.name}</TableCell>
+      <TableCell align="left">{technician?.name || ''}</TableCell>
     </TableRow>
   );
 }

@@ -214,9 +214,9 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const editPage = isEdit && currentAgency;
 
-  const newPage = !isEdit && !currentAgency;
+  // const newPage = !isEdit && !currentAgency;
 
-  const detailPage = !isEdit && currentAgency;
+  // const detailPage = !isEdit && currentAgency;
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>

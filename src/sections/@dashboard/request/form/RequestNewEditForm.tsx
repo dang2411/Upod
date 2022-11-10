@@ -485,16 +485,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            <Grid item xs={12} md={6}>
-              <RHFTextField
-                value={getValues('createdBy')}
-                name="createdBy"
-                label="Created_By"
-                variant="outlined"
-                fullWidth
-                disabled={disabled}
-              />
-            </Grid>
+            {!newPage && (
+              <Grid item xs={12} md={6}>
+                <RHFTextField
+                  value={getValues('createdBy')}
+                  name="createdBy"
+                  label="Created By"
+                  variant="outlined"
+                  fullWidth
+                  disabled={disabled}
+                />
+              </Grid>
+            )}
             {editPage && (
               <Grid item xs={12} md={6}>
                 <TextField
@@ -512,7 +514,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   label="Technician"
                   variant="outlined"
                   fullWidth
-                  onClick={() => setOpenConfirmDialog(true)}
+                  onClick={() => {
+                    if (
+                      (currentStatus === 'pending' || currentStatus === 'preparing') &&
+                      !isCustomer
+                    ) {
+                      setOpenConfirmDialog(true);
+                    }
+                  }}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{ readOnly: true }}
                   disabled={

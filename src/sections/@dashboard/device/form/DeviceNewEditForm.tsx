@@ -1,14 +1,14 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useSnackbar } from 'notistack';
-import useAuth from 'src/hooks/useAuth';
-import * as Yup from 'yup';
-import { Controller, useForm } from 'react-hook-form';
-import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useCallback, useEffect, useState } from 'react';
-import axios from 'src/utils/axios';
+import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useSnackbar } from 'notistack';
+import { useCallback, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { FormProvider, RHFTextField } from 'src/components/hook-form';
+import useAuth from 'src/hooks/useAuth';
+import axios from 'src/utils/axios';
+import * as Yup from 'yup';
 
 type Props = {
   currentDevice: any;
@@ -54,7 +54,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
   const defaultValues = {
     code: currentDevice?.code || '',
     name: currentDevice?.name || '',
-    typeName: currentDevice?.type.name,
+    typeName: currentDevice?.type?.name || '',
     ip: currentDevice?.ip || '',
     port: currentDevice?.port || '',
     agencyName: currentDevice?.agency.agencyName,
@@ -101,14 +101,14 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
             <RHFTextField name="name" label="Name" disabled={disable} />
             <TextField
               label="Customer"
-              value={currentDevice!.customer.name ?? ''}
+              value={currentDevice?.customer?.name ?? ''}
               disabled={disable}
             />
             <RHFTextField name="agencyName" label="Agency" disabled={disable} />
             <RHFTextField name="typeName" label="Device Type" disabled={disable} />
             <TextField
               label="Service"
-              value={currentDevice!.service.name ?? ''}
+              value={currentDevice?.service?.name ?? ''}
               disabled={disable}
             />
             <RHFTextField name="ip" label="Ip" disabled={disable} />

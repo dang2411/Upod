@@ -3,7 +3,7 @@
 - trong request phải coi được code của contract
 - người tạo mới được update
 
-field technician hiện đang có thể edit được trong mọi trang mọi status
+- field technician hiện đang có thể edit được trong mọi trang mọi status
 
 - agency code => name
 - them drop down radio button status.
@@ -18,7 +18,7 @@ field technician hiện đang có thể edit được trong mọi trang mọi st
 - thêm crud service và crud area
 - redirect tất cả các trang edit/view về listing => redirect sau khi request có response và success
 
-thêm list device vào từng agency => thêm field service name vào device | api: base/get_list_devices_by_agency_id
+- thêm list device vào từng agency => thêm field service name vào device | api: base/get_list_devices_by_agency_id
 
 - thêm customer, service, device type vào trong device
 - sửa thành contract name thay vì contract code
