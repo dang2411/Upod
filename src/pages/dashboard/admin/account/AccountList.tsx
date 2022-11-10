@@ -27,7 +27,7 @@ const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'role', label: 'Role', align: 'left' },
   { id: 'username', label: 'Username', align: 'left' },
-  { id: 'active', label: 'Active', align: 'left' },
+  { id: 'assign', label: 'Assign', align: 'left' },
 ];
 
 export default function AccountList() {
@@ -78,7 +78,7 @@ export default function AccountList() {
         name: x.contract_name,
         role: x.role.role_name,
         username: x.username,
-        active: !x.is_delete,
+        assign: !x.is_assign,
       }));
       setData(result);
     } catch (error) {

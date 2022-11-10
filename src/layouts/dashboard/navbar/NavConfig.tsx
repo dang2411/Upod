@@ -30,7 +30,6 @@ const adminNavConfig = [
     items: [
       { title: 'request', path: PATH_DASHBOARD.admin.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.admin.contract.root, icon: ICONS.contract },
-      { title: 'customer', path: PATH_DASHBOARD.admin.company.root, icon: ICONS.company },
       { title: 'agency', path: PATH_DASHBOARD.admin.agency.root, icon: ICONS.agency },
       { title: 'device', path: PATH_DASHBOARD.admin.device.root, icon: ICONS.device },
       // { title: 'ticket', path: PATH_DASHBOARD.admin.ticket.root, icon: ICONS.device },
@@ -42,6 +41,7 @@ const adminNavConfig = [
     items: [
       // { title: 'profile', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.profile },
       { title: 'technican', path: PATH_DASHBOARD.admin.technician.root, icon: ICONS.technican },
+      { title: 'customer', path: PATH_DASHBOARD.admin.company.root, icon: ICONS.company },
       { title: 'account', path: PATH_DASHBOARD.admin.account.root, icon: ICONS.account },
     ],
   },

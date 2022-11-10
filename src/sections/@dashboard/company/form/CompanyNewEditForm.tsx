@@ -111,7 +111,6 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const {
     handleSubmit,
-    getValues,
     setValue,
     control,
     formState: { isSubmitting },
