@@ -79,6 +79,7 @@ export default function CompanyList() {
         name: x.name,
         address: x.address ?? '',
         phone: x.phone ?? '',
+        email: x.mail ?? '',
         description: x.description,
         createDate: x.create_date,
       }));

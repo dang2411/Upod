@@ -90,7 +90,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     code: currentCompany?.code || '',
     name: currentCompany?.name || '',
     account: currentCompany?.account || { id: '', name: '' },
-    email: currentCompany?.mail || '',
+    email: currentCompany?.email || '',
     address: currentCompany?.address || '',
     phone: currentCompany?.phone || '',
     description: currentCompany?.description || '',
@@ -138,7 +138,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         account_id: data.account.id,
         description: data.description,
         address: data.address,
-        mail: data.mail,
+        mail: data.email,
         phone: data.phone,
       };
       updateCompany(params);
@@ -148,7 +148,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         account_id: data.account.id,
         description: data.description,
         address: data.address,
-        mail: data.mail,
+        mail: data.email,
         phone: data.phone,
       };
       createCompany(params);

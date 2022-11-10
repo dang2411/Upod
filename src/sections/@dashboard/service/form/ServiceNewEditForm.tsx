@@ -7,6 +7,7 @@ import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { description } from 'src/_mock/text';
 
 type Props = {
   currentService: any;
@@ -20,8 +21,6 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
 
   const { user } = useAuth();
 
-  const [areas, setAreas] = useState([]);
-
   const isCustomer = user?.account?.roleName === 'Customer';
 
   const { enqueueSnackbar } = useSnackbar();
@@ -29,9 +28,9 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   const defaultValues = {
     code: currentService?.code || '',
     name: currentService?.name || '',
-    area: currentService?.area,
-    account: currentService?.account,
-    telephone: currentService?.telephone || '',
+    description: currentService?.description || '',
+    createDate: currentService?.createDate || '',
+    isDelete: currentService?.isDelete || '',
   };
 
   const methods = useForm({
@@ -66,17 +65,6 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             <RHFTextField name="name" label="Name" disabled={disable} />
             <RHFTextField name="telephone" label="Telephone" disabled={disable} />
-            <RHFAutocomplete
-              name="area"
-              disabled={disable}
-              label="Area"
-              variant="outlined"
-              options={areas}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-            />
-
-            <RHFTextField name="account" label="Account" disabled />
           </Box>
         </Stack>
         {!disable && (

@@ -43,8 +43,8 @@ const adminNavConfig = [
       { title: 'customer', path: PATH_DASHBOARD.admin.company.root, icon: ICONS.company },
       { title: 'agency', path: PATH_DASHBOARD.admin.agency.root, icon: ICONS.agency },
       { title: 'device', path: PATH_DASHBOARD.admin.device.root, icon: ICONS.device },
-      // { title: 'ticket', path: PATH_DASHBOARD.admin.ticket.root, icon: ICONS.device },
-      // { title: 'service', path: PATH_DASHBOARD.admin.service.root, icon: ICONS.device },
+      { title: 'Area', path: PATH_DASHBOARD.admin.ticket.root, icon: ICONS.device },
+      { title: 'service', path: PATH_DASHBOARD.admin.service.root, icon: ICONS.device },
     ],
   },
   {
