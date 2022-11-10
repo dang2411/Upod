@@ -25,6 +25,7 @@ import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestTableRow from 'src/sections/@dashboard/request/list/RequestTableRow';
 import RequestTableToolbar from 'src/sections/@dashboard/request/list/RequestTableToolbar';
 import axios from 'src/utils/axios';
+import { debounce } from 'lodash';
 
 const STATUS_OPTIONS = [
   'all',
@@ -106,53 +107,65 @@ export default function RequestList() {
 
   const { user } = useAuth();
 
-  const fetch = useCallback(async () => {
-    try {
-      const id = user?.account.id;
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
+      try {
+        const id = user?.account.id;
 
-      const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
-        params: {
-          id: id,
-          pageNumber: page + 1,
-          pageSize: rowsPerPage,
-          search: filterText === '' ? '' : filterText,
-          status: filterStatus === 'all' ? undefined : filterStatus,
-        },
-      });
-      console.log(filterText);
+        const response: any = await axios.get('/api/customers/get_requests_by_customer_id', {
+          params: {
+            id: id,
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? '' : value,
+            status: filterStatus === 'all' ? undefined : filterStatus,
+          },
+        });
 
-      setTotal(response.total);
-      // setData(response.data);
-      const result = Array.from(response.data).map(
-        (x: any) =>
-          ({
-            id: x.id,
-            code: x.code,
-            createdAt: new Date(x.create_date),
-            name: x.request_name,
-            service: { id: x.service.id, name: x.service.service_name },
-            agency: { id: x.agency.id, name: x.agency.agency_name },
-            priority: parsePriority(x.priority),
-            description: x.description,
-            customer: x.customer,
-            contract: x.contract,
-            createdByAdmin: x.admin_id != null,
-            status: x.request_status.toLowerCase(),
-            technician: x.technician,
-          } as Request)
-      );
-      setData(result);
-    } catch (err) {
-      console.error(err);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
+        setTotal(response.total);
+        // setData(response.data);
+        const result = Array.from(response.data).map(
+          (x: any) =>
+            ({
+              id: x.id,
+              code: x.code,
+              createdAt: new Date(x.create_date),
+              name: x.request_name,
+              service: { id: x.service.id, name: x.service.service_name },
+              agency: { id: x.agency.id, name: x.agency.agency_name },
+              priority: parsePriority(x.priority),
+              description: x.description,
+              customer: x.customer,
+              contract: x.contract,
+              createdByAdmin: x.admin_id != null,
+              status: x.request_status.toLowerCase(),
+              technician: x.technician,
+            } as Request)
+        );
+        setData(result);
+      } catch (err) {
+        console.error(err);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus, filterText, page, rowsPerPage]);
+    [filterStatus, page, rowsPerPage]
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) =>
+        fetch({ value, page, rowsPerPage, filterStatus }),
+      1000
+    ),
+    []
+  );
 
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus, page, rowsPerPage, filterText]);
+  }, [page, rowsPerPage, filterStatus, filterText]);
 
   return (
     <Page title="Request: Listing">
@@ -195,9 +208,9 @@ export default function RequestList() {
             filterText={filterText}
             onFilterText={handleFilterTextChange}
             filterStatus={filterStatus}
-            onChangeFilterStatus={(event) => {
+            onChangeFilterStatus={(value) => {
               setPage(0);
-              setFilterStatus(event.valueOf);
+              setFilterStatus(value);
             }}
           />
 

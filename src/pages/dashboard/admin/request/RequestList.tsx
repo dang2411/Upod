@@ -10,6 +10,7 @@ import {
   TableContainer,
   TablePagination,
 } from '@mui/material';
+import { debounce } from 'lodash';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -104,54 +105,67 @@ export default function RequestList() {
 
   const isNotFound = !data.length;
 
-  const fetch = useCallback(async () => {
-    try {
-      const response: any = await axios.get('/api/requests/get_list_requests', {
-        params: {
-          pageNumber: page + 1,
-          pageSize: rowsPerPage,
-          search: filterText === '' ? undefined : filterText,
-          status: filterStatus === 'all' ? undefined : filterStatus,
-        },
-      });
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
+      try {
+        const response: any = await axios.get('/api/requests/get_list_requests', {
+          params: {
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? undefined : value,
+            status: filterStatus === 'all' ? undefined : filterStatus,
+          },
+        });
 
-      setTotal(response.total);
+        setTotal(response.total);
 
-      const result = Array.from(response.data).map(
-        (x: any) =>
-          ({
-            id: x.id,
-            code: x.code,
-            createdAt: new Date(x.create_date),
-            name: x.request_name,
-            service: { id: x.service.id, name: x.service.service_name },
-            agency: { id: x.agency.id, name: x.agency.agency_name },
-            priority: parsePriority(x.priority),
-            description: x.description,
-            customer: x.customer,
-            contract: x.contract,
-            createdByAdmin: x.admin_id != null,
-            status: x.request_status.toLowerCase(),
-            technician: x.technician,
-          } as Request)
-      );
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
+        const result = Array.from(response.data).map(
+          (x: any) =>
+            ({
+              id: x.id,
+              code: x.code,
+              createdAt: new Date(x.create_date),
+              name: x.request_name,
+              service: { id: x.service.id, name: x.service.service_name },
+              agency: { id: x.agency.id, name: x.agency.agency_name },
+              priority: parsePriority(x.priority),
+              description: x.description,
+              customer: x.customer,
+              contract: x.contract,
+              createdByAdmin: x.admin_id != null,
+              status: x.request_status.toLowerCase(),
+              technician: x.technician,
+            } as Request)
+        );
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus, filterText, page, rowsPerPage]);
+    [filterStatus, page, rowsPerPage]
+  );
 
   // const handleChangeFilterStatus = (event: React.SyntheticEvent<Element, Event>, newValue: any) => {
   //   setPage(0);
   //   onChangeFilterStatus(event, newValue);
   // };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) =>
+        fetch({ value, page, rowsPerPage, filterStatus }),
+      1000
+    ),
+    []
+  );
+
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus, page, rowsPerPage, filterText]);
+  }, [page, rowsPerPage, filterStatus, filterText]);
 
   return (
     <Page title="Request: Listing">
