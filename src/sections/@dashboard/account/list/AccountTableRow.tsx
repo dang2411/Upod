@@ -18,7 +18,7 @@ export default function AccountTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{role} </TableCell>
       <TableCell align="left">{username} </TableCell>
       <TableCell align="left">
-        {assign ? (
+        {!assign ? (
           <Iconify
             icon="akar-icons:circle-check"
             sx={{ width: 20, height: 20, color: 'success.main' }}
