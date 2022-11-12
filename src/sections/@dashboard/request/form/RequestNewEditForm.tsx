@@ -184,9 +184,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
       });
       if (response.status === 200 || response.status === 201) {
         if (isCustomer) {
-          navigate(PATH_DASHBOARD.customer.agency.root);
+          navigate(PATH_DASHBOARD.customer.request.root);
         } else {
-          navigate(PATH_DASHBOARD.admin.agency.root);
+          navigate(PATH_DASHBOARD.admin.request.root);
         }
         enqueueSnackbar('Update request successfully', { variant: 'success' });
       }
@@ -242,13 +242,13 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     try {
       if (isCustomer) {
         const response = await axios.post('/api/requests/create_request', data);
-        if (response.status === 200 || response.status == 201) {
+        if (response.status === 200 || response.status === 201) {
           navigate(PATH_DASHBOARD.customer.request.root);
           enqueueSnackbar('Create request successfully', { variant: 'success' });
         }
       } else {
         const response = await axios.post('/api/requests/create_request_by_admin', data);
-        if (response.status === 200 || response.status == 201) {
+        if (response.status === 200 || response.status === 201) {
           navigate(PATH_DASHBOARD.admin.request.root);
           enqueueSnackbar('Create request successfully', { variant: 'success' });
         }
@@ -302,6 +302,26 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
       }
     } catch (error) {
       enqueueSnackbar('Disable request failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateTicket = useCallback(async (data: any) => {
+    try {
+      const response = await axios.post(
+        '/api/technicians/update_device_of_ticket_by_request_id',
+        data,
+        {
+          params: { id: currentRequest?.id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.request.root);
+        enqueueSnackbar('Update ticket successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Update ticket failed', { variant: 'error' });
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -362,15 +382,26 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
 
   const onSubmit = (data: any) => {
     if (isEdit) {
-      const params = {
-        agency_id: data.agency.id,
-        service_id: data.service.id,
-        request_description: data.description,
-        request_name: data.name,
-        phone: data.phone,
-        priority: parseInt(data.priority),
-      };
-      updateRequest(params);
+      if (currentStatus === 'editing') {
+        const params = {
+          ticket: data.ticket.map(({ device, solution, description }) => ({
+            device_id: device.id,
+            description: description,
+            solution: solution,
+          })),
+        };
+        updateTicket(params);
+      } else {
+        const params = {
+          agency_id: data.agency.id,
+          service_id: data.service.id,
+          request_description: data.description,
+          request_name: data.name,
+          phone: data.phone,
+          priority: parseInt(data.priority),
+        };
+        updateRequest(params);
+      }
     } else {
       const params = {
         admin_id: user?.account?.id,
