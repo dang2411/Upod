@@ -27,7 +27,7 @@ export default function ContractEdit() {
         code: response.data.code,
         name: response.data.contract_name,
         customer: response.data.customer,
-        price: response.data.price,
+        contractPrice: response.data.contract_price,
         startDate: response.data.start_date,
         endDate: response.data.end_date,
         attachment: response.data.attachment,

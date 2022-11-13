@@ -25,3 +25,18 @@
 - them created by cho request
 - them created by vao rq detail
 - pending bỏ nút save của admin
+
+
+
+
+
+# 11/14/2022
+ - agency chưa thấy delete, update
+thêm crud admin
+ - Sửa tất cả chữ company lại thành customer
+ - Create account chưa chạy được
+*Rq editing chưa update dc device
+*Rq resolved thêm 2 fields startTime, endtime (lấy cả ngày và giờ, phút)
+*Update password account
+ - bỏ priority ở contract
+ - Thiếu contract price trong create contract vs details

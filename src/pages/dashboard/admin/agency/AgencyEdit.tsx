@@ -97,6 +97,7 @@ export default function AgencyDetail() {
       const result = {
         id: response.data.id,
         name: response.data.agency_name,
+        code: response.data.code,
         customer: {
           id: response.data.customer.id,
           name: response.data.customer.name,
@@ -243,7 +244,7 @@ export default function AgencyDetail() {
               { name: title },
             ]}
           />
-          <AgencyNewEditForm isEdit={false} currentAgency={data} />
+          <AgencyNewEditForm isEdit={true} currentAgency={data} />
 
           {devices.length > 0 && (
             <Stack mt={3} spacing={2}>

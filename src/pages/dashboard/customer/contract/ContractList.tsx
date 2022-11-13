@@ -27,7 +27,7 @@ import useAuth from 'src/hooks/useAuth';
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'company', label: 'Company', align: 'left' },
+  { id: 'company', label: 'Customer', align: 'left' },
   { id: 'createdAt', label: 'Created At', align: 'left' },
   { id: 'expiredAt', label: 'Expired At', align: 'left' },
 ];

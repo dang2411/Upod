@@ -9,17 +9,17 @@ export default function CompanyNew() {
   const { themeStretch } = useSettings();
 
   return (
-    <Page title="Company: New">
+    <Page title="Customer: New">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
-          heading="Create Company"
+          heading="Create Customer"
           links={[
             {
               name: 'Dashboard',
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Company',
+              name: 'Customer',
               href: PATH_DASHBOARD.admin.company.root,
             },
             { name: 'New' },

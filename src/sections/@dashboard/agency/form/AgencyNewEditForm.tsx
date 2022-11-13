@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Stack } from '@mui/material';
+import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -193,7 +193,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     //
   };
 
-  const disable = !isEdit && currentAgency != null;
+  const disable = (!isEdit && currentAgency != null) || isCustomer;
 
   const onDeleteClick = () => {
     deleteAgency();
@@ -222,9 +222,9 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
         <Stack spacing={3}>
-          {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
+          <Typography variant="subtitle1">{getValues('code')}</Typography>
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
-            {isEdit && <RHFTextField name="code" label="Code" disabled />}
+            {/* {isEdit && <RHFTextField name="code" label="Code" disabled />} */}
             <RHFTextField name="name" label="Name" disabled={disable} />
             <RHFTextField name="address" label="Address" disabled={disable} />
             <RHFTextField name="phone" label="Phone" disabled={disable} />
@@ -260,15 +260,13 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
             />
           </Box>
         </Stack>
-        {!disable && (
+        {editPage && !isCustomer && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            {editPage && !isCustomer && (
-              <Button variant="outlined" color="error" onClick={onDeleteClick}>
-                Delete
-              </Button>
-            )}
+            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+              Delete
+            </Button>
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              {isEdit ? 'Save' : 'Create'}
+              {editPage ? 'Save' : 'Create'}
             </LoadingButton>
           </Stack>
         )}

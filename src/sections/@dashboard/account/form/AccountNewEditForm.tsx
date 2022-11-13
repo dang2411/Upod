@@ -53,10 +53,12 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const createAccount = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/accounts/create_account', data);
+      const response: any = await axios.post('/api/accounts/create_account', data);
       if (response.status === 200 || response.status === 201) {
-        navigate(PATH_DASHBOARD.admin.account.root);
         enqueueSnackbar('Create account successfully', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.account.root);
+      } else {
+        enqueueSnackbar(response.message || 'Create account failed', { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create account failed', { variant: 'error' });
@@ -116,13 +118,13 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     if (isEdit) {
       const params = {
         id: currentAccount!.id,
-        role_id: data.role.id,
+        role_name: data.role.name,
         password: data.password,
       };
       updateAccount(params);
     } else {
       const params = {
-        role_id: data.role.id,
+        role_name: data.role.name,
         user_name: data.username,
         password: data.password,
       };

@@ -8,28 +8,26 @@ import {
   Table,
   TableBody,
   TableContainer,
-  TablePagination,
+  TablePagination
 } from '@mui/material';
-import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
-import Page from 'src/components/Page';
-import useSettings from 'src/hooks/useSettings';
-import { PATH_DASHBOARD } from 'src/routes/paths';
-import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
-import useAuth from 'src/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
+import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
+import useAuth from 'src/hooks/useAuth';
+import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
-import AgencyTableToolbar from 'src/sections/@dashboard/agency/list/AgencyTableToolbar';
+import { PATH_DASHBOARD } from 'src/routes/paths';
 import AgencyTableRow from 'src/sections/@dashboard/agency/list/AgencyTableRow';
+import AgencyTableToolbar from 'src/sections/@dashboard/agency/list/AgencyTableToolbar';
 import axiosInstance from 'src/utils/axios';
-import axios from 'axios';
-import { id } from 'date-fns/locale';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'company', label: 'Company', align: 'left' },
+  { id: 'company', label: 'Customer', align: 'left' },
   { id: 'address', label: 'Address', align: 'left' },
   { id: 'phone', label: 'Phone', align: 'left' },
 ];

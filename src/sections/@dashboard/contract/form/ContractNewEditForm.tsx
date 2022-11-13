@@ -7,7 +7,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
+import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import Iconify from 'src/components/Iconify';
 import useAuth from 'src/hooks/useAuth';
 import { PATH_DASHBOARD } from 'src/routes/paths';
@@ -19,11 +19,6 @@ type Props = {
   isEdit: boolean;
 };
 
-const PRIORITY_OPTIONS = [
-  { text: 'Low', value: 0 },
-  { text: 'Medium', value: 1 },
-  { text: 'High', value: 2 },
-];
 
 export default function ContractNewEditForm({ currentContract, isEdit }: Props) {
   const navigate = useNavigate();
@@ -64,6 +59,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     code: currentContract?.code || '',
     name: currentContract?.name || '',
     customer: currentContract?.customer,
+    contractPrice: currentContract?.contractPrice || 0,
     startDate: currentContract?.startDate ? new Date(currentContract?.startDate) : new Date(),
     endDate: currentContract?.endDate
       ? new Date(currentContract?.endDate)
@@ -174,8 +170,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       const params = {
         customer_id: data.customer.id,
         contract_name: data.name,
-        contract_price: data.price,
-        priority: data.priorty,
+        contract_price: data.contractPrice,
         attachment: undefined,
         img: undefined,
         description: data.description,
@@ -224,13 +219,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
               <TextField value={currentContract?.code} label="Code" disabled />
             )}
             <RHFTextField name="name" label="Name" disabled={disable} />
-            <RHFSelect disabled={disable} name="priority" label="Priority">
-              {PRIORITY_OPTIONS.map((option) => (
-                <option key={option.text} value={option.value}>
-                  {option.text}
-                </option>
-              ))}
-            </RHFSelect>
             <Controller
               name="startDate"
               control={control}
@@ -275,6 +263,14 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
               fullWidth
               InputLabelProps={{ shrink: true }}
               disabled={disable || isEdit}
+            />
+            <RHFTextField
+              name="contractPrice"
+              label="Contract Price"
+              variant="outlined"
+              fullWidth
+              type='number'
+              disabled={disable}
             />
             <RHFTextField
               name="description"

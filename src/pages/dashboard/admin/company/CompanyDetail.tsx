@@ -58,7 +58,7 @@ export default function CompanyDetail() {
   }
 
   return (
-    <Page title="Company: Detail">
+    <Page title="Customer: Detail">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
@@ -68,7 +68,7 @@ export default function CompanyDetail() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Company',
+              name: 'Customer',
               href: PATH_DASHBOARD.admin.company.root,
             },
             { name: title },
