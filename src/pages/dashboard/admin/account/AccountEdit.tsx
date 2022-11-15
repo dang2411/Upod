@@ -29,6 +29,7 @@ export default function AccountEdit() {
           id: response.data.role.id,
           name: response.data.role.role_name,
         },
+        password: response.data.password,
         username: response.data.username,
         isDelete: response.data.is_delete,
       };

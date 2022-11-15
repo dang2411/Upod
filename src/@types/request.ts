@@ -1,33 +1,35 @@
-import { FetchModel } from "./generic";
+import { FetchModel } from './generic';
 
-export type RequestStatus = 'pending' | 'preparing' | 'resolving' |  'resolved' | 'rejected';
+export type RequestStatus = 'pending' | 'preparing' | 'resolving' | 'resolved' | 'rejected';
 
-export type Estimation =  'High' | 'Medium' | 'Low';
+export type Estimation = 'High' | 'Medium' | 'Low';
 
 export type Priority = Estimation;
 
 export type Agency = {
-    address: string;
-    agency_name: string;
-    code: string;
-    id: string;
-    phone: string;
-}
+  address: string;
+  agency_name: string;
+  code: string;
+  id: string;
+  phone: string;
+};
 
 export type Request = {
-    id: string;
-    code: string;
-    customer: FetchModel;
-    name: string;
-    createdAt: Date;
-    contract: any;
-    rejectReason: string;
-    service: FetchModel;
-    agency: FetchModel;
-    priority: Priority;
-    description: string;
-    status: RequestStatus;
-    createdByAdmin?: boolean;
-    technician: any;
-    createdBy: Date;
-}
+  id: string;
+  code: string;
+  customer: FetchModel;
+  name: string;
+  createdAt: Date;
+  contract: any;
+  rejectReason: string;
+  service: FetchModel;
+  agency: FetchModel;
+  priority: Priority;
+  description: string;
+  status: RequestStatus;
+  createdByAdmin?: boolean;
+  technician: any;
+  startTime: Date | null;
+  endTime: Date | null;
+  createdBy: Date;
+};

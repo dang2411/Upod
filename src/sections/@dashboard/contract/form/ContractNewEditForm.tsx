@@ -201,9 +201,9 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   const editPage = isEdit && currentContract;
 
-  const newPage = !isEdit && !currentContract;
+  // const newPage = !isEdit && !currentContract;
 
-  const detailPage = !isEdit && currentContract;
+  // const detailPage = !isEdit && currentContract;
 
   const serviceList = services.filter(
     (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)

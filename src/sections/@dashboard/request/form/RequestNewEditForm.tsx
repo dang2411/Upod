@@ -1,6 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
+import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -516,6 +517,28 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
+            {currentRequest?.startTime && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Start Time"
+                  variant="outlined"
+                  fullWidth
+                  disabled
+                  value={format(new Date(currentRequest!.startTime), 'dd/MM/yyyy HH:mm')}
+                />
+              </Grid>
+            )}
+            {currentRequest?.endTime && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="End Time"
+                  variant="outlined"
+                  fullWidth
+                  disabled
+                  value={format(new Date(currentRequest!.endTime), 'dd/MM/yyyy HH:mm')}
+                />
+              </Grid>
+            )}
             {!newPage && (
               <Grid item xs={12} md={6}>
                 <RHFTextField
@@ -528,7 +551,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            {editPage && (
+            {editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending')) && (
               <Grid item xs={12} md={6}>
                 <TextField
                   value={watch('technician')?.name ?? ''}

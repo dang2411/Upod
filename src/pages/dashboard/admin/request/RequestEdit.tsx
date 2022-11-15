@@ -43,6 +43,8 @@ export default function RequestEdit() {
         contract: response.data.contract,
         priority: response.data.priority,
         description: response.data.description,
+        startTime: response.data.start_time,
+        endTime: response.data.end_time,
         status: response.data.request_status.toLowerCase(),
         technician: response.data.technicican,
         createdBy: response.data.create_by,

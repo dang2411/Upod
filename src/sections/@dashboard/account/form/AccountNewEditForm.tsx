@@ -166,7 +166,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
               disabled={disable}
             />
             <RHFTextField name="username" label="Username" disabled={disable} />
-            {!isEdit && <RHFTextField name="password" label="Password" disabled={disable} />}
+            <RHFTextField name="password" label="Password" disabled={disable} />
           </Box>
         </Stack>
         {!disable && (
