@@ -35,7 +35,7 @@
  - thêm crud admin (bỏ)
  - Rq editing chưa update dc device
  -  Rq resolved thêm 2 fields startTime, endtime (lấy cả ngày và giờ, phút)
-(todo) Update password account
+ - (todo) Update password account
  - Sửa tất cả chữ company lại thành customer
  - Create account chưa chạy được
  - bỏ priority ở contract
