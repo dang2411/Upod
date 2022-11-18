@@ -3,7 +3,7 @@ import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { RequestStatus } from 'src/@types/request';
@@ -60,9 +60,10 @@ const parseStatus = (status: RequestStatus) => {
 type Props = {
   currentRequest: any;
   isEdit: boolean;
+  isMaintain?: boolean;
 };
 
-export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
+export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain = false }: Props) {
   const RequestSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     service: Yup.object().required('Service is required'),
@@ -90,6 +91,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     setToggle: setOpenRejectDialog,
   } = useToggle();
 
+  const [customers, setCustomers] = useState([]);
+
   const [agencies, setAgencies] = useState([]);
 
   const [services, setServices] = useState([]);
@@ -115,27 +118,28 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     technician: currentRequest?.technician,
     rejectReason: currentRequest?.rejectReason || '',
   };
+
   const methods = useForm<any>({
     resolver: yupResolver(RequestSchema),
     defaultValues,
   });
 
-  // const fetchCustomer = useCallback(async () => {
-  //   try {
-  //     const response = await axios.get('/api/customers/get_all_customers', {
-  //       params: { pageSize: 10000, pageNumber: 1 },
-  //     });
-  //     setCustomers(
-  //       response.data.map((x) => ({
-  //         id: x.id,
-  //         name: x.name,
-  //       }))
-  //     );
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  const fetchCustomer = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/customers/get_all_customers', {
+        params: { pageSize: 10000, pageNumber: 1 },
+      });
+      setCustomers(
+        response.data.map((x) => ({
+          id: x.id,
+          name: x.name,
+        }))
+      );
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchAgencies = useCallback(async () => {
     try {
@@ -359,7 +363,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   useEffect(() => {
     fetchAgencies();
     fetchServices();
-    // fetchCustomer();
+    fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -406,6 +410,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     } else {
       const params = {
         admin_id: user?.account?.id,
+        report_service_id: currentRequest?.reportId,
+        customer_id: currentRequest?.customer.id,
         service_id: data.service.id,
         agency_id: data.agency.id,
         request_description: data.description,
@@ -481,7 +487,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 ))}
               </RHFSelect>
             </Grid>
-            {editPage && (
+            {(editPage || isMaintain) && (
               <Grid item xs={12} md={6}>
                 <TextField
                   value={getValues('customer')?.name ?? ''}
@@ -539,7 +545,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            {!newPage && (
+            {!newPage && !isMaintain && (
               <Grid item xs={12} md={6}>
                 <RHFTextField
                   value={getValues('createdBy')}
@@ -551,7 +557,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 />
               </Grid>
             )}
-            {editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending')) && (
+            {((editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending'))) ||
+              isMaintain) && (
               <Grid item xs={12} md={6}>
                 <TextField
                   value={watch('technician')?.tech_name ?? ''}
@@ -655,7 +662,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 Save
               </LoadingButton>
             )}
-          {newPage && (
+          {(newPage || isMaintain) && (
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               Create
             </LoadingButton>

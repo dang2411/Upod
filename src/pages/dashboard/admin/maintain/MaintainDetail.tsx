@@ -1,4 +1,5 @@
-import { Container } from '@mui/material';
+import { Button, Container, Stack } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -6,7 +7,7 @@ import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import MaintainNewEditForm from 'src/sections/@dashboard/maintain/form/MaintainNewEditForm';
-import axiosInstance from 'src/utils/axios';
+import axios from 'src/utils/axios';
 
 export default function DeviceDetail() {
   const { themeStretch } = useSettings();
@@ -17,14 +18,32 @@ export default function DeviceDetail() {
 
   const [data, setData] = useState<any>(null);
 
+  const { enqueueSnackbar } = useSnackbar();
+
+  const processMaintain = useCallback(
+    async (value: string) => {
+      try {
+        await axios.put(
+          '/api/maintenance_reports/processing_maintenance_report',
+          {},
+          { params: { id: value } }
+          );
+          console.log({ params: { id: value } });
+        enqueueSnackbar('Process success', { variant: 'success' });
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar(`${error}`, { variant: 'error' });
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [id]
+  );
+
   const fetch = useCallback(async (id: string) => {
     try {
-      const response = await axiosInstance.get(
-        `/api/maintenance_reports/get_details_maintenance_report`,
-        {
-          params: { id },
-        }
-      );
+      const response = await axios.get(`/api/maintenance_reports/get_details_maintenance_report`, {
+        params: { id },
+      });
       const result = {
         status: response.data.status,
         code: response.data.code,
@@ -38,7 +57,6 @@ export default function DeviceDetail() {
         description: response.data.description,
         service: response.data.service,
       };
-      console.log(response.data.status);
       if (response.status === 200) {
         setData(result);
       } else {
@@ -61,6 +79,14 @@ export default function DeviceDetail() {
     return <div />;
   }
 
+  const onProcessClick = () => {
+    processMaintain(id);
+  };
+
+  const onUnProcessClick = () => {
+    //
+  };
+
   return (
     <Page title="Maintain: Detail">
       <Container maxWidth={themeStretch ? false : 'xl'}>
@@ -72,11 +98,25 @@ export default function DeviceDetail() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'DevicMaintaine',
+              name: 'Maintain',
               href: PATH_DASHBOARD.admin.maintain.root,
             },
             { name: title },
           ]}
+          action={
+            <Stack spacing={2} direction="row">
+              {data.status === 'problem'.toUpperCase() && (
+                <Button variant="contained" onClick={onProcessClick}>
+                  Process
+                </Button>
+              )}
+              {data.status === 'processing'.toUpperCase() && (
+                <Button variant="outlined" onClick={onUnProcessClick}>
+                  Un Process
+                </Button>
+              )}
+            </Stack>
+          }
         />
         <MaintainNewEditForm isEdit={false} currentMaintain={data} />
       </Container>

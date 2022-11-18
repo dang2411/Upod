@@ -130,8 +130,8 @@ export default function RequestList() {
               agency: { id: x.agency.id, name: x.agency.agency_name },
               priority: parsePriority(x.priority),
               description: x.description,
-              customer: {id: x.customer.id, name: x.customer.cus_name},
-              contract: {id: x.contract.id, name: x.contract.name},
+              customer: { id: x.customer.id, name: x.customer.cus_name },
+              contract: { id: x.contract.id, name: x.contract.name },
               createdByAdmin: x.admin_id != null,
               status: x.request_status.toLowerCase(),
               technician: x.technician,
@@ -183,11 +183,6 @@ export default function RequestList() {
             },
             { name: 'Listing' },
           ]}
-          action={
-            <Button variant="contained" onClick={() => handleBtnClick()}>
-              Create
-            </Button>
-          }
         />
 
         <Card>

@@ -76,6 +76,7 @@ export const PATH_DASHBOARD = {
       list: path(ROOTS_ADMIN, '/request/list'),
       new: path(ROOTS_ADMIN, '/request/new'),
       edit: (id: string) => path(ROOTS_ADMIN, `/request/edit/${id}`),
+      maintain: (id: string) => path(ROOTS_ADMIN, `/request/maintain/${id}`),
       view: (id: string) => path(ROOTS_ADMIN, `/request/view/${id}`),
     },
     agency: {

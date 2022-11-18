@@ -8,7 +8,7 @@ import {
   Table,
   TableBody,
   TableContainer,
-  TablePagination,
+  TablePagination
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -20,13 +20,9 @@ import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
 import useTabs from 'src/hooks/useTabs';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import DeviceTableRow from 'src/sections/@dashboard/device/list/DeviceTableRow';
-import DeviceTableToolbar from 'src/sections/@dashboard/device/list/DeviceTableToolbar';
 import MaintainTableRow from 'src/sections/@dashboard/maintain/list/MaintainTableRow';
 import MaintainTableToolbar from 'src/sections/@dashboard/maintain/list/MaintainTableToolbar';
 import axiosInstance from 'src/utils/axios';
-
-const STATUS_OPTIONS = ['all', 'problem', 'noproblem', 'processing'];
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -36,7 +32,7 @@ const TABLE_HEAD = [
   { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'createdBy', label: 'Created By', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
-  { id: 'action', label: 'Action', align: 'left' },
+  { id: 'action' },
 ];
 
 export default function MaintainList() {
@@ -75,6 +71,20 @@ export default function MaintainList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const processMaintain = useCallback(async (id: string) => {
+    try {
+      await axiosInstance.put(
+        '/api/maintenance_reports/processing_maintenance_report',
+        {},
+        { params: { id } }
+      );
+      enqueueSnackbar('Process success', { variant: 'success' });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(`${error}`, { variant: 'error' });
+    }
+  }, []);
 
   const fetch = useCallback(
     async ({ value, page, rowsPerPage, filterStatus }: any) => {
@@ -123,6 +133,11 @@ export default function MaintainList() {
     ),
     []
   );
+
+  const handleProcess = async (id: string) => {
+    await processMaintain(id);
+    fetch({ filterText, page, rowsPerPage, filterStatus });
+  };
 
   useEffect(() => {
     debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
@@ -185,6 +200,7 @@ export default function MaintainList() {
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
+                    onProcessClick={() => handleProcess(row.id)}
                   />
                 ))}
                 {/* 

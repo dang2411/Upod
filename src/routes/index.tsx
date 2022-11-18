@@ -143,6 +143,7 @@ export default function Router() {
                 { path: 'list', element: <AdminRequestListPage /> },
                 { path: 'new', element: <AdminRequestNewPage /> },
                 { path: 'edit/:id', element: <AdminRequestEditPage /> },
+                { path: 'maintain/:id', element: <AdminRequestMaintainPage /> },
                 { path: 'view/:id', element: <AdminRequestDetailPage /> },
               ],
             },
@@ -357,6 +358,9 @@ const AdminRequestDetailPage = Loadable(
 );
 const AdminRequestEditPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/request/RequestEdit'))
+);
+const AdminRequestMaintainPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/request/RequestMaintain'))
 );
 const AdminRequestListPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/request/RequestList'))
