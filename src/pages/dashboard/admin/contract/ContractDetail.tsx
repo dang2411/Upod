@@ -26,7 +26,10 @@ export default function ContractDetail() {
         id: response.data.id,
         code: response.data.code,
         name: response.data.contract_name,
-        customer: response.data.customer,
+        customer: {
+          id: response.data.customer.id,
+          name: response.data.customer.cus_name,
+        },
         contractPrice: response.data.contract_price,
         startDate: response.data.start_date,
         endDate: response.data.end_date,

@@ -77,7 +77,7 @@ export default function AgencyList() {
         id: x.id,
         code: x.code,
         name: x.agency_name,
-        customer: x.customer.name,
+        customer: x.customer.cus_name,
         address: x.address,
         phone: x.telephone,
       }));

@@ -48,7 +48,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     code: currentAccount?.code || '',
     role: currentAccount?.role,
     username: currentAccount?.username || '',
-    password: '',
+    password: currentAccount?.password || '',
   };
 
   const createAccount = useCallback(async (data: any) => {

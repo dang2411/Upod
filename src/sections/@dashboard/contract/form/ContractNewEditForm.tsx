@@ -1,14 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Card, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Button, Card, Grid, Stack, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { add } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import Iconify from 'src/components/Iconify';
 import useAuth from 'src/hooks/useAuth';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
@@ -19,28 +18,20 @@ type Props = {
   isEdit: boolean;
 };
 
-
 export default function ContractNewEditForm({ currentContract, isEdit }: Props) {
   const navigate = useNavigate();
 
   const ContractSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
+    startDate: Yup.date().required('Start date is required'),
+    endDate: Yup.date().required('End date is required'),
     service: Yup.array()
-      .of(
-        Yup.object().shape({
-          value: Yup.object().required('Service is required'),
-          frequencyMaintain: Yup.number()
-            .required('Frequency maintain is required')
-            .min(1, 'Frequency maintain must be greater than 0'),
-        })
-      )
       .required('Service is required')
       .test({
         message: 'At least one service is required',
         test: (arr) => arr!.length > 0,
       }),
-    startDate: Yup.date().required('Start date is required'),
-    endDate: Yup.date().required('End date is required'),
+    frequencyMaintain: Yup.number().required('Frequency maintain is required'),
   });
 
   const { user } = useAuth();
@@ -67,7 +58,8 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     attachment: currentContract?.attachment || '',
     img: currentContract?.img || '',
     description: currentContract?.description || '',
-    service: currentContract?.service || (disable ? null : [{ frequencyMaintain: 0 }]),
+    frequencyMaintain: currentContract?.frequencyMaintain || 0,
+    service: currentContract?.service || [],
   };
 
   const fetchCustomer = useCallback(async () => {
@@ -150,18 +142,8 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     control,
     watch,
     getValues,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = methods;
-
-  const { fields, append, remove } = useFieldArray({ control, name: 'service' });
-
-  const handleAppend = () => {
-    append({ frequencyMaintain: 0 });
-  };
-
-  const handleRemove = (index: number) => {
-    remove(index);
-  };
 
   const onSubmit = (data: any) => {
     if (isEdit) {
@@ -206,130 +188,134 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   // const detailPage = !isEdit && currentContract;
 
   const serviceList = services.filter(
-    (x: { id: string; name: string }) => !fields.find((y: any) => y.value?.id === x.id)
+    (x: { id: string; name: string }) => !services.find((y: any) => y.value?.id === x.id)
   ) as any[];
 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Card sx={{ p: 3 }}>
-        <Stack spacing={3}>
-          <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
-            {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
-            {currentContract?.code && (
-              <TextField value={currentContract?.code} label="Code" disabled />
-            )}
-            <RHFTextField name="name" label="Name" disabled={disable} />
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <DatePicker
-                  label="Start Date"
-                  value={field.value}
-                  inputFormat="dd/MM/yyyy"
-                  onChange={(newValue) => {
-                    field.onChange(newValue);
-                  }}
-                  disabled={disable}
-                  renderInput={(params) => (
-                    <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
-                  )}
-                />
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ p: 3 }}>
+            <Stack spacing={3}>
+              {currentContract?.code && (
+                <Typography variant="subtitle1">{getValues('code')}</Typography>
               )}
-            />
-            <Controller
-              name="endDate"
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <DatePicker
-                  label="End Date"
-                  inputFormat="dd/MM/yyyy"
-                  value={field.value}
-                  onChange={(newValue) => {
-                    field.onChange(newValue);
-                  }}
-                  disabled={disable}
-                  renderInput={(params) => (
-                    <TextField {...params} fullWidth error={!!error} helperText={error?.message} />
-                  )}
-                />
-              )}
-            />
-            <RHFAutocomplete
-              name="customer"
-              label="Customer"
-              variant="outlined"
-              options={customers}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable || isEdit}
-            />
-            <RHFTextField
-              name="contractPrice"
-              label="Contract Price"
-              variant="outlined"
-              fullWidth
-              type='number'
-              disabled={disable}
-            />
-            <RHFTextField
-              name="description"
-              label="Description"
-              disabled={disable}
-              multiline
-              minRows={4}
-            />
-          </Box>
-        </Stack>
-      </Card>
-      {fields && (fields.length > 0 || !disable) && (
-        <Card sx={{ p: 3, mt: 3 }}>
-          <Stack spacing={2}>
-            <Typography variant="h6" fontWeight={600}>
-              Service
-            </Typography>
-            {fields.map((item: any, index) => (
-              <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Box display="grid" sx={{ gridTemplateColumns: 'auto auto', flexGrow: 1, gap: 2 }}>
-                  <RHFAutocomplete
-                    name={`service[${index}].value`}
-                    label="Service"
-                    variant="outlined"
-                    options={item?.value ? [item!.value, ...serviceList] : serviceList}
-                    fullWidth
-                    disabled={disable}
+              <RHFTextField name="name" label="Name" disabled={disable} />
+              <RHFAutocomplete
+                name="customer"
+                label="Customer"
+                variant="outlined"
+                options={customers}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                disabled={disable || isEdit}
+              />
+              <RHFTextField
+                name="description"
+                label="Description"
+                disabled={disable}
+                multiline
+                minRows={4}
+              />
+              <Controller
+                name="service"
+                control={control}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                  <Autocomplete
+                    multiple
+                    options={services}
+                    getOptionLabel={(option: any) => option.name}
+                    isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+                    value={value}
+                    filterSelectedOptions
+                    onChange={(_: any, newValue: any) => {
+                      onChange(newValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={!!error}
+                        helperText={error?.message}
+                        label="Service"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: <>{params.InputProps.endAdornment}</>,
+                        }}
+                      />
+                    )}
                   />
-                  <RHFTextField
-                    name={`service[${index}].frequencyMaintain`}
-                    label="Frequency Maintain"
-                    type="number"
-                    disabled={disable}
-                  />
-                </Box>
-                {!disable && (
-                  <Box>
-                    <IconButton onClick={() => handleRemove(index)} color="error">
-                      <Iconify icon="fluent:delete-12-regular" sx={{ color: 'error.main' }} />
-                    </IconButton>
-                  </Box>
                 )}
-              </Box>
-            ))}
-            {errors.service?.message && (
-              <Typography variant="body1" color="error">
-                {`${errors.service?.message ?? 'Invalid list of service'}`}
-              </Typography>
-            )}
-          </Stack>
-          {!disable && (
-            <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={2}>
-              <Button variant="outlined" color="info" onClick={handleAppend}>
-                Add
-              </Button>
+              />
             </Stack>
-          )}
-        </Card>
-      )}
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ p: 3 }}>
+            <Stack spacing={2}>
+              <Controller
+                name="startDate"
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <DatePicker
+                    label="Start Date"
+                    value={field.value}
+                    inputFormat="dd/MM/yyyy"
+                    onChange={(newValue) => {
+                      field.onChange(newValue);
+                    }}
+                    disabled={disable}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        error={!!error}
+                        helperText={error?.message}
+                      />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                name="endDate"
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <DatePicker
+                    label="End Date"
+                    inputFormat="dd/MM/yyyy"
+                    value={field.value}
+                    onChange={(newValue) => {
+                      field.onChange(newValue);
+                    }}
+                    disabled={disable}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        error={!!error}
+                        helperText={error?.message}
+                      />
+                    )}
+                  />
+                )}
+              />
+              <RHFTextField
+                name="contractPrice"
+                label="Contract Price"
+                variant="outlined"
+                fullWidth
+                type="number"
+                disabled={disable}
+              />
+              <RHFTextField
+                name="frequencyMaintain"
+                label="Frequency Maintain"
+                type="number"
+                disabled={disable}
+              />
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
       {!disable && (
         <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
           {editPage && !isCustomer && (

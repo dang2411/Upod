@@ -78,7 +78,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
         params: { pageNumber: 1, pageSize: 1000, id: data?.id },
       });
 
-      setTechnicians(response.data.map((x) => ({ id: x.id, name: x.name })));
+      setTechnicians(response.data.map((x) => ({ id: x.id, name: x.tech_name })));
     } catch (error) {
       console.error(error);
     }

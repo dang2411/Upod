@@ -68,7 +68,7 @@ export default function LoginForm() {
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={3} mb={3}>
+      <Stack spacing={3}>
         {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
         <RHFTextField name="username" label="Username" />
@@ -89,12 +89,12 @@ export default function LoginForm() {
         />
       </Stack>
 
-      {/* <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <RHFCheckbox name="remember" label="Remember me" />
+      <Stack direction="row" alignItems="center" justifyContent="end" sx={{ my: 2 }}>
+        {/* <RHFCheckbox name="remember" label="Remember me" /> */}
         <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.resetPassword}>
           Forgot password?
         </Link>
-      </Stack> */}
+      </Stack>
 
       <LoadingButton
         fullWidth

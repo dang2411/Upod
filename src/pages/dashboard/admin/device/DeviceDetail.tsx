@@ -39,7 +39,7 @@ export default function DeviceDetail() {
         },
         customer: {
           id: response.data.customer.id,
-          name: response.data.customer.name,
+          name: response.data.customer.cus_name,
         },
         ip: response.data.ip,
         port: response.data.port,
@@ -48,7 +48,7 @@ export default function DeviceDetail() {
         settingDate: response.data.setting_date,
         technician: {
           id: response.data.technician.id,
-          name: response.data.technician.name,
+          name: response.data.technician.tech_name,
         },
       };
       if (response.status === 200) {
