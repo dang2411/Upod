@@ -92,6 +92,13 @@ export const PATH_DASHBOARD = {
       edit: (id: string) => path(ROOTS_ADMIN, `/service/edit/${id}`),
       view: (id: string) => path(ROOTS_ADMIN, `/service/view/${id}`),
     },
+    maintain: {
+      root: path(ROOTS_ADMIN, '/maintain'),
+      list: path(ROOTS_ADMIN, '/maintain/list'),
+      new: path(ROOTS_ADMIN, '/maintain/new'),
+      edit: (id: string) => path(ROOTS_ADMIN, `/maintain/edit/${id}`),
+      view: (id: string) => path(ROOTS_ADMIN, `/maintain/view/${id}`),
+    },
     technician: {
       root: path(ROOTS_ADMIN, '/technician'),
       list: path(ROOTS_ADMIN, '/technician/list'),

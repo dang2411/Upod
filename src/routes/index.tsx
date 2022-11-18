@@ -147,6 +147,17 @@ export default function Router() {
               ],
             },
             {
+              path: 'maintain',
+              children: [
+                {
+                  element: <Navigate to={PATH_DASHBOARD.admin.maintain.list} replace />,
+                  index: true,
+                },
+                { path: 'list', element: <AdminMaintainListPage /> },
+                { path: 'edit/:id', element: <AdminMaintainDetailPage /> },
+              ],
+            },
+            {
               path: 'agency',
               children: [
                 {
@@ -412,6 +423,12 @@ const AdminAgencyDetailPage = Loadable(
 );
 const AdminAgencyListPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/agency/AgencyList'))
+);
+const AdminMaintainDetailPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/maintain/MaintainDetail'))
+);
+const AdminMaintainListPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/maintain/MaintainList'))
 );
 const AdminAgenEditPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/agency/AgencyEdit'))

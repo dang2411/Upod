@@ -554,7 +554,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             {editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending')) && (
               <Grid item xs={12} md={6}>
                 <TextField
-                  value={watch('technician')?.name ?? ''}
+                  value={watch('technician')?.tech_name ?? ''}
                   helperText={
                     currentStatus === 'pending' ? (
                       <Typography sx={{ color: 'error.main' }} variant="body2">
