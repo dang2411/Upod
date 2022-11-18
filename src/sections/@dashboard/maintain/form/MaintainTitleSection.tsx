@@ -1,4 +1,4 @@
-import { Stack, Typography, Chip } from '@mui/material';
+import { Stack, Typography, Chip, SxProps } from '@mui/material';
 import { MaintainStatus } from 'src/@types/maintain';
 
 const parseStatus = (status: MaintainStatus) => {
@@ -15,11 +15,12 @@ const parseStatus = (status: MaintainStatus) => {
 type TitleSectionProps = {
   label: string;
   status: MaintainStatus;
+  sx?: SxProps;
 };
 
-export function TitleSection({ label, status }: TitleSectionProps) {
+export function TitleSection({ label, status, sx }: TitleSectionProps) {
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction="row" spacing={2} sx={sx}>
       <Typography variant="subtitle1">{label}</Typography>
       {parseStatus(status)}
     </Stack>

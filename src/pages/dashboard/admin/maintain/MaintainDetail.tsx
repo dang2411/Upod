@@ -9,7 +9,7 @@ import { PATH_DASHBOARD } from 'src/routes/paths';
 import MaintainNewEditForm from 'src/sections/@dashboard/maintain/form/MaintainNewEditForm';
 import axios from 'src/utils/axios';
 
-export default function DeviceDetail() {
+export default function MaintainDetail() {
   const { themeStretch } = useSettings();
 
   const { id = '' } = useParams();
@@ -23,13 +23,28 @@ export default function DeviceDetail() {
   const processMaintain = useCallback(
     async (value: string) => {
       try {
-        await axios.put(
-          '/api/maintenance_reports/processing_maintenance_report',
-          {},
-          { params: { id: value } }
-          );
-          console.log({ params: { id: value } });
+        await axios.put('/api/maintenance_reports/processing_maintenance_report', undefined, {
+          params: { id: value },
+        });
         enqueueSnackbar('Process success', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.maintain.root);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar(`${error}`, { variant: 'error' });
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [id]
+  );
+
+  const unProcessMaintain = useCallback(
+    async (value: string) => {
+      try {
+        await axios.put('/api/maintenance_reports/unprocessing_maintenance_report', undefined, {
+          params: { id: value },
+        });
+        enqueueSnackbar('Un Process success', { variant: 'success' });
+        navigate(PATH_DASHBOARD.admin.maintain.root);
       } catch (error) {
         console.error(error);
         enqueueSnackbar(`${error}`, { variant: 'error' });
@@ -45,6 +60,7 @@ export default function DeviceDetail() {
         params: { id },
       });
       const result = {
+        id: response.data.id,
         status: response.data.status,
         code: response.data.code,
         name: response.data.device_name,
@@ -80,11 +96,11 @@ export default function DeviceDetail() {
   }
 
   const onProcessClick = () => {
-    processMaintain(id);
+    processMaintain(data.id);
   };
 
   const onUnProcessClick = () => {
-    //
+    unProcessMaintain(data.id);
   };
 
   return (
@@ -118,6 +134,7 @@ export default function DeviceDetail() {
             </Stack>
           }
         />
+
         <MaintainNewEditForm isEdit={false} currentMaintain={data} />
       </Container>
     </Page>

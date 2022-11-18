@@ -8,7 +8,7 @@ import {
   Table,
   TableBody,
   TableContainer,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -196,13 +196,13 @@ export default function MaintainList() {
 
               <TableBody>
                 {data.map((row: any) => (
-                  <MaintainTableRow
-                    key={row.id}
-                    row={row}
-                    onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
-                    onProcessClick={() => handleProcess(row.id)}
-                  />
-                ))}
+                    <MaintainTableRow
+                      key={row.id}
+                      row={row}
+                      onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
+                      onProcessClick={() => handleProcess(row.id)}
+                    />
+                  ))}
                 {/* 
                   <TableEmptyRows
                     height={denseHeight}

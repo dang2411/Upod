@@ -9,9 +9,9 @@ export default function MaintainNewEditDetailForm({ currentMaintain }: any) {
   const { getValues, watch } = useFormContext();
   return (
     <>
-      <TitleSection label={getValues('name')} status={watch('status')} />
       <Card sx={{ p: 3 }}>
-        <Stack spacing={2}>
+        <TitleSection sx={{ ml: -2 }} label={getValues('name')} status={watch('status')} />
+        <Stack spacing={2} mt={3}>
           <RHFTextField name="code" label="Code" variant="outlined" fullWidth disabled />
           <TextField
             label="Created Date"

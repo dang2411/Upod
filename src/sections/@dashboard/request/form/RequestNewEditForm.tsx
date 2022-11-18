@@ -408,17 +408,31 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         updateRequest(params);
       }
     } else {
-      const params = {
-        admin_id: user?.account?.id,
-        report_service_id: currentRequest?.reportId,
-        customer_id: currentRequest?.customer.id,
-        service_id: data.service.id,
-        agency_id: data.agency.id,
-        request_description: data.description,
-        request_name: data.name,
-        priority: parseInt(data.priority),
-      };
-      createRequest(params);
+      if (isMaintain) {
+        const params = {
+          admin_id: user?.account?.id,
+          report_service_id: currentRequest?.reportId,
+          customer_id: currentRequest?.customer.id,
+          service_id: data.service.id,
+          agency_id: data.agency.id,
+          request_description: data.description,
+          request_name: data.name,
+          priority: parseInt(data.priority),
+        };
+        createRequest(params);
+      } else {
+        // const params = {
+        //   admin_id: user?.account?.id,
+        //   report_service_id: currentRequest?.reportId,
+        //   customer_id: currentRequest?.customer.id,
+        //   service_id: data.service.id,
+        //   agency_id: data.agency.id,
+        //   request_description: data.description,
+        //   request_name: data.name,
+        //   priority: parseInt(data.priority),
+        // };
+        // createRequest(params);
+      }
     }
   };
 
@@ -673,7 +687,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         open={openConfirmDialog}
         onClose={onConfirmDialogClose}
         onSelect={onConfirm}
-        requestId={id}
+        id={isMaintain ? currentRequest.reportId : id}
+        isMaintain={isMaintain}
       />
       <RequestRejectDialog
         open={openRejectDialog}

@@ -19,10 +19,17 @@ type Props = {
   open: boolean;
   onClose: VoidFunction;
   onSelect?: (value: Technician) => void;
-  requestId: string | null;
+  id: string | null;
+  isMaintain?: boolean;
 };
 
-export default function TechnicianDialog({ open, onClose, onSelect, requestId }: Props) {
+export default function TechnicianDialog({
+  open,
+  onClose,
+  onSelect,
+  id,
+  isMaintain = false,
+}: Props) {
   const handleSelect = (value: Technician) => {
     if (onSelect) {
       onSelect(value);
@@ -38,9 +45,17 @@ export default function TechnicianDialog({ open, onClose, onSelect, requestId }:
 
   const fetch = useCallback(async () => {
     try {
-      const response = await axios.get('/api/requests/get_technicians_by_id_request', {
-        params: { id: requestId },
-      });
+      let response: any;
+      if (isMaintain) {
+        response = await axios.get('/api/requests/get_technicians_by_id_report_service', {
+          params: { id },
+        });
+      } else {
+        response = await axios.get('/api/requests/get_technicians_by_id_request', {
+          params: { id },
+        });
+      }
+      console.log(response);
       setLoading(false);
       if (response.data) {
         setData(
@@ -55,7 +70,7 @@ export default function TechnicianDialog({ open, onClose, onSelect, requestId }:
     } catch (error) {
       console.error(error);
     }
-  }, [requestId]);
+  }, [id]);
 
   useEffect(() => {
     fetch();
@@ -73,7 +88,7 @@ export default function TechnicianDialog({ open, onClose, onSelect, requestId }:
     setSearch(event.target.value);
   };
 
-  if (requestId === null) {
+  if (id === null) {
     return <div />;
   }
   return (

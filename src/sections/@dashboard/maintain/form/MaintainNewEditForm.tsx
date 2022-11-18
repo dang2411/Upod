@@ -26,6 +26,7 @@ import MaintainNewEditCustomerForm from './MaintainNewEditCustomerForm';
 import MaintainNewEditDetailForm from './MaintainNewEditDetailForm';
 import MaintainNewEditScheduleForm from './MaintainNewEditScheduleForm';
 import MaintainNewEditTechnicianForm from './MaintainNewEditTechnicianForm';
+import { TitleSection } from './MaintainTitleSection';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -98,29 +99,21 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
   return (
     <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Stack spacing={3}>
-        <MaintainNewEditDetailForm currentMaintain={currentMaintain} />
-
-        <Grid container rowSpacing={3}>
-          <Grid item md={6} xs={12}>
-            <MaintainNewEditCustomerForm
-              sx={{ mr: { md: 1.5 } }}
-              currentMaintain={currentMaintain}
-            />
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={7}>
+            <MaintainNewEditDetailForm currentMaintain={currentMaintain} />
           </Grid>
-          <Grid item md={6} xs={12}>
-            <MaintainNewEditAgencyForm sx={{ ml: { md: 1.5 } }} currentMaintain={currentMaintain} />
+          <Grid item md={5} xs={12}>
+            <MaintainNewEditScheduleForm currentMaintain={currentMaintain} />
           </Grid>
-          <Grid item md={6} xs={12}>
-            <MaintainNewEditTechnicianForm
-              sx={{ mr: { md: 1.5 } }}
-              currentMaintain={currentMaintain}
-            />
+          <Grid item md={4} xs={12}>
+            <MaintainNewEditCustomerForm currentMaintain={currentMaintain} />
           </Grid>
-          <Grid item md={6} xs={12}>
-            <MaintainNewEditScheduleForm
-              sx={{ ml: { md: 1.5 } }}
-              currentMaintain={currentMaintain}
-            />
+          <Grid item md={4} xs={12}>
+            <MaintainNewEditAgencyForm currentMaintain={currentMaintain} />
+          </Grid>
+          <Grid item md={4} xs={12}>
+            <MaintainNewEditTechnicianForm currentMaintain={currentMaintain} />
           </Grid>
         </Grid>
 
