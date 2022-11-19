@@ -89,7 +89,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
       var response;
       if (isCustomer) {
         response = await axios.get('/api/customers/get_services_by_customer_id', {
-          params: { id: user?.account?.id },
+          params: { id: user?.account?.id, pageSize: 100000, pageNumber: 1 },
         });
       } else {
         response = await axios.get('/api/services/get_all_services');
@@ -275,7 +275,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                 ))}
               </RHFSelect>
               <RHFTextField name="email" label="Email" disabled={disable} />
-              {!newPage && <RHFTextField name="rating" label="Average Rating" disabled={disable} />}
+              {/* {!newPage && <RHFTextField name="rating" label="Average Rating" disabled={disable} />} */}
               <RHFTextField name="address" label="Address" disabled={disable} />
               <RHFAutocomplete
                 name="area"

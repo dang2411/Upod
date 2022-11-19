@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { RequestStatus } from 'src/@types/request';
 import { Technician } from 'src/@types/user';
-import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
+import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
@@ -575,7 +575,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               isMaintain) && (
               <Grid item xs={12} md={6}>
                 <TextField
-                  value={watch('technician')?.tech_name ?? ''}
+                  value={watch('technician')?.name ?? ''}
                   helperText={
                     currentStatus === 'pending' ? (
                       <Typography sx={{ color: 'error.main' }} variant="body2">
