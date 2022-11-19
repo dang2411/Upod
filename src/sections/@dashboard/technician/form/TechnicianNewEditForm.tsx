@@ -92,7 +92,9 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
           params: { id: user?.account?.id, pageSize: 100000, pageNumber: 1 },
         });
       } else {
-        response = await axios.get('/api/services/get_all_services');
+        response = await axios.get('/api/services/get_all_services', {
+          params: { pageSize: 100000, pageNumber: 1 },
+        });
       }
       setServices(response.data.map((x) => ({ id: x.id, name: x.service_name })));
     } catch (error) {
