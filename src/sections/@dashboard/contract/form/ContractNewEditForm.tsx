@@ -231,6 +231,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                     onChange={(_: any, newValue: any) => {
                       onChange(newValue);
                     }}
+                    disabled={disable}
                     renderInput={(params) => (
                       <TextField
                         {...params}
