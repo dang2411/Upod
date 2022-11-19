@@ -116,11 +116,6 @@ export default function AgencyList() {
             },
             { name: 'Listing' },
           ]}
-          action={
-            <Button variant="contained" onClick={() => handleBtnClick()}>
-              Create
-            </Button>
-          }
         />
 
         <Card>
