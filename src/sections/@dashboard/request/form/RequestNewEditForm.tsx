@@ -208,8 +208,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         params: { request_id: currentRequest?.id, technician_id: data.id },
       });
 
-      setValue('status', 'preparing');
-      setValue('technician', data);
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.request.root);
         enqueueSnackbar('Confirm request successfully', { variant: 'success' });

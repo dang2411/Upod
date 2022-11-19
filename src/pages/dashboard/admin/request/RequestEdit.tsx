@@ -46,7 +46,10 @@ export default function RequestEdit() {
         startTime: response.data.start_time,
         endTime: response.data.end_time,
         status: response.data.request_status.toLowerCase(),
-        technician: response.data.technicican,
+        technician: {
+          id: response.data.technicican.id,
+          name: response.data.technicican.tech_name,
+        },
         createdBy: response.data.create_by,
       } as Request;
       if (response.status === 200) {
