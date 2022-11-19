@@ -145,13 +145,13 @@ function AuthProvider({ children }: AuthProviderProps) {
   }, [state.isAuthenticated]);
 
   const login = async (userName: string, password: string) => {
-    const response = await axios.post('/api/accounts/login', {
+    const response: any = await axios.post('/api/accounts/login', {
       userName,
       password,
     });
 
     if (response.status !== 200) {
-      throw new Error(response.data.message);
+      throw new Error(response.message);
     }
 
     const { id, token, account_id, code, username, role_id, role_name } = response.data;
