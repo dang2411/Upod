@@ -210,13 +210,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                 InputLabelProps={{ shrink: true }}
                 disabled={disable || isEdit}
               />
-              <RHFTextField
-                name="description"
-                label="Description"
-                disabled={disable}
-                multiline
-                minRows={4}
-              />
               <Controller
                 name="service"
                 control={control}
@@ -246,6 +239,13 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                     )}
                   />
                 )}
+              />
+              <RHFTextField
+                name="description"
+                label="Description"
+                disabled={disable}
+                multiline
+                minRows={4}
               />
             </Stack>
           </Card>
