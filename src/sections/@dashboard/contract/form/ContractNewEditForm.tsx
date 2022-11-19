@@ -59,7 +59,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     img: currentContract?.img || '',
     description: currentContract?.description || '',
     frequencyMaintain: currentContract?.frequencyMaintain || 0,
-    service: currentContract?.service || [],
+    service: currentContract?.service,
   };
 
   const fetchCustomer = useCallback(async () => {
@@ -158,10 +158,8 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         description: data.description,
         start_date: data.startDate,
         end_date: data.endDate,
-        service: data.service.map((x: any) => ({
-          service_id: x.value.id,
-          frequency_maintain: x.frequencyMaintain,
-        })),
+        service: data.service.map((x: any) => ({ service_id: x.id })),
+        frequency_maintain_time: data.frequencyMaintain,
       };
       createContract(params);
     }

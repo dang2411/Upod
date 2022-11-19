@@ -36,10 +36,10 @@ export default function ContractDetail() {
         attachment: response.data.attachment,
         img: response.data.img,
         description: response.data.description,
-        frequencyMaintain: response.data.frequency_maintain,
+        frequencyMaintain: response.data.frequency_maintain_time,
         service: response.data.service.map((x) => ({
-          value: { id: x.id, name: x.service_name },
-          frequencyMaintain: x.frequency_maintain,
+          id: x.id,
+          name: x.service_name,
         })),
       };
       if (response.status === 200) {

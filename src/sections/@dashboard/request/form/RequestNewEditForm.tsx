@@ -67,7 +67,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
   const RequestSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     service: Yup.object().required('Service is required'),
-    priority: Yup.number().required('Priority is required').min(1).max(3),
+    // priority: Yup.number().required('Priority is required').min(1).max(3),
     agency: Yup.object().required('Agency is required'),
   });
 
@@ -110,7 +110,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
     agency: currentRequest?.agency,
-    priority: currentRequest?.priority || 1,
+    // priority: currentRequest?.priority || 1,
     description: currentRequest?.description || '',
     customer: currentRequest?.customer,
     status: currentRequest?.status || 'pending',
@@ -403,7 +403,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           request_description: data.description,
           request_name: data.name,
           phone: data.phone,
-          priority: parseInt(data.priority),
+          // priority: parseInt(data.priority),
         };
         updateRequest(params);
       }
@@ -417,7 +417,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           agency_id: data.agency.id,
           request_description: data.description,
           request_name: data.name,
-          priority: parseInt(data.priority),
+          // priority: parseInt(data.priority),
         };
         createRequest(params);
       } else {
@@ -492,7 +492,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                 disabled={disabled}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <RHFSelect disabled={disabled} name="priority" label="Priority">
                 {PRIORITY_OPTIONS.map(({ text, value }) => (
                   <option key={text} value={value}>
@@ -500,7 +500,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   </option>
                 ))}
               </RHFSelect>
-            </Grid>
+            </Grid> */}
             {(editPage || isMaintain) && (
               <Grid item xs={12} md={6}>
                 <TextField

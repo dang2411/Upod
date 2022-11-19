@@ -11,7 +11,9 @@ import * as Yup from 'yup';
 export default function CreateAccountDialog({ open, onClose, onSuccess, role }: any) {
   const AccountSchema = Yup.object().shape({
     username: Yup.string().required('Username is required'),
-    password: Yup.string().required('Password is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password must be at least 8 characters'),
   });
 
   const { enqueueSnackbar } = useSnackbar();
@@ -24,18 +26,21 @@ export default function CreateAccountDialog({ open, onClose, onSuccess, role }: 
 
   const createAccount = useCallback(async (data: any) => {
     try {
+      setValue('afterSubmit', '');
       let endpoint = '/api/accounts/create_account_technician';
       if (role === 'Customer') {
         endpoint = '/api/accounts/create_account_customer';
       }
-      const response = await axios.post(endpoint, data);
+      const response: any = await axios.post(endpoint, data);
       if (response.status === 200 || response.status === 201) {
         onSuccess(response.data);
         enqueueSnackbar('Create account successfully', { variant: 'success' });
         handleClose();
+      } else {
+        setValue('afterSubmit', response.message);
       }
     } catch (error) {
-      setValue('afterSubmit', 'error');
+      setValue('afterSubmit', error.toString());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -58,6 +63,7 @@ export default function CreateAccountDialog({ open, onClose, onSuccess, role }: 
     handleSubmit,
     getValues,
     reset,
+    watch,
     setValue,
     formState: { isSubmitting },
   } = methods;
@@ -80,7 +86,7 @@ export default function CreateAccountDialog({ open, onClose, onSuccess, role }: 
         <Stack sx={{ p: 3, pt: 0 }} spacing={2}>
           <RHFTextField name="username" label="Username" />
           <RHFTextField name="password" label="Password" />
-          {getValues('afterSubmit') && (
+          {watch('afterSubmit') && (
             <Typography variant="body1" color="error">
               {getValues('afterSubmit')}
             </Typography>
