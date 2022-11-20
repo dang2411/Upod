@@ -116,6 +116,13 @@ export default function AgencyList() {
             },
             { name: 'Listing' },
           ]}
+          action={
+            <>
+              <Button variant="contained" onClick={() => navigate(PATH_DASHBOARD.admin.agency.new)}>
+                New
+              </Button>
+            </>
+          }
         />
 
         <Card>

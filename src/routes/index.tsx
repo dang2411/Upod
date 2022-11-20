@@ -148,14 +148,25 @@ export default function Router() {
               ],
             },
             {
-              path: 'maintain',
+              path: 'maintain-report',
               children: [
                 {
-                  element: <Navigate to={PATH_DASHBOARD.admin.maintain.list} replace />,
+                  element: <Navigate to={PATH_DASHBOARD.admin.maintainReport.list} replace />,
                   index: true,
                 },
                 { path: 'list', element: <AdminMaintainListPage /> },
                 { path: 'edit/:id', element: <AdminMaintainDetailPage /> },
+              ],
+            },
+            {
+              path: 'maintain-schedule',
+              children: [
+                {
+                  element: <Navigate to={PATH_DASHBOARD.admin.maintainSchedule.list} replace />,
+                  index: true,
+                },
+                { path: 'list', element: <AdminMaintainScheduleListPage /> },
+                { path: 'edit/:id', element: <AdminMaintainScheduleEditPage /> },
               ],
             },
             {
@@ -429,10 +440,10 @@ const AdminAgencyListPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/agency/AgencyList'))
 );
 const AdminMaintainDetailPage = Loadable(
-  lazy(() => import('../pages/dashboard/admin/maintain/MaintainDetail'))
+  lazy(() => import('../pages/dashboard/admin/maintain-report/MaintainReportDetail'))
 );
 const AdminMaintainListPage = Loadable(
-  lazy(() => import('../pages/dashboard/admin/maintain/MaintainList'))
+  lazy(() => import('../pages/dashboard/admin/maintain-report/MaintainReportList'))
 );
 const AdminAgenEditPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/agency/AgencyEdit'))
@@ -465,6 +476,19 @@ const AdminAccountNewPage = Loadable(
 );
 const AdminAccountListPage = Loadable(
   lazy(() => import('../pages/dashboard/admin/account/AccountList'))
+);
+
+const AdminMaintainScheduleDetailPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/maintain-schedule/MaintainScheduleDetail'))
+);
+const AdminMaintainScheduleListPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/maintain-schedule/MaintainScheduleList'))
+);
+const AdminMaintainScheduleNewPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/maintain-schedule/MaintainScheduleNew'))
+);
+const AdminMaintainScheduleEditPage = Loadable(
+  lazy(() => import('../pages/dashboard/admin/maintain-schedule/MaintainScheduleEdit'))
 );
 
 const AdminAreaDetailPage = Loadable(

@@ -6,10 +6,10 @@ import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import MaintainNewEditForm from 'src/sections/@dashboard/maintain/form/MaintainNewEditForm';
+import MaintainNewEditForm from 'src/sections/@dashboard/maintain-report/form/MaintainNewEditForm';
 import axios from 'src/utils/axios';
 
-export default function MaintainDetail() {
+export default function MaintainReportDetail() {
   const { themeStretch } = useSettings();
 
   const { id = '' } = useParams();
@@ -27,7 +27,7 @@ export default function MaintainDetail() {
           params: { id: value },
         });
         enqueueSnackbar('Process success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.admin.maintain.root);
+        navigate(PATH_DASHBOARD.admin.maintainReport.root);
       } catch (error) {
         console.error(error);
         enqueueSnackbar(`${error}`, { variant: 'error' });
@@ -44,7 +44,7 @@ export default function MaintainDetail() {
           params: { id: value },
         });
         enqueueSnackbar('Un Process success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.admin.maintain.root);
+        navigate(PATH_DASHBOARD.admin.maintainReport.root);
       } catch (error) {
         console.error(error);
         enqueueSnackbar(`${error}`, { variant: 'error' });
@@ -76,7 +76,7 @@ export default function MaintainDetail() {
       if (response.status === 200) {
         setData(result);
       } else {
-        navigate(PATH_DASHBOARD.admin.maintain.root);
+        navigate(PATH_DASHBOARD.admin.maintainReport.root);
       }
     } catch (e) {
       console.error(e);
@@ -103,8 +103,12 @@ export default function MaintainDetail() {
     unProcessMaintain(data.id);
   };
 
+  const onScheduleClick = () => {
+    navigate(PATH_DASHBOARD.admin.maintainSchedule.edit(data.maintenance_schedule.id));
+  };
+
   return (
-    <Page title="Maintain: Detail">
+    <Page title="Maintain Report: Detail">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
@@ -114,13 +118,15 @@ export default function MaintainDetail() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Maintain',
-              href: PATH_DASHBOARD.admin.maintain.root,
+              name: 'Maintain Report',
+              href: PATH_DASHBOARD.admin.maintainReport.root,
             },
             { name: title },
           ]}
           action={
             <Stack spacing={2} direction="row">
+              <Button onClick={onScheduleClick}>Schedule</Button>
+
               {data.status === 'problem'.toUpperCase() && (
                 <Button variant="contained" onClick={onProcessClick}>
                   Process

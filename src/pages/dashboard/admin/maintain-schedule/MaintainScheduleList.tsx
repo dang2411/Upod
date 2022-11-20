@@ -1,8 +1,8 @@
 import {
   Box,
+  Button,
   Card,
   Container,
-  debounce,
   FormControlLabel,
   Switch,
   Table,
@@ -18,42 +18,37 @@ import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
-import useTabs from 'src/hooks/useTabs';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import MaintainTableRow from 'src/sections/@dashboard/maintain/list/MaintainTableRow';
-import MaintainTableToolbar from 'src/sections/@dashboard/maintain/list/MaintainTableToolbar';
+import MaintainScheduleTableRow from 'src/sections/@dashboard/maintain-schedule/list/MaintainScheduleTableRow';
+import MaintainScheduleTableToolbar from 'src/sections/@dashboard/maintain-schedule/list/MaintainScheduleTableToolbar';
 import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'createdDate', label: 'Created Date', align: 'left' },
-  { id: 'agency', label: 'Agency', align: 'left' },
-  { id: 'customer', label: 'Customer', align: 'left' },
-  { id: 'createdBy', label: 'Created By', align: 'left' },
+  { id: 'agencyName', label: 'Agency name', align: 'left' },
+  { id: 'technicianName', label: 'Technician name', align: 'left' },
+  { id: 'maintainTime', label: 'Maintain time', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
-  { id: 'action' },
 ];
 
-export default function MaintainList() {
+export default function MaintainScheduleList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState('');
 
-  const {
-    currentTab: filterStatus,
-    // onChangeTab: onChangeFilterStatus,
-    setCurrentTab: setFilterStatus,
-  } = useTabs('all');
+  const handleBtnClick = () => {
+    navigate(PATH_DASHBOARD.admin.maintainSchedule.new);
+  };
 
   const handleFilterTextChange = (value: string) => {
     setFilterText(value);
   };
 
   const handleRowClick = (value: string) => {
-    navigate(PATH_DASHBOARD.admin.maintain.edit(value));
+    navigate(PATH_DASHBOARD.admin.maintainSchedule.edit(value));
   };
 
   const [data, setData] = useState<any[]>([]);
@@ -66,83 +61,45 @@ export default function MaintainList() {
     rowsPerPage,
     //
     selected,
-    setPage,
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
 
-  const processMaintain = useCallback(async (id: string) => {
+  const fetch = useCallback(async () => {
     try {
-      await axiosInstance.put(
-        '/api/maintenance_reports/processing_maintenance_report',
-        {},
-        { params: { id } }
+      const response: any = await axiosInstance.get(
+        '/api/maintenance_schedules/get_list_maintenance_schedules',
+        {
+          params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
+        }
       );
-      enqueueSnackbar('Process success', { variant: 'success' });
+
+      setTotal(response.total);
+      //
+      const result = Array.from(response.data).map((x: any) => ({
+        id: x.id,
+        code: x.code,
+        name: x.name,
+        createDate: x.create_date ?? '',
+        description: x.description,
+        maintainTime: x.maintain_time,
+        agency: x.agency.agency_name,
+        technician: x.technician.tech_name,
+        status: x.status,
+      }));
+      setData(result);
     } catch (error) {
       console.error(error);
-      enqueueSnackbar(`${error}`, { variant: 'error' });
+      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
     }
-  }, []);
-
-  const fetch = useCallback(
-    async ({ value, page, rowsPerPage, filterStatus }: any) => {
-      try {
-        const response: any = await axiosInstance.get(
-          '/api/maintenance_reports/get_list_maintenance_reports',
-          {
-            params: {
-              pageNumber: page + 1,
-              pageSize: rowsPerPage,
-              search: value === '' ? undefined : value,
-              status: filterStatus === 'all' ? undefined : filterStatus,
-            },
-          }
-        );
-
-        setTotal(response.total);
-
-        const result = Array.from(response.data).map((x: any) => ({
-          id: x.id,
-          code: x.code,
-          name: x.name,
-          createdDate: x.update_date,
-          customer: x.customer,
-          agency: x.agency,
-          status: x.status.toLowerCase(),
-          maintenance_schedule: x.maintenance_schedule,
-          technician: x.create_by,
-        }));
-        setData(result);
-      } catch (error) {
-        console.error(error);
-        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-      }
-    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filterText, page, rowsPerPage]
-  );
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceSearch = useCallback(
-    debounce(
-      ({ value, page, rowsPerPage, filterStatus }: any) =>
-        fetch({ value, page, rowsPerPage, filterStatus }),
-      1000
-    ),
-    []
-  );
-
-  const handleProcess = async (id: string) => {
-    await processMaintain(id);
-    fetch({ filterText, page, rowsPerPage, filterStatus });
-  };
+  }, [filterText, page, rowsPerPage]);
 
   useEffect(() => {
-    debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
+    fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filterStatus, filterText]);
+  }, [page, rowsPerPage, filterText]);
 
   const [total, setTotal] = useState(0);
 
@@ -151,18 +108,18 @@ export default function MaintainList() {
   const isNotFound = !data.length;
 
   return (
-    <Page title="Maintain: Listing">
+    <Page title="Maintain Schedule: Listing">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
-          heading="Maintain: Listing"
+          heading="Maintain Schedule: Listing"
           links={[
             {
               name: 'Dashboard',
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Maintain',
-              href: PATH_DASHBOARD.admin.maintain.root,
+              name: 'Maintain-schedule',
+              href: PATH_DASHBOARD.admin.maintainSchedule.root,
             },
             { name: 'Listing' },
           ]}
@@ -174,14 +131,9 @@ export default function MaintainList() {
         />
 
         <Card>
-          <MaintainTableToolbar
+          <MaintainScheduleTableToolbar
             filterText={filterText}
             onFilterText={handleFilterTextChange}
-            filterStatus={filterStatus}
-            onChangeFilterStatus={(value) => {
-              setPage(0);
-              setFilterStatus(value);
-            }}
           />
 
           <TableContainer>
@@ -196,13 +148,12 @@ export default function MaintainList() {
 
               <TableBody>
                 {data.map((row: any) => (
-                    <MaintainTableRow
-                      key={row.id}
-                      row={row}
-                      onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
-                      onProcessClick={() => handleProcess(row.id)}
-                    />
-                  ))}
+                  <MaintainScheduleTableRow
+                    key={row.id}
+                    row={row}
+                    onRowClick={() => handleRowClick(row.id)}
+                  />
+                ))}
                 {/* 
                   <TableEmptyRows
                     height={denseHeight}

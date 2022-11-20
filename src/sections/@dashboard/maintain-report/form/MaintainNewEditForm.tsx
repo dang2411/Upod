@@ -26,7 +26,6 @@ import MaintainNewEditCustomerForm from './MaintainNewEditCustomerForm';
 import MaintainNewEditDetailForm from './MaintainNewEditDetailForm';
 import MaintainNewEditScheduleForm from './MaintainNewEditScheduleForm';
 import MaintainNewEditTechnicianForm from './MaintainNewEditTechnicianForm';
-import { TitleSection } from './MaintainTitleSection';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },

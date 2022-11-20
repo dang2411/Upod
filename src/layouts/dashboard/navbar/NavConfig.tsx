@@ -14,7 +14,8 @@ const ICONS = {
   account: <Iconify icon="bxs:user-account" />,
   area: <Iconify icon="bxs:map-pin" />,
   service: <Iconify icon="carbon:service-id" />,
-  maintain: <Iconify icon="bi:database-fill-gear" />,
+  maintainReport: <Iconify icon="bi:database-fill-gear" />,
+  maintainSchedule: <Iconify icon="carbon:event-schedule" />,
 };
 
 const customerNavConfig = [
@@ -33,7 +34,16 @@ const adminNavConfig = [
     items: [
       { title: 'request', path: PATH_DASHBOARD.admin.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.admin.contract.root, icon: ICONS.contract },
-      { title: 'maintain', path: PATH_DASHBOARD.admin.maintain.root, icon: ICONS.maintain },
+      {
+        title: 'maintain report',
+        path: PATH_DASHBOARD.admin.maintainReport.root,
+        icon: ICONS.maintainReport,
+      },
+      {
+        title: 'maintain schedule',
+        path: PATH_DASHBOARD.admin.maintainSchedule.root,
+        icon: ICONS.maintainSchedule,
+      },
       { title: 'agency', path: PATH_DASHBOARD.admin.agency.root, icon: ICONS.agency },
       { title: 'device', path: PATH_DASHBOARD.admin.device.root, icon: ICONS.device },
       { title: 'area', path: PATH_DASHBOARD.admin.area.root, icon: ICONS.area },

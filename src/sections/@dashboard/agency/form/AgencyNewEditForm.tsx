@@ -260,7 +260,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
             />
           </Box>
         </Stack>
-        {editPage && !isCustomer && (
+        {!isCustomer && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             <Button variant="outlined" color="error" onClick={onDeleteClick}>
               Delete

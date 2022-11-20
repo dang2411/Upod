@@ -93,12 +93,19 @@ export const PATH_DASHBOARD = {
       edit: (id: string) => path(ROOTS_ADMIN, `/service/edit/${id}`),
       view: (id: string) => path(ROOTS_ADMIN, `/service/view/${id}`),
     },
-    maintain: {
-      root: path(ROOTS_ADMIN, '/maintain'),
-      list: path(ROOTS_ADMIN, '/maintain/list'),
-      new: path(ROOTS_ADMIN, '/maintain/new'),
-      edit: (id: string) => path(ROOTS_ADMIN, `/maintain/edit/${id}`),
-      view: (id: string) => path(ROOTS_ADMIN, `/maintain/view/${id}`),
+    maintainReport: {
+      root: path(ROOTS_ADMIN, '/maintain-report'),
+      list: path(ROOTS_ADMIN, '/maintain-report/list'),
+      new: path(ROOTS_ADMIN, '/maintain-report/new'),
+      edit: (id: string) => path(ROOTS_ADMIN, `/maintain-report/edit/${id}`),
+      view: (id: string) => path(ROOTS_ADMIN, `/maintain-report/view/${id}`),
+    },
+    maintainSchedule: {
+      root: path(ROOTS_ADMIN, '/maintain-schedule'),
+      list: path(ROOTS_ADMIN, '/maintain-schedule/list'),
+      new: path(ROOTS_ADMIN, '/maintain-schedule/new'),
+      edit: (id: string) => path(ROOTS_ADMIN, `/maintain-schedule/edit/${id}`),
+      view: (id: string) => path(ROOTS_ADMIN, `/maintain-schedule/view/${id}`),
     },
     technician: {
       root: path(ROOTS_ADMIN, '/technician'),
