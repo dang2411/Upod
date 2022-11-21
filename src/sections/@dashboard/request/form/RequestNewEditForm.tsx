@@ -414,7 +414,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         agency_id: data.agency.id,
         request_description: data.description,
         request_name: data.name,
-        // priority: parseInt(data.priority),
+        technician_id: data.technician.id,
       };
       createRequest(params);
     }
@@ -647,7 +647,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               Reopen
             </Button>
           )}
-          {currentStatus === 'pending' && !isCustomer && watch('technician') && (
+          {currentStatus === 'pending' && !isCustomer  && editPage && watch('technician') && (
             <Button variant="contained" color="info" onClick={handleConfirm}>
               Confirm
             </Button>
