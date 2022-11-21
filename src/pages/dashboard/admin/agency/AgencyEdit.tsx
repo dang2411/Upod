@@ -143,6 +143,18 @@ export default function AgencyDetail() {
           id: response.data.agency.id,
           name: response.data.agency.agency_name,
         },
+        customer: {
+          id: response.data.customer.id,
+          name: response.data.customer.cus_name,
+        },
+        service: {
+          id: response.data.service.id,
+          name: response.data.service.service_name,
+        },
+        technician: {
+          id: response.data.technician.id,
+          name: response.data.technician.tech_name,
+        },
         ip: response.data.ip || '',
         port: response.data.port || '',
         deviceAccount: response.data.device_account || '',
@@ -168,14 +180,16 @@ export default function AgencyDetail() {
 
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
-        customer: x.customer.name,
-        service: x.service.service_name,
+        customer: x.customer,
+        service: x.service,
         code: x.code,
         name: x.device_name,
-        agency: x.agency.agency_name,
+        agency: x.agency,
         type: x.devicetype.device_type_name,
+        technician: x.technician,
       }));
       setDevices(result);
+      console.log(devices);
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Cannot fetch data', { variant: 'error' });

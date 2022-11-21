@@ -31,7 +31,7 @@ export default function DeviceDetail() {
         },
         agency: {
           id: response.data.agency.id,
-          agencyName: response.data.agency.agency_name,
+          name: response.data.agency.agency_name,
         },
         service: {
           id: response.data.service.id,
