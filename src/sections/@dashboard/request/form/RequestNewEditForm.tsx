@@ -520,7 +520,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                 />
               </Grid>
             )}
-            {currentRequest?.startTime && (
+            {currentRequest?.startTime && currentStatus === 'resolved' && (
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Start Time"
@@ -531,7 +531,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                 />
               </Grid>
             )}
-            {currentRequest?.endTime && (
+            {currentRequest?.endTime && currentStatus === 'resolved' && (
               <Grid item xs={12} md={6}>
                 <TextField
                   label="End Time"
