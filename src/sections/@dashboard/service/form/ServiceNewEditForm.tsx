@@ -6,8 +6,10 @@ import { useSnackbar } from 'notistack';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
@@ -114,9 +116,23 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   };
   const disable = !isEdit && currentService != null;
 
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
+
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteService();
   };
+
+
 
   const editPage = isEdit && currentService;
 
@@ -125,7 +141,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   const detailPage = !isEdit && currentService;
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+    <><FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
         <Stack spacing={3}>
           <Typography variant="subtitle1">{getValues('code')}</Typography>
@@ -136,8 +152,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
               <TextField
                 value={format(new Date(currentService!.createDate), 'dd/MM/yyyy')}
                 label="Create Date "
-                disabled
-              />
+                disabled />
             )}
           </Box>
         </Stack>
@@ -154,6 +169,11 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
           </Stack>
         )}
       </Card>
-    </FormProvider>
+    </FormProvider><ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Service"
+        text="Are you sure you want to delete?" /></>
   );
 }

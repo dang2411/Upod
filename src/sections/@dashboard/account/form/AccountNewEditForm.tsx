@@ -5,8 +5,10 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
@@ -104,6 +106,14 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
+
   const methods = useForm({
     resolver: yupResolver(AccountSchema),
     defaultValues,
@@ -133,8 +143,14 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   };
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteAccount();
   };
+
+
 
   useEffect(() => {
     fetchRoles();
@@ -150,7 +166,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   const detailPage = !isEdit && currentAccount;
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+    <><FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       <Card sx={{ p: 3 }}>
         <Stack spacing={3}>
           {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
@@ -163,9 +179,8 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
               options={roles}
               fullWidth
               InputLabelProps={{ shrink: true }}
-              disabled={disable}
-            />
-            <RHFTextField name="username" label="Username" disabled={disable} />
+              disabled={disable} />
+            <RHFTextField name="username" label="Username" disabled={true} />
             <RHFTextField name="password" label="Password" disabled={disable} />
           </Box>
         </Stack>
@@ -182,6 +197,11 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
           </Stack>
         )}
       </Card>
-    </FormProvider>
+    </FormProvider><ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Account"
+        text="Are you sure you want to delete?" /></>
   );
 }

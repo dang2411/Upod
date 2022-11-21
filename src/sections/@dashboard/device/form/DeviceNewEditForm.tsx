@@ -81,6 +81,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     //
   };
   const disable = !isEdit && currentDevice != null;
+  
   const onDeleteClick = () => {
     // deleteAccount();
   };

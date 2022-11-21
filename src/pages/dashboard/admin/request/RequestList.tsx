@@ -43,8 +43,8 @@ const TABLE_HEAD = [
   { id: 'agency', label: 'Agency', align: 'left' },
   { id: 'service', label: 'Service', align: 'left' },
   { id: 'customer', label: 'Customer', align: 'left' },
-  { id: 'contract', label: 'Contract', align: 'left' },
   { id: 'created', label: 'Created By', align: 'left' },
+  { id: 'createdAt', label: 'Created At', align: 'left' },
   { id: 'description', label: 'Description', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
 ];

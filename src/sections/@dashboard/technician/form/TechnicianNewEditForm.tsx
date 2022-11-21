@@ -14,6 +14,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -61,6 +62,12 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   });
 
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
 
   const [areas, setAreas] = useState([]);
 
@@ -231,6 +238,10 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   const disable = !isEdit && currentTechnician != null;
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteTechnician();
   };
 
@@ -252,10 +263,13 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   };
 
   const editPage = isEdit && currentTechnician;
+  console.log(isEdit);
 
   const newPage = !isEdit && !currentTechnician;
 
   const detailPage = !isEdit && currentTechnician;
+
+  const isAsign = isEdit && currentTechnician;
 
   return (
     <>
@@ -309,7 +323,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                     options={accounts}
                     onChange={(_: any, newValue: any) => onChange(newValue)}
                     disableClearable
-                    disabled={disable}
+                    disabled={isAsign}
                     value={value}
                     renderInput={(params) => (
                       <TextField
@@ -376,6 +390,13 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         onClose={onCloseDialog}
         role="Technician"
         onSuccess={onCreateAccountSuccess}
+      />
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Technician"
+        text="Are you sure you want to delete?"
       />
     </>
   );

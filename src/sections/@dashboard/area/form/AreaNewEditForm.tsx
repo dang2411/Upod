@@ -15,6 +15,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -35,8 +36,13 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
   const navigate = useNavigate();
 
   const { user } = useAuth();
-
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
 
   const isCustomer = user?.account?.roleName === 'Customer';
 
@@ -130,6 +136,10 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
   useEffect(() => {}, []);
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteArea();
   };
 
@@ -160,7 +170,7 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
               <RHFTextField name="name" label="Name" />
               {!newPage && (
                 <TextField
-                  value={format(new Date(currentArea!.createDate), 'dd/MM/yyyy')}
+                  value={format(new Date(currentArea!.createDate), 'HH:mm dd/MM/yyyy')}
                   label="Create Date "
                   disabled
                 />
@@ -182,6 +192,13 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
           )}
         </Card>
       </FormProvider>
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Area"
+        text="Are you sure you want to delete?"
+      />
     </>
   );
 }

@@ -7,8 +7,10 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
@@ -44,7 +46,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const disable = !isEdit && currentContract;
+  const disable = !isEdit && currentContract != null;
 
   const defaultValues = {
     code: currentContract?.code || '',
@@ -175,7 +177,19 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch('customer')]);
 
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
+
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteContract();
   };
 
@@ -190,145 +204,177 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   ) as any[];
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ p: 3 }}>
-            <Stack spacing={3}>
-              {currentContract?.code && (
-                <Typography variant="subtitle1">{getValues('code')}</Typography>
-              )}
-              <RHFTextField name="name" label="Name" disabled={disable} />
-              <RHFAutocomplete
-                name="customer"
-                label="Customer"
-                variant="outlined"
-                options={customers}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                disabled={disable || isEdit}
-              />
-              <Controller
-                name="service"
-                control={control}
-                render={({ field: { value, onChange }, fieldState: { error } }) => (
-                  <Autocomplete
-                    multiple
-                    options={services}
-                    getOptionLabel={(option: any) => option.name}
-                    isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
-                    value={value}
-                    filterSelectedOptions
-                    onChange={(_: any, newValue: any) => {
-                      onChange(newValue);
-                    }}
-                    disabled={disable}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={!!error}
-                        helperText={error?.message}
-                        label="Service"
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: <>{params.InputProps.endAdornment}</>,
-                        }}
-                      />
-                    )}
-                  />
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={8}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={3}>
+                {currentContract?.code && (
+                  <Typography variant="subtitle1">{getValues('code')}</Typography>
                 )}
-              />
-              <RHFTextField
-                name="description"
-                label="Description"
-                disabled={disable}
-                multiline
-                minRows={4}
-              />
-            </Stack>
-          </Card>
+                <RHFTextField name="name" label="Name" disabled={disable} />
+                <RHFAutocomplete
+                  name="customer"
+                  label="Customer"
+                  variant="outlined"
+                  options={customers}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  disabled={disable || isEdit}
+                />
+                <Controller
+                  name="service"
+                  control={control}
+                  render={({ field: { value, onChange }, fieldState: { error } }) => (
+                    <Autocomplete
+                      multiple
+                      options={services}
+                      getOptionLabel={(option: any) => option.name}
+                      isOptionEqualToValue={(option: any, value: any) => option.id === value.id}
+                      value={value}
+                      filterSelectedOptions
+                      onChange={(_: any, newValue: any) => {
+                        onChange(newValue);
+                      }}
+                      disabled={disable}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={!!error}
+                          helperText={error?.message}
+                          label="Service"
+                          InputProps={{
+                            ...params.InputProps,
+                            endAdornment: <>{params.InputProps.endAdornment}</>,
+                          }}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <RHFTextField
+                  name="description"
+                  label="Description"
+                  disabled={disable}
+                  multiline
+                  minRows={4}
+                />
+              </Stack>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={2}>
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field, fieldState: { error } }) => (
+                    <DatePicker
+                      label="Start Date"
+                      value={field.value}
+                      inputFormat="dd/MM/yyyy"
+                      onChange={(newValue) => {
+                        field.onChange(newValue);
+                      }}
+                      disabled={disable}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <Controller
+                  name="endDate"
+                  control={control}
+                  render={({ field, fieldState: { error } }) => (
+                    <DatePicker
+                      label="End Date"
+                      inputFormat="dd/MM/yyyy"
+                      value={field.value}
+                      onChange={(newValue) => {
+                        field.onChange(newValue);
+                      }}
+                      disabled={disable}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <RHFTextField
+                  name="contractPrice"
+                  label="Contract Price"
+                  variant="outlined"
+                  fullWidth
+                  type="number"
+                  disabled={disable}
+                />
+                <RHFTextField
+                  name="frequencyMaintain"
+                  label="Frequency Maintain"
+                  type="number"
+                  disabled={disable}
+                />
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ p: 3 }}>
-            <Stack spacing={2}>
-              <Controller
-                name="startDate"
-                control={control}
-                render={({ field, fieldState: { error } }) => (
-                  <DatePicker
-                    label="Start Date"
-                    value={field.value}
-                    inputFormat="dd/MM/yyyy"
-                    onChange={(newValue) => {
-                      field.onChange(newValue);
-                    }}
-                    disabled={disable}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        error={!!error}
-                        helperText={error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
-              <Controller
-                name="endDate"
-                control={control}
-                render={({ field, fieldState: { error } }) => (
-                  <DatePicker
-                    label="End Date"
-                    inputFormat="dd/MM/yyyy"
-                    value={field.value}
-                    onChange={(newValue) => {
-                      field.onChange(newValue);
-                    }}
-                    disabled={disable}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        error={!!error}
-                        helperText={error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
-              <RHFTextField
-                name="contractPrice"
-                label="Contract Price"
-                variant="outlined"
-                fullWidth
-                type="number"
-                disabled={disable}
-              />
-              <RHFTextField
-                name="frequencyMaintain"
-                label="Frequency Maintain"
-                type="number"
-                disabled={disable}
-              />
-            </Stack>
-          </Card>
-        </Grid>
-      </Grid>
-      {!disable && (
-        <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-          {editPage && !isCustomer && (
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
-          )}
-          {!isEdit && (
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              Create
-            </LoadingButton>
-          )}
-        </Stack>
-      )}
-    </FormProvider>
+        {/* {!disable && (
+          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+            {editPage && !isCustomer && (
+              <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                Delete
+              </Button>
+            )}
+            {!isEdit && (
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                Create
+              </LoadingButton>
+            )}
+          </Stack>
+        )} */}
+        {!disable && (
+          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+            {!isEdit && (
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                Create
+              </LoadingButton>
+            )}
+          </Stack>
+        )}
+        {disable && (
+          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+            {!isCustomer && (
+              <>
+                <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                  Delete
+                </Button>
+                {/* <Button variant="outlined" color="error" onClick={onTerminateClick}>
+                  Terminate
+                </Button> */}
+              </>
+            )}
+          </Stack>
+        )}
+      </FormProvider>
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Contract"
+        text="Are you sure you want to delete?"
+      />
+    </>
   );
 }

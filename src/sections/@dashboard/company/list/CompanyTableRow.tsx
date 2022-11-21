@@ -18,7 +18,7 @@ export default function CompanyTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{address} </TableCell>
       <TableCell align="left">{phone} </TableCell>
-      <TableCell align="left">{format(new Date(createDate), 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(createDate), 'HH:mm dd/MM/yyyy')} </TableCell>
     </TableRow>
   );
 }

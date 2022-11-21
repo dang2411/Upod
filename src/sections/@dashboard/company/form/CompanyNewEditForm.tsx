@@ -5,6 +5,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -175,9 +176,18 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
   const disable = !isEdit && currentCompany != null;
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteCompany();
   };
 
@@ -186,6 +196,8 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   const newPage = !isEdit && !currentCompany;
 
   const detailPage = !isEdit && currentCompany;
+
+  const isAsign = isEdit && currentCompany;
 
   const handleCreateAccountClick = () => {
     setOpenDialog(true);
@@ -227,7 +239,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
                     options={accounts}
                     onChange={(_: any, newValue: any) => onChange(newValue)}
                     disableClearable
-                    disabled={disable}
+                    disabled={isAsign}
                     value={value}
                     renderInput={(params) => (
                       <TextField
@@ -266,6 +278,13 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         onClose={onCloseDialog}
         role="Customer"
         onSuccess={onCreateAccountSuccess}
+      />
+       <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Customer"
+        text="Are you sure you want to delete?"
       />
     </>
   );

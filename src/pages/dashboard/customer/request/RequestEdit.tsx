@@ -31,7 +31,7 @@ export default function RequestEdit() {
         code: response.data.code,
         createdAt: new Date(response.data.create_date),
         name: response.data.request_name,
-        customer: { id: response.data.customer.id, name: response.data.customer.name },
+        customer: { id: response.data.customer.id, name: response.data.customer.cus_name },
         service: { id: response.data.service.id, name: response.data.service.service_name },
         agency: {
           id: response.data.agency.id,
@@ -39,7 +39,7 @@ export default function RequestEdit() {
           phone: response.data.agency.phone,
           address: response.data.agency.address,
         },
-        contract: response.data.contract,
+        contract: {id : response.data.contract.id, name: response.data.contract.name},
         priority: response.data.priority,
         description: response.data.description,
         status: response.data.request_status.toLowerCase(),

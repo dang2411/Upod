@@ -135,7 +135,7 @@ export default function RequestList() {
               agency: { id: x.agency.id, name: x.agency.agency_name },
               priority: parsePriority(x.priority),
               description: x.description,
-              customer: x.customer,
+              customer: { id: x.customer.id, name: x.customer.cus_name }, 
               contract: x.contract,
               createdByAdmin: x.admin_id != null,
               status: x.request_status.toLowerCase(),
