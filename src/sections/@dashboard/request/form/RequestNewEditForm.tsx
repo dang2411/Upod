@@ -118,7 +118,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     technician: currentRequest?.technician,
     rejectReason: currentRequest?.rejectReason || '',
   };
-
   const methods = useForm<any>({
     resolver: yupResolver(RequestSchema),
     defaultValues,
@@ -625,13 +624,21 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           />
         )}
         <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
-          {(currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin) ||
+          {(currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
+            <Button onClick={handleDeleteClick} color="error" variant="contained">
+              Delete
+            </Button>
+          )) ||
             (currentStatus === 'pending' && editPage && isCustomer && isCreatedByCurrentUser && (
               <Button onClick={handleDeleteClick} color="error" variant="contained">
                 Delete
               </Button>
             ))}
-          {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+          {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
+            <Button onClick={handleCancelClick} color="error" variant="outlined">
+              Cancel
+            </Button>
+          )) ||
             (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser && (
               <Button onClick={handleCancelClick} color="error" variant="outlined">
                 Cancel
@@ -647,7 +654,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               Reopen
             </Button>
           )}
-          {currentStatus === 'pending' && !isCustomer  && editPage && watch('technician') && (
+          {currentStatus === 'pending' && !isCustomer && editPage && watch('technician') && (
             <Button variant="contained" color="info" onClick={handleConfirm}>
               Confirm
             </Button>
