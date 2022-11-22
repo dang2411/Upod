@@ -18,8 +18,8 @@ export default function ContractTableRow({ row, onRowClick }: Props) {
       </TableCell>
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{company} </TableCell>
-      <TableCell align="left">{format(new Date(createdAt), 'hh:MM dd/MM/yyyy')} </TableCell>
-      <TableCell align="left">{format(new Date(expiredAt), 'hh:mm dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(createdAt), 'HH:mm dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(expiredAt), 'HH:mm dd/MM/yyyy')} </TableCell>
       <TableCell align="left">{!is_expire ? (
           <Iconify
             icon="akar-icons:circle-check"

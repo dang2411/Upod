@@ -145,7 +145,6 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     if (isEdit) {
       const params = {
         name: data.name,
-        account_id: data.account.id,
         description: data.description,
         address: data.address,
         mail: data.email,

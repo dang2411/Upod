@@ -4,8 +4,9 @@ type Props = {
   open: boolean;
   onClose: VoidFunction;
   onReject: (description: string) => void;
+  title: string;
 };
-export default function RequestRejectDialog({ open, onClose, onReject }: Props) {
+export default function RequestRejectDialog({ open, onClose, onReject, title }: Props) {
   const [value, setValue] = useState('');
 
   const handleCancel = () => {
@@ -20,7 +21,7 @@ export default function RequestRejectDialog({ open, onClose, onReject }: Props) 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <Stack direction="row" alignItems="center" justifyContent="start" sx={{ py: 2.5, px: 3 }}>
-        <Typography variant="h6">Reject Request</Typography>
+        <Typography variant="h6">{title}</Typography>
       </Stack>
 
       <Stack sx={{ p: 3, pt: 0 }} spacing={2}>

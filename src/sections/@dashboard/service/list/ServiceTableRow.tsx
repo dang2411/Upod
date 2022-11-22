@@ -16,7 +16,7 @@ export default function ServiceTableRow({ row, onRowClick }: Props) {
         </Typography>
       </TableCell>
       <TableCell align="left">{name} </TableCell>
-      <TableCell align="left">{format(new Date(createDate), 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(createDate), 'HH:mm dd/MM/yyyy')} </TableCell>
       <TableCell align="left">{description} </TableCell>
     </TableRow>
   );

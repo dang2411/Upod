@@ -55,7 +55,6 @@ export default function TechnicianDialog({
           params: { id },
         });
       }
-      console.log(response);
       setLoading(false);
       if (response.data) {
         setData(

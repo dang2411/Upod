@@ -120,8 +120,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     createdBy: isCreatedByAdmin ? 'Admin' : currentRequest?.createdBy?.name,
     technician: currentRequest?.technician,
     rejectReason: currentRequest?.rejectReason || '',
+    cancelReason: currentRequest?.cancelReason || '',
   };
-  console.log(currentRequest);
   const methods = useForm<any>({
     resolver: yupResolver(RequestSchema),
     defaultValues,
@@ -281,12 +281,24 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cancelRequest = useCallback(async (data: any) => {
+  const cancelRequest = useCallback(async (data: string) => {
     try {
-      const response = await axios.put('/api/requests/cancel_request_by_id', {}, { params: data });
+      const response = await axios.put(
+        '/api/requests/cancel_request_by_id',
+        { reason: data },
+        {
+          params: { id: currentRequest?.id },
+        }
+      );
       if (response.status === 200 || response.status === 201) {
-        navigate(PATH_DASHBOARD.admin.request.root);
-        enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+        if (!isCustomer) {
+          navigate(PATH_DASHBOARD.admin.request.root);
+          enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+        } else {
+          navigate(PATH_DASHBOARD.customer.request.root);
+          enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+        }
+
       }
       setValue('status', 'canceled');
     } catch (error) {
@@ -353,8 +365,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     setToggle: setOpenCancelDialog,
   } = useToggle(false);
 
-  const onConfirmCancle = () => {
-    cancelRequest({ id: currentRequest?.id });
+  const onConfirmCancle = (value: string) => {
+    cancelRequest(value);
   };
 
   const handleCancelClick = (event) => {
@@ -447,7 +459,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     rejectRequest(value);
   };
 
-  const newPage = !isEdit && !currentRequest;
+  const newPage = !isEdit;
 
   const editPage = isEdit && currentRequest;
 
@@ -458,6 +470,16 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
   const isCreatedByCurrentUser =
     currentRequest?.createdBy?.role === 'Customer' &&
     currentRequest?.createdBy?.id === user?.account?.id;
+
+  const diableServiceAgency = !(
+    (newPage && isCustomer) ||
+    (currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser)
+  );
+  const disabledNameDescription = !(
+    (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+    newPage ||
+    (currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser)
+  );
 
   return (
     <>
@@ -472,7 +494,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   label="Name"
                   variant="outlined"
                   fullWidth
-                  disabled={disabled}
+                  disabled={disabledNameDescription}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -482,7 +504,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   variant="outlined"
                   options={agencies}
                   fullWidth
-                  disabled={disabled}
+                  disabled={diableServiceAgency}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -493,7 +515,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   options={services}
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  disabled={disabled}
+                  disabled={diableServiceAgency}
                 />
               </Grid>
               {/* <Grid item xs={12} md={6}>
@@ -541,16 +563,19 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   />
                 </Grid>
               )}
-              <Grid item xs={12} md={6}>
-                <RHFTextField
-                  value={format(new Date(getValues('createdAt')), 'HH:mm dd/MM/yyyy')}
-                  name="createdAt"
-                  label="Created At"
-                  variant="outlined"
-                  fullWidth
-                  disabled={disabled}
-                />
-              </Grid>
+              {editPage && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    value={format(new Date(getValues('createdAt')), 'HH:mm dd/MM/yyyy')}
+                    name="createdAt"
+                    label="Created At"
+                    variant="outlined"
+                    fullWidth
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+
               {currentRequest?.startTime &&
                 (currentStatus === 'resolving' ||
                   currentStatus === 'resolved' ||
@@ -575,20 +600,21 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                       label="Created By"
                       variant="outlined"
                       fullWidth
-                      disabled={disabled}
+                      disabled={true}
                     />
                   </Grid>
-                  {currentRequest?.endTime && (currentStatus === 'resolved' || currentStatus === 'editing') && (
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        label="End Time"
-                        variant="outlined"
-                        fullWidth
-                        disabled
-                        value={format(new Date(currentRequest!.endTime), 'HH:mm dd/MM/yyyy')}
-                      />
-                    </Grid>
-                  )}
+                  {currentRequest?.endTime &&
+                    (currentStatus === 'resolved' || currentStatus === 'editing') && (
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          label="End Time"
+                          variant="outlined"
+                          fullWidth
+                          disabled
+                          value={format(new Date(currentRequest!.endTime), 'HH:mm dd/MM/yyyy')}
+                        />
+                      </Grid>
+                    )}
                 </>
               )}
               {editPage && (
@@ -599,7 +625,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                     label="Contract"
                     variant="outlined"
                     fullWidth
-                    disabled={disabled}
+                    disabled={true}
                   />
                 </Grid>
               )}
@@ -650,7 +676,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   minRows={6}
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  disabled={disabled}
+                  disabled={disabledNameDescription}
                 />
               </Grid>
               {currentStatus === 'rejected' && (
@@ -658,6 +684,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   <RHFTextField
                     name="rejectReason"
                     label="Reject Reason"
+                    variant="outlined"
+                    multiline
+                    minRows={6}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {currentStatus === 'canceled' && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="cancelReason"
+                    label="Cancel Reason"
                     variant="outlined"
                     multiline
                     minRows={6}
@@ -741,14 +781,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           open={openRejectDialog}
           onClose={onRejectDialogClose}
           onReject={onReject}
+          title="Reject request"
         />
       </FormProvider>
-      <ConfirmDialog
+      <RequestRejectDialog
         open={openCancelDialog}
         onClose={onCloseCancelDialog}
-        onConfirm={onConfirmCancle}
-        title="Cancel Request"
-        text="Are you sure you want to cancel?"
+        onReject={onConfirmCancle}
+        title="Cancel request"
       />
     </>
   );

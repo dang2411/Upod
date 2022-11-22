@@ -34,7 +34,7 @@ export default function MaintainScheduleTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{agency} </TableCell>
       <TableCell align="left">{technician} </TableCell>
-      <TableCell align="left">{format(new Date(maintainTime), 'dd/MM/yyyy')} </TableCell>
+      <TableCell align="left">{format(new Date(maintainTime), 'HH:mm dd/MM/yyyy')} </TableCell>
       <TableCell align="left" onClick={onRowClick}>
         {parseStatus(status)}
       </TableCell>

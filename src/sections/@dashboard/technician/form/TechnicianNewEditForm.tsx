@@ -211,12 +211,11 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
       const params = {
         area_id: data!.area.id,
         technician_name: data.name,
-        account_id: data.account.id,
         telephone: data.phone,
         email: data.email,
         gender: data.gender,
         address: data.address,
-        rating_avg: data.rating,
+        rating_avg: 0,
         service_id: data.service.map((x: any) => x.id),
       };
       updateTechnician(params);

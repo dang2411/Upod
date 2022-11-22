@@ -34,7 +34,7 @@ export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Pr
         {name}{' '}
       </TableCell>
       <TableCell align="left" onClick={onRowClick}>
-        {format(new Date(createdDate), 'dd/MM/yyyy')}{' '}
+        {format(new Date(createdDate), 'HH:mm dd/MM/yyyy')}{' '}
       </TableCell>
       <TableCell align="left" onClick={onRowClick}>
         {agency?.agency_name}{' '}

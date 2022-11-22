@@ -188,13 +188,13 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                 label="Techician" />
               <TextField
                 disabled
-                value={format(new Date(currentMaintainSchedule.start_time), 'dd/MM/yyy')}
+                value={format(new Date(currentMaintainSchedule.start_time), 'HH:mm dd/MM/yyy')}
                 label="Start Time"
                 fullWidth />
 
               <TextField
                 disabled
-                value={format(new Date(currentMaintainSchedule.end_time), 'dd/MM/yyy')}
+                value={format(new Date(currentMaintainSchedule.end_time), 'HH:mm dd/MM/yyy')}
                 label="End Time"
                 fullWidth />
             </Stack>

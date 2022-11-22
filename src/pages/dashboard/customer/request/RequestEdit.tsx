@@ -39,6 +39,8 @@ export default function RequestEdit() {
           phone: response.data.agency.phone,
           address: response.data.agency.address,
         },
+        rejectReason: response.data.reject_reason,
+        cancelReason: response.data.cancel_reason,
         contract: {id : response.data.contract.id, name: response.data.contract.name},
         priority: response.data.priority,
         description: response.data.description,

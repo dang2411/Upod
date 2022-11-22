@@ -150,7 +150,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
             <RHFTextField name="description" label="Description " disabled={disable} />
             {!newPage && (
               <TextField
-                value={format(new Date(currentService!.createDate), 'dd/MM/yyyy')}
+                value={format(new Date(currentService!.createDate), 'HH:mm dd/MM/yyyy')}
                 label="Create Date "
                 disabled />
             )}
