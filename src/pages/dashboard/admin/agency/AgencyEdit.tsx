@@ -314,16 +314,15 @@ export default function AgencyDetail() {
           )}
         </Container>
       </Page>
-      <>
-        <BootstrapDialog onClose={handleClose} open={open}>
-          <BootstrapDialogTitle onClose={handleClose} id="dialog">
-            {device.code}
-          </BootstrapDialogTitle>
-          <DialogContent dividers>
-            <DeviceNewEditForm isEdit={false} currentDevice={device} />
-          </DialogContent>
-        </BootstrapDialog>
-      </>
+
+      <BootstrapDialog onClose={handleClose} open={open}>
+        <BootstrapDialogTitle onClose={handleClose} id="dialog">
+          {device.code}
+        </BootstrapDialogTitle>
+        <DialogContent dividers>
+          <DeviceNewEditForm isEdit={false} currentDevice={device} />
+        </DialogContent>
+      </BootstrapDialog>
     </>
   );
 }

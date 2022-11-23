@@ -357,7 +357,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     reopenRequest({ id: currentRequest?.id });
   };
 
-  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
 
   const {
     toggle: openCancelDialog,

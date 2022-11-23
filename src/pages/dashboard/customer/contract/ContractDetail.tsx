@@ -26,17 +26,22 @@ export default function ContractDetail() {
         id: response.data.id,
         code: response.data.code,
         name: response.data.contract_name,
-        customer: response.data.customer,
-        price: response.data.price,
+        customer: {
+          id: response.data.customer.id,
+          name: response.data.customer.cus_name,
+        },
+        contractPrice: response.data.contract_price,
         startDate: response.data.start_date,
         endDate: response.data.end_date,
         attachment: response.data.attachment,
         img: response.data.img,
+        is_expire: response.data.is_expire,
+        terminal_content: response.data.terminal_content,
         description: response.data.description,
-        frequencyMaintain: response.data.frequency_maintain,
+        frequencyMaintain: response.data.frequency_maintain_time,
         service: response.data.service.map((x) => ({
-          value: { id: x.id, name: x.service_name },
-          frequencyMaintain: x.frequency_maintain,
+          id: x.id,
+          name: x.service_name,
         })),
       };
       if (response.status === 200) {

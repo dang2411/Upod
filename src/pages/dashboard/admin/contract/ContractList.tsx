@@ -79,6 +79,7 @@ export default function ContractList() {
         code: x.code,
         name: x.contract_name,
         company: x.customer.cus_name,
+        is_expire: x.is_expire,
         createdAt: x.start_date,
         expiredAt: x.end_date,
       }));

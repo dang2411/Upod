@@ -42,6 +42,10 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       name: currentMaintainSchedule.agency.agency_name,
       id: currentMaintainSchedule.agency.id,
     },
+    contract: {
+      id: currentMaintainSchedule.contract.id,
+      name: currentMaintainSchedule.contract.name,
+    },
     technician: {
       name: currentMaintainSchedule.technician.tech_name,
       id: currentMaintainSchedule.technician.id,
@@ -186,6 +190,10 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                 disabled
                 value={currentMaintainSchedule.technician.tech_name}
                 label="Techician" />
+                <TextField
+                disabled
+                value={currentMaintainSchedule.contract.name}
+                label="Contract" />
               <TextField
                 disabled
                 value={format(new Date(currentMaintainSchedule.start_time), 'HH:mm dd/MM/yyy')}

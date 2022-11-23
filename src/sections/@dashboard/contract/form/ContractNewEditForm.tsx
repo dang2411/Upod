@@ -12,6 +12,7 @@ import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import ContractTerminalDialog from '../dialog/ContractTerminalDialog';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
 
@@ -58,6 +59,8 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       ? new Date(currentContract?.endDate)
       : add(new Date(), { months: 6 }),
     attachment: currentContract?.attachment || '',
+    is_expire: currentContract?.is_expire,
+    terminal_content: currentContract?.terminal_content,
     img: currentContract?.img || '',
     description: currentContract?.description || '',
     frequencyMaintain: currentContract?.frequencyMaintain || 0,
@@ -100,6 +103,40 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     resolver: yupResolver(ContractSchema),
     defaultValues,
   });
+
+  const {
+    toggle: openTerminateDialog,
+    onClose: onCloseTerminateDialog,
+    setToggle: setOpenTerminateDialog,
+  } = useToggle(false);
+
+  const onConfirmTerminate = (value: string) => {
+    TerminateContract(value);
+  };
+
+  const TerminateContract = useCallback(async (data: string) => {
+    try {
+      const response = await axios.put(
+        '/api/contracts/terminal_contract_by_id',
+        { terminal_content: data },
+        {
+          params: { id: currentContract?.id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        navigate(PATH_DASHBOARD.admin.contract.root);
+        enqueueSnackbar('Terminal contract successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      enqueueSnackbar('Terminal contract failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onTerminateClick = (event) => {
+    setOpenTerminateDialog(true);
+  };
 
   const createContract = useCallback(async (data: any) => {
     try {
@@ -166,6 +203,9 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       createContract(params);
     }
   };
+  const is_expire = currentContract.is_expire === true;
+  console.log('a');
+  console.log(is_expire);
 
   useEffect(() => {
     fetchCustomer();
@@ -260,6 +300,15 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                   multiline
                   minRows={4}
                 />
+                {is_expire && (
+                  <RHFTextField
+                    name="terminal_content"
+                    label="Terminal Content"
+                    disabled={disable}
+                    multiline
+                    minRows={4}
+                  />
+                )}
               </Stack>
             </Card>
           </Grid>
@@ -355,14 +404,14 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         )}
         {disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            {!isCustomer && (
+            {!isCustomer && !is_expire && (
               <>
                 <Button variant="outlined" color="error" onClick={onDeleteClick}>
                   Delete
                 </Button>
-                {/* <Button variant="outlined" color="error" onClick={onTerminateClick}>
+                <Button variant="outlined" color="error" onClick={onTerminateClick}>
                   Terminate
-                </Button> */}
+                </Button>
               </>
             )}
           </Stack>
@@ -374,6 +423,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         onConfirm={onConfirmDelete}
         title="Delete Contract"
         text="Are you sure you want to delete?"
+      />
+      <ContractTerminalDialog
+        open={openTerminateDialog}
+        onClose={onCloseTerminateDialog}
+        onReject={onConfirmTerminate}
+        title="Terminate contract"
       />
     </>
   );

@@ -35,6 +35,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     name: currentService?.name || '',
     description: currentService?.description || '',
     isDelete: currentService?.isDelete || '',
+    guideline: currentService?.guideline || '',
   };
 
   const deleteService = useCallback(async () => {
@@ -104,6 +105,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
       const params = {
         service_name: data.name,
         description: data.description,
+        guideline: data.guideline,
       };
       updateService(params);
     } else {
@@ -148,9 +150,10 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
           <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
             <RHFTextField name="name" label="Name" disabled={disable} />
             <RHFTextField name="description" label="Description " disabled={disable} />
+            <RHFTextField name="guideline" label="Guideline " disabled={disable} />
             {!newPage && (
               <TextField
-                value={format(new Date(currentService!.createDate), 'HH:mm dd/MM/yyyy')}
+                value={format(new Date(currentService.createDate), 'HH:mm dd/MM/yyyy')}
                 label="Create Date "
                 disabled />
             )}

@@ -35,6 +35,7 @@ export default function ContractEdit() {
         endDate: response.data.end_date,
         attachment: response.data.attachment,
         img: response.data.img,
+        is_expire: response.data.is_expire,
         description: response.data.description,
         frequencyMaintain: response.data.frequency_maintain_time,
         service: response.data.service.map((x) => ({
