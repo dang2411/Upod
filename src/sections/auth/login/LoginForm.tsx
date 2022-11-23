@@ -60,9 +60,9 @@ export default function LoginForm() {
       await login(data.username, data.password);
     } catch (error) {
       reset();
-      if (isMountedRef.current) {
+      // if (isMountedRef.current) {
         setError('afterSubmit', { ...error, message: error.message });
-      }
+      // }
     }
   };
 

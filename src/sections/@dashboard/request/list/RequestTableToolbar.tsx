@@ -25,7 +25,7 @@ export default function RequestTableToolbar({
   return (
     <Stack sx={{ px: 2.5, py: 3 }} spacing={2} direction="row">
       <TextField
-        label="Staus"
+        label="Status"
         select
         sx={{ minWidth: 260 }}
         value={filterStatus}
