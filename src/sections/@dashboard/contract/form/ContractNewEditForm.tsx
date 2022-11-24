@@ -203,9 +203,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       createContract(params);
     }
   };
-  const is_expire = currentContract.is_expire === true;
-  console.log('a');
-  console.log(is_expire);
+  const is_expire = currentContract != null && currentContract.is_expire === true;
 
   useEffect(() => {
     fetchCustomer();
@@ -406,9 +404,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             {!isCustomer && !is_expire && (
               <>
-                <Button variant="outlined" color="error" onClick={onDeleteClick}>
-                  Delete
-                </Button>
                 <Button variant="outlined" color="error" onClick={onTerminateClick}>
                   Terminate
                 </Button>

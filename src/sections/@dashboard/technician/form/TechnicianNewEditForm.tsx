@@ -155,10 +155,12 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const createTechnician = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/technicians/create_technician', data);
+      const response: any = await axios.post('/api/technicians/create_technician', data);
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Create technician successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create technician failed', { variant: 'error' });
@@ -169,12 +171,14 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const updateTechnician = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/technicians/update_technician_by_id', data, {
+      const response: any = await axios.put('/api/technicians/update_technician_by_id', data, {
         params: { id: currentTechnician!.id },
       });
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Update technician successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update technician failed', { variant: 'error' });

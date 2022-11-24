@@ -126,6 +126,7 @@ export default function CompanyEdit() {
       });
       const result = {
         id: response.data.id,
+        code: response.data.code,
         name: response.data.agency_name,
         customer: {
           id: response.data.customer.id,
@@ -416,8 +417,8 @@ export default function CompanyEdit() {
       </Page>
       <BootstrapDialog onClose={handleClose} open={open}>
         <BootstrapDialogTitle onClose={handleClose} id="dialog">
-          {agencyClick && agency.code}
-          {!agencyClick && service.code}
+          {agencyClick && <Typography variant='subtitle1'>Agency details</Typography>}
+          {!agencyClick && <Typography variant='subtitle1'>Service details</Typography>}
         </BootstrapDialogTitle>
         <DialogContent dividers>
           {agencyClick && <AgencyNewEditForm isEdit={false} currentAgency={agency} />}

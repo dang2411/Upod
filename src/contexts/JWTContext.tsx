@@ -149,7 +149,6 @@ function AuthProvider({ children }: AuthProviderProps) {
       userName,
       password,
     });
-
     if (response.status !== 200) {
       throw new Error(response.message);
     }

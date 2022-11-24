@@ -79,12 +79,14 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
 
   const updateArea = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/areas/update_area_by_id', data, {
+      const response: any = await axios.put('/api/areas/update_area_by_id', data, {
         params: { id: currentArea!.id },
       });
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.area.root);
         enqueueSnackbar('Update area successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update area failed', { variant: 'error' });
@@ -95,10 +97,12 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
 
   const createArea = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/areas/create_area', data);
+      const response: any = await axios.post('/api/areas/create_area', data);
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.area.root);
         enqueueSnackbar('Create area successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create area failed', { variant: 'error' });

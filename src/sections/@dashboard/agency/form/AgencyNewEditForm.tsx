@@ -115,10 +115,12 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const createAgency = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/agencies/create_agency', data);
+      const response:any = await axios.post('/api/agencies/create_agency', data);
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.agency.root);
         enqueueSnackbar('Create agenycy successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create agenycy failed', { variant: 'error' });
@@ -128,7 +130,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const updateAgency = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/agencies/update_agency_by_id', data, {
+      const response:any = await axios.put('/api/agencies/update_agency_by_id', data, {
         params: { id: currentAgency!.id },
       });
       if (response.status === 200 || response.status === 201) {
@@ -138,6 +140,8 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
           navigate(PATH_DASHBOARD.admin.agency.root);
         }
         enqueueSnackbar('Update agencies successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update agencies failed', { variant: 'error' });

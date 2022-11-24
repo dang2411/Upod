@@ -83,12 +83,14 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const updateCompany = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/customers/update_customer_by_id', data, {
+      const response: any = await axios.put('/api/customers/update_customer_by_id', data, {
         params: { id: currentCompany!.id },
       });
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Update company successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message , { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update company failed', { variant: 'error' });
