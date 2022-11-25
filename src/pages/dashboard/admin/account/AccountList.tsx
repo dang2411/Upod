@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Container,
+  debounce,
   FormControlLabel,
   Switch,
   Table,
@@ -64,32 +65,46 @@ export default function AccountList() {
     onChangeRowsPerPage,
   } = useTable();
 
-  const fetch = useCallback(async () => {
-    try {
-      const response: any = await axiosInstance.get('/api/accounts/get_all_accounts', {
-        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
-      });
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
+      try {
+        const response: any = await axiosInstance.get('/api/accounts/get_all_accounts', {
+          params: {
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? undefined : value,
+          },
+        });
 
-      setTotal(response.total);
+        setTotal(response.total);
 
-      const result = Array.from(response.data).map((x: any) => ({
-        id: x.id,
-        code: x.code,
-        name: x.contract_name,
-        role: x.role.role_name,
-        username: x.username,
-        assign: !x.is_assign,
-      }));
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
-
+        const result = Array.from(response.data).map((x: any) => ({
+          id: x.id,
+          code: x.code,
+          name: x.contract_name,
+          role: x.role.role_name,
+          username: x.username,
+          assign: !x.is_assign,
+        }));
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [filterText, page, rowsPerPage]
+  );
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) => fetch({ value, page, rowsPerPage }),
+      1000
+    ),
+    []
+  );
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
   const [total, setTotal] = useState(0);

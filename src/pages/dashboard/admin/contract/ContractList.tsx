@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Container,
+  debounce,
   FormControlLabel,
   Switch,
   Table,
@@ -66,33 +67,45 @@ export default function ContractList() {
     onChangeRowsPerPage,
   } = useTable();
 
-  const fetch = useCallback(async () => {
-    try {
-      const response: any = await axiosInstance.get('/api/contracts/get_all_contracts', {
-        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
-      });
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage }: any) => {
+      try {
+        const response: any = await axiosInstance.get('/api/contracts/get_all_contracts', {
+          params: {
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? undefined : value,
+          },
+        });
 
-      setTotal(response.total);
+        setTotal(response.total);
 
-      const result = Array.from(response.data).map((x: any) => ({
-        id: x.id,
-        code: x.code,
-        name: x.contract_name,
-        company: x.customer.cus_name,
-        is_expire: x.is_expire,
-        createdAt: x.start_date,
-        expiredAt: x.end_date,
-      }));
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
+        const result = Array.from(response.data).map((x: any) => ({
+          id: x.id,
+          code: x.code,
+          name: x.contract_name,
+          company: x.customer.cus_name,
+          is_expire: x.is_expire,
+          createdAt: x.start_date,
+          expiredAt: x.end_date,
+        }));
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [filterText, page, rowsPerPage]
+  );
+
+  const debounceSearch = useCallback(
+    debounce(({ value, page, rowsPerPage }: any) => fetch({ value, page, rowsPerPage }), 1000),
+    []
+  );
 
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 

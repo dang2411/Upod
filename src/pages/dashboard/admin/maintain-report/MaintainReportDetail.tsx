@@ -61,7 +61,7 @@ export default function MaintainReportDetail() {
       });
       const result = {
         id: response.data.id,
-        status: response.data.status,
+        status: response.data.status.toLowerCase(),
         code: response.data.code,
         name: response.data.device_name,
         create_date: response.data.create_date,
@@ -127,7 +127,7 @@ export default function MaintainReportDetail() {
             <Stack spacing={2} direction="row">
               <Button onClick={onScheduleClick}>Schedule</Button>
 
-              {data.status === 'problem'.toUpperCase() && (
+              {data.status === 'troubled'.toUpperCase() && (
                 <Button variant="contained" onClick={onProcessClick}>
                   Process
                 </Button>

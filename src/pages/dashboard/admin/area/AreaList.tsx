@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Container,
+  debounce,
   FormControlLabel,
   Switch,
   Table,
@@ -66,31 +67,46 @@ export default function AreaList() {
     onChangeRowsPerPage,
   } = useTable();
 
-  const fetch = useCallback(async () => {
-    try {
-      const response: any = await axiosInstance.get('/api/areas/get_list_area', {
-        params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
-      });
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage }: any) => {
+      try {
+        const response: any = await axiosInstance.get('/api/areas/get_list_area', {
+          params: {
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? undefined : value,
+          },
+        });
 
-      setTotal(response.total);
-      //
-      const result = Array.from(response.data).map((x: any) => ({
-        id: x.id,
-        code: x.code,
-        name: x.area_name,
-        description: x.description,
-        createDate: x.create_date,
-      }));
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
-
+        setTotal(response.total);
+        //
+        const result = Array.from(response.data).map((x: any) => ({
+          id: x.id,
+          code: x.code,
+          name: x.area_name,
+          description: x.description,
+          createDate: x.create_date,
+        }));
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [filterText, page, rowsPerPage]
+  );
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) =>
+        fetch({ value, page, rowsPerPage }),
+      1000
+    ),
+    []
+  );
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 

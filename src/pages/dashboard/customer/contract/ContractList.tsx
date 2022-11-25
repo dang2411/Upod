@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Container,
+  debounce,
   FormControlLabel,
   Switch,
   Table,
@@ -69,34 +70,52 @@ export default function ContractList() {
 
   const { user } = useAuth();
 
-  const fetch = useCallback(async () => {
-    try {
-      const id = user?.account.id;
-      const response: any = await axiosInstance.get('/api/customers/get_contracts_by_customer_id', {
-        params: { id: id },
-      });
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
+      try {
+        const id = user?.account.id;
+        const response: any = await axiosInstance.get(
+          '/api/customers/get_contracts_by_customer_id',
+          {
+            params: {
+              id: id,
+              pageNumber: page + 1,
+              pageSize: rowsPerPage,
+              search: value === '' ? undefined : value,
+            },
+          }
+        );
 
-      setTotal(response.total);
+        setTotal(response.total);
 
-      const result = Array.from(response.data).map((x: any) => ({
-        id: x.id,
-        code: x.code,
-        name: x.contract_name,
-        company: x.customer.cus_name,
-        is_expire: x.is_expire,
-        createdAt: x.start_date,
-        expiredAt: x.end_date,
-      }));
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
-
+        const result = Array.from(response.data).map((x: any) => ({
+          id: x.id,
+          code: x.code,
+          name: x.contract_name,
+          company: x.customer.cus_name,
+          is_expire: x.is_expire,
+          createdAt: x.start_date,
+          expiredAt: x.end_date,
+        }));
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [filterText, page, rowsPerPage]
+  );
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) => fetch({ value, page, rowsPerPage }),
+      1000
+    ),
+    []
+  );
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 
@@ -121,7 +140,7 @@ export default function ContractList() {
               href: PATH_DASHBOARD.customer.contract.list,
             },
             { name: 'Listing' },
-          ]}           
+          ]}
         />
 
         <Card>

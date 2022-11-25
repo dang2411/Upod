@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Container,
+  debounce,
   FormControlLabel,
   Switch,
   Table,
@@ -18,6 +19,7 @@ import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
 import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
+import useTabs from 'src/hooks/useTabs';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import MaintainScheduleTableRow from 'src/sections/@dashboard/maintain-schedule/list/MaintainScheduleTableRow';
 import MaintainScheduleTableToolbar from 'src/sections/@dashboard/maintain-schedule/list/MaintainScheduleTableToolbar';
@@ -38,6 +40,11 @@ export default function MaintainScheduleList() {
   const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState('');
+  const {
+    currentTab: filterStatus,
+    // onChangeTab: onChangeFilterStatus,
+    setCurrentTab: setFilterStatus,
+  } = useTabs('all');
 
   const handleBtnClick = () => {
     navigate(PATH_DASHBOARD.admin.maintainSchedule.new);
@@ -61,45 +68,63 @@ export default function MaintainScheduleList() {
     rowsPerPage,
     //
     selected,
+    setPage,
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
 
-  const fetch = useCallback(async () => {
-    try {
-      const response: any = await axiosInstance.get(
-        '/api/maintenance_schedules/get_list_maintenance_schedules',
-        {
-          params: { pageNumber: page + 1, pageSize: rowsPerPage, search: filterText },
-        }
-      );
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
+      try {
+        const response: any = await axiosInstance.get(
+          '/api/maintenance_schedules/get_list_maintenance_schedules',
+          {
+            params: {
+              pageNumber: page + 1,
+              pageSize: rowsPerPage,
+              search: value === '' ? undefined : value,
+              status: filterStatus === 'all' ? undefined : filterStatus,
+            },
+          }
+        );
 
-      setTotal(response.total);
-      //
-      const result = Array.from(response.data).map((x: any) => ({
-        id: x.id,
-        code: x.code,
-        name: x.name,
-        createDate: x.create_date ?? '',
-        description: x.description,
-        maintainTime: x.maintain_time,
-        agency: x.agency.agency_name,
-        technician: x.technician.tech_name,
-        status: x.status,
-      }));
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
+        setTotal(response.total);
+        //
+        const result = Array.from(response.data).map((x: any) => ({
+          id: x.id,
+          code: x.code,
+          name: x.name,
+          createDate: x.create_date ?? '',
+          description: x.description,
+          maintainTime: x.maintain_time,
+          agency: x.agency.agency_name,
+          technician: x.technician.tech_name,
+          status: x.status,
+        }));
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [filterText, page, rowsPerPage]
+  );
+
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage, filterStatus }: any) =>
+        fetch({ value, page, rowsPerPage, filterStatus }),
+      1000
+    ),
+    []
+  );
 
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filterText]);
+  }, [page, rowsPerPage, filterStatus, filterText]);
 
   const [total, setTotal] = useState(0);
 
@@ -134,6 +159,11 @@ export default function MaintainScheduleList() {
           <MaintainScheduleTableToolbar
             filterText={filterText}
             onFilterText={handleFilterTextChange}
+            filterStatus={filterStatus}
+            onChangeFilterStatus={(value) => {
+              setPage(0);
+              setFilterStatus(value);
+            }}
           />
 
           <TableContainer>

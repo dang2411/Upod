@@ -3,12 +3,13 @@ import {
   Button,
   Card,
   Container,
+  debounce,
   FormControlLabel,
   Switch,
   Table,
   TableBody,
   TableContainer,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -27,7 +28,7 @@ import axiosInstance from 'src/utils/axios';
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'company', label: 'Customer', align: 'left' },
+  { id: 'company', label: 'Manager', align: 'left' },
   { id: 'address', label: 'Address', align: 'left' },
   { id: 'phone', label: 'Phone', align: 'left' },
 ];
@@ -68,35 +69,51 @@ export default function AgencyList() {
 
   const { user } = useAuth();
 
-  const fetch = useCallback(async () => {
-    try {
-      const id = user?.account.id;
-      const response: any = await axiosInstance.get('api/customers/get_agencies_by_customer_id', {
-        params: { id : id},
-      });
+  const fetch = useCallback(
+    async ({ value, page, rowsPerPage }: any) => {
+      try {
+        const id = user?.account.id;
+        const response: any = await axiosInstance.get('api/customers/get_agencies_by_customer_id', {
+          params: {
+            id: id,
+            pageNumber: page + 1,
+            pageSize: rowsPerPage,
+            search: value === '' ? undefined : value,
+          },
+        });
 
-      console.log(response);
+        console.log(response);
 
-      setTotal(response.total);
+        setTotal(response.total);
 
-      const result = Array.from(response.data).map((x: any) => ({
-        id: x.id,
-        code: x.code,
-        name: x.agency_name,
-        customer: x.manager_name,
-        address: x.address,
-        phone: x.phone,
-      }));
-      setData(result);
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Cannot fetch data', { variant: 'error' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterText, page, rowsPerPage]);
-
+        const result = Array.from(response.data).map((x: any) => ({
+          id: x.id,
+          code: x.code,
+          name: x.agency_name,
+          customer: x.manager_name,
+          address: x.address,
+          phone: x.phone,
+        }));
+        setData(result);
+      } catch (error) {
+        console.error(error);
+        enqueueSnackbar('Cannot fetch data', { variant: 'error' });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [filterText, page, rowsPerPage]
+  );
+  const debounceSearch = useCallback(
+    debounce(
+      ({ value, page, rowsPerPage }: any) =>
+        fetch({ value, page, rowsPerPage }),
+      1000
+    ),
+    []
+  );
   useEffect(() => {
-    fetch();
+    debounceSearch({ value: filterText, page, rowsPerPage });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 

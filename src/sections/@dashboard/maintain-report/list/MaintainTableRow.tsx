@@ -13,12 +13,14 @@ export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Pr
   const { code, name, createdDate, agency, customer, technician, status } = row;
 
   const parseStatus = (status: MaintainStatus) => {
-    if (status === 'problem') {
-      return <Chip label="Problem" />;
-    } else if (status === 'noproblem') {
-      return <Chip label="No Problem" />;
+    if (status === 'troubled') {
+      return <Chip label="Troubled" color="warning" />;
+    } else if (status === 'stabilized') {
+      return <Chip label="Stabilized" color="info" />;
     } else if (status === 'processing') {
-      return <Chip label="Processing" color="info" />;
+      return <Chip label="Processing" color="secondary" />;
+    } else if (status === 'closed') {
+      return <Chip label="Closed" color="success" />;
     }
     return <Chip label="Default" />;
   };

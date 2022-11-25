@@ -12,11 +12,11 @@ const parseStatus = (status: any) => {
   } else if (status.toLowerCase() === 'notified') {
     return <Chip label="Notified" color="warning" />;
   } else if (status.toLowerCase() === 'maintaining') {
-    return <Chip label="Maintaining" color="success" />;
+    return <Chip label="Maintaining" color="secondary" />;
   } else if (status.toLowerCase() === 'missed') {
-    return <Chip label="Missed" color="secondary" />;
+    return <Chip label="Missed" color="error" />;
   } else if (status.toLowerCase() === 'completed') {
-    return <Chip label="Completed" />;
+    return <Chip label="Completed" color ='success' />;
   }
   return <Chip label="Default" />;
 };

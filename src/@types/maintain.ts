@@ -1,1 +1,1 @@
-export type MaintainStatus = 'problem' | 'noproblem' | 'processing';
+export type MaintainStatus = 'troubled' | 'stabilized' | 'processing' | 'closed';

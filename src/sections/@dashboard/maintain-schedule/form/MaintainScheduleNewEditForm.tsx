@@ -59,7 +59,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
   const updateMaintainSchedule = useCallback(async (data: any) => {
     try {
-      const response = await axios.put(
+      const response: any = await axios.put(
         '/api/maintenance_schedules/update_maintenance_schedule_by_id',
         data,
         {
@@ -69,6 +69,8 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
         enqueueSnackbar('Update maintain schedule successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update  maintain schedule failed', { variant: 'error' });
@@ -130,8 +132,6 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     deleteMaintainSchedule();
   };
 
-
-
   const {
     handleSubmit,
     control,
@@ -139,91 +139,116 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     getValues,
     formState: { isSubmitting },
   } = methods;
+  const disableNameDescription =
+    currentMaintainSchedule.status === 'MISSED' ||
+    currentMaintainSchedule.status === 'MAINTAINING' ||
+    currentMaintainSchedule.status === 'COMPLETED';
 
   const editPage = isEdit && currentMaintainSchedule;
 
   return (
-    <><FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      {isEdit && (
-        <Box mb={2}>
-          <MaintainTitleSection label={'Status'} status={watch('status')} />
-        </Box>
-      )}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={9}>
-          <Card sx={{ p: 3 }}>
-            <Stack spacing={3}>
-              <RHFTextField name="name" label="Name" disabled />
-              <Controller
-                name="maintainTime"
-                control={control}
-                render={({ field, fieldState: { error } }) => (
-                  <DateTimePicker
-                    label="Maintain Time"
-                    inputFormat="dd/MM/yyyy hh:mm"
-                    value={field.value}
-                    onChange={(newValue) => {
-                      field.onChange(newValue);
-                    } }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        error={!!error}
-                        helperText={error?.message} />
-                    )} />
-                )} />
-              <RHFTextField name="description" label="Description" multiline minRows={4} />
-            </Stack>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card sx={{ p: 3 }}>
-            <Stack spacing={3}>
-              {/* {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />} */}
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        {isEdit && (
+          <Box mb={2}>
+            <MaintainTitleSection label={'Status'} status={watch('status')} />
+          </Box>
+        )}
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={9}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={3}>
+                <RHFTextField name="name" label="Name" disabled />
+                <Controller
+                  name="maintainTime"
+                  control={control}
+                  render={({ field, fieldState: { error } }) => (
+                    <DateTimePicker
+                      label="Maintain Time"
+                      inputFormat="dd/MM/yyyy hh:mm"
+                      value={field.value}
+                      disabled={disableNameDescription}
+                      onChange={(newValue) => {
+                        field.onChange(newValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          error={!!error}
+                          helperText={error?.message}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <RHFTextField
+                  name="description"
+                  label="Description"
+                  multiline
+                  minRows={4}
+                  disabled={disableNameDescription}
+                />
+              </Stack>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={3}>
+                {/* {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />} */}
 
-              <TextField
-                disabled
-                value={currentMaintainSchedule.agency.agency_name}
-                label="Agency" />
-              <TextField
-                disabled
-                value={currentMaintainSchedule.technician.tech_name}
-                label="Techician" />
                 <TextField
-                disabled
-                value={currentMaintainSchedule.contract.name}
-                label="Contract" />
-              <TextField
-                disabled
-                value={format(new Date(currentMaintainSchedule.start_time), 'HH:mm dd/MM/yyy')}
-                label="Start Time"
-                fullWidth />
+                  disabled
+                  value={currentMaintainSchedule.agency.agency_name}
+                  label="Agency"
+                />
+                <TextField
+                  disabled
+                  value={currentMaintainSchedule.technician.tech_name}
+                  label="Techician"
+                />
+                <TextField
+                  disabled
+                  value={currentMaintainSchedule.contract.name}
+                  label="Contract"
+                />
+                <TextField
+                  disabled
+                  value={format(new Date(currentMaintainSchedule.start_time), 'HH:mm dd/MM/yyy')}
+                  label="Start Time"
+                  fullWidth
+                />
 
-              <TextField
-                disabled
-                value={format(new Date(currentMaintainSchedule.end_time), 'HH:mm dd/MM/yyy')}
-                label="End Time"
-                fullWidth />
-            </Stack>
-          </Card>
+                <TextField
+                  disabled
+                  value={format(new Date(currentMaintainSchedule.end_time), 'HH:mm dd/MM/yyy')}
+                  label="End Time"
+                  fullWidth
+                />
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-        <Button variant="outlined" color="error" onClick={onDeleteClick}>
-          Delete
-        </Button>
-        <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-          {editPage ? 'Save' : 'Create'}
-        </LoadingButton>
-      </Stack>
-    </FormProvider><ConfirmDialog
+        {(currentMaintainSchedule.status === 'SCHEDULED' ||
+          currentMaintainSchedule.status === 'NOTIFIED') && (
+          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+              Delete
+            </Button>
+            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+              {editPage ? 'Save' : 'Create'}
+            </LoadingButton>
+          </Stack>
+        )}
+      </FormProvider>
+      <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
         onConfirm={onConfirmDelete}
         title="Delete Maintain Schedule"
-        text="Are you sure you want to delete?" /></>
-
+        text="Are you sure you want to delete?"
+      />
+    </>
   );
 }

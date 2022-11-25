@@ -1,18 +1,22 @@
 import { Card, Chip, Stack, TextField, Typography, SxProps } from '@mui/material';
 import { capitalCase } from 'change-case';
+import { Console } from 'console';
 
 import { format } from 'date-fns';
 import { useFormContext } from 'react-hook-form';
 import { MaintainStatus } from 'src/@types/maintain';
 import { RHFTextField } from 'src/components/hook-form';
 
+
 const parseStatus = (status: MaintainStatus) => {
-  if (status.toLowerCase() === 'problem') {
-    return <Chip label="Problem" />;
-  } else if (status.toLowerCase() === 'noproblem') {
-    return <Chip label="No Problem" />;
-  } else if (status.toLowerCase() === 'processing') {
-    return <Chip label="Processing" color="info" />;
+  if (status === 'troubled') {
+    return <Chip label="Troubled" color="warning" />;
+  } else if (status === 'stabilized') {
+    return <Chip label="Stabilized" color="info" />;
+  } else if (status === 'processing') {
+    return <Chip label="Processing" color="secondary" />;
+  } else if (status === 'closed') {
+    return <Chip label="Closed" color="success" />;
   }
   return <Chip label="Default" />;
 };
