@@ -151,7 +151,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         {isEdit && (
           <Box mb={2}>
-            <MaintainTitleSection label={'Status'} status={watch('status')} />
+            <MaintainTitleSection label={''} status={watch('status')} />
           </Box>
         )}
         <Grid container spacing={3}>

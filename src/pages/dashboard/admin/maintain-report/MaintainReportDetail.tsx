@@ -127,12 +127,12 @@ export default function MaintainReportDetail() {
             <Stack spacing={2} direction="row">
               <Button onClick={onScheduleClick}>Schedule</Button>
 
-              {data.status === 'troubled'.toUpperCase() && (
+              {data.status === 'troubled' && (
                 <Button variant="contained" onClick={onProcessClick}>
                   Process
                 </Button>
               )}
-              {data.status === 'processing'.toUpperCase() && (
+              {data.status === 'processing' && (
                 <Button variant="outlined" onClick={onUnProcessClick}>
                   Un Process
                 </Button>

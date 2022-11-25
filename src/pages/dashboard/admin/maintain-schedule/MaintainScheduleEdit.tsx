@@ -1,4 +1,4 @@
-import { Button, Container } from '@mui/material';
+import { Button, Container, Stack } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -38,7 +38,9 @@ export default function MaintainScheduleEdit() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const onReportClick = () => {
+    navigate(PATH_DASHBOARD.admin.maintainReport.edit(data.id));
+  };
   useEffect(() => {
     fetch(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,6 +66,13 @@ export default function MaintainScheduleEdit() {
             },
             { name: title },
           ]}
+          action={
+            <Stack spacing={2} direction="row">
+              {data.status.toLowerCase() === 'completed' && (
+                <Button onClick={onReportClick}>Report</Button>
+              )}
+            </Stack>
+          }
         />
 
         <MaintainScheduleNewEditForm isEdit={true} currentMaintainSchedule={data} />

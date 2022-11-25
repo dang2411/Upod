@@ -142,6 +142,7 @@ export type Technician = {
   code?: string;
   tech_name?: string;
   address?: string;
+  number_of_requests? :number;
   skills?: string[];
   avatar?: string;
 };

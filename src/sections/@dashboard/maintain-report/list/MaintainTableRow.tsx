@@ -51,7 +51,7 @@ export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Pr
         {parseStatus(status)}
       </TableCell>
       <TableCell align="left">
-        {status === 'problem' && (
+        {status === 'troubled' && (
           <IconButton onClick={(e) => onProcessClick()}>
             <Iconify icon="material-symbols:new-label-rounded" sx={{ color: 'neutral' }} />
           </IconButton>

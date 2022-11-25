@@ -61,7 +61,7 @@ export default function TechnicianDialog({
           response.data.map((x) => ({
             id: x.id,
             tech_name: x.technician_name,
-            address: x.address,
+            number_of_requests: x.number_of_requests,
             // skills: x.service.map((e) => e.service_name),
           }))
         );
@@ -77,8 +77,8 @@ export default function TechnicianDialog({
   }, []);
   const options = data.filter((option: Technician) => {
     var result = option!.tech_name!.toLowerCase().includes(search.toLowerCase());
-    if (option.address) {
-      return result || option.address.toLowerCase().includes(search.toLowerCase());
+    if (option.number_of_requests) {
+      return result || option.number_of_requests;
     }
     return result;
   });
@@ -136,9 +136,10 @@ export default function TechnicianDialog({
                 {technician.skills.join(', ')}
               </Typography> */}
 
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {technician.address}
-              </Typography>
+              <Typography variant="body2" sx={{ p: 1.5, pt: 0, color: 'black' }}>
+                Requests in month: 
+                {technician.number_of_requests || 0}
+              </Typography>            
             </ListItemButton>
           ))}
         </Scrollbar>

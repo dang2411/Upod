@@ -1,4 +1,4 @@
-import { Button, Container } from '@mui/material';
+import { Button, Container, Stack } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -42,11 +42,6 @@ export default function MaintainScheduleDetail() {
             },
             { name: title },
           ]}
-          action={
-            <>
-              <Button onClick={onReportClick}>Report related</Button>
-            </>
-          }
         />
         <MaintainScheduleNewEditForm isEdit={false} currentMaintainSchedule={data} />
       </Container>

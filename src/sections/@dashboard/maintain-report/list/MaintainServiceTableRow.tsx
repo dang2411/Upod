@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function MaintainServiceTableRow({ row, status, onRowClick }: Props) {
-  const { code, name, description, created } = row;
+  const { code, service_name, description, created } = row;
 
   return (
     <TableRow hover sx={{ cursor: 'pointer' }}>
@@ -18,7 +18,7 @@ export default function MaintainServiceTableRow({ row, status, onRowClick }: Pro
           {code}
         </Typography>
       </TableCell>
-      <TableCell align="left">{name} </TableCell>
+      <TableCell align="left">{service_name} </TableCell>
       <TableCell align="left">{description} </TableCell>
       <TableCell align="left">
         {created ? (
