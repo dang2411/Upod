@@ -187,16 +187,22 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const updateRequest = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/requests/update_request_by_id', data, {
-        params: { id: currentRequest?.id },
-      });
-      if (response.status === 200 || response.status === 201) {
-        if (isCustomer) {
+      if (isCustomer) {
+        const response = await axios.put('/api/requests/update_request_by_id', data, {
+          params: { id: currentRequest?.id },
+        });
+        if (response.status === 200 || response.status === 201) {
           navigate(PATH_DASHBOARD.customer.request.root);
-        } else {
-          navigate(PATH_DASHBOARD.admin.request.root);
+          enqueueSnackbar('Update request successfully', { variant: 'success' });
         }
-        enqueueSnackbar('Update request successfully', { variant: 'success' });
+      } else {
+        const response = await axios.put('/api/requests/update_request_admin_by_id', data, {
+          params: { id: currentRequest?.id },
+        });
+        if (response.status === 200 || response.status === 201) {
+          navigate(PATH_DASHBOARD.admin.request.root);
+          enqueueSnackbar('Update request successfully', { variant: 'success' });
+        }
       }
     } catch (error) {
       enqueueSnackbar('Update request failed', { variant: 'error' });
@@ -298,7 +304,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           navigate(PATH_DASHBOARD.customer.request.root);
           enqueueSnackbar('Cancel request successfully', { variant: 'success' });
         }
-
       }
       setValue('status', 'canceled');
     } catch (error) {
@@ -357,7 +362,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     reopenRequest({ id: currentRequest?.id });
   };
 
-
   const {
     toggle: openCancelDialog,
     onClose: onCloseCancelDialog,
@@ -413,6 +417,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
             device_id: device.id,
             description: description,
             solution: solution,
+            img:[],
           })),
         };
         updateTicket(params);
@@ -421,6 +426,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           agency_id: data.agency.id,
           service_id: data.service.id,
           request_description: data.description,
+          customer_id: currentRequest?.customer.id,
+          technician_id: data.technician.id || '',
           request_name: data.name,
           phone: data.phone,
           // priority: parseInt(data.priority),
@@ -746,7 +753,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                 Reopen
               </Button>
             )}
-            {(currentStatus === 'pending' || currentStatus === 'preparing') &&
+            {currentStatus === 'pending'  &&
               !isCustomer &&
               editPage &&
               watch('technician') && (

@@ -74,10 +74,10 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const fetchTechnician = useCallback(async (data: any) => {
+  const fetchTechnician = useCallback(async (data: any, customer: any) => {
     try {
       const response = await axios.get('/api/areas/get_list_technicians_by_area_id', {
-        params: { pageNumber: 1, pageSize: 1000, id: data?.id },
+        params: { pageNumber: 1, pageSize: 1000, id: data?.id , cus_id: customer.id},
       });
 
       setTechnicians(response.data.map((x) => ({ id: x.id, name: x.tech_name })));
@@ -225,10 +225,10 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   useEffect(() => {
     if (getValues('area')) {
-      fetchTechnician(getValues('area'));
+      fetchTechnician(getValues('area'), getValues('customer'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch('area')]);
+  }, [watch('area'), watch('customer')]);
 
   const editPage = isEdit && currentAgency;
 
