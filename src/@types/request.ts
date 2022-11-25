@@ -22,6 +22,7 @@ export type Request = {
   createdAt: Date;
   contract: any;
   rejectReason: string;
+  cancelReason: string;
   service: FetchModel;
   agency: FetchModel;
   priority: Priority;

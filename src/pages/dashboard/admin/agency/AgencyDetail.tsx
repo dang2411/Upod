@@ -27,7 +27,7 @@ export default function AgencyDetail() {
         name: response.data.agency_name,
         customer: {
           id: response.data.customer.id,
-          name: response.data.customer.name,
+          name: response.data.customer.cus_name,
         },
         area: {
           id: response.data.area.id,
@@ -35,7 +35,7 @@ export default function AgencyDetail() {
         },
         technician: {
           id: response.data.technician.id,
-          name: response.data.technician.name,
+          name: response.data.technician.tech_name,
         },
         address: response.data.address,
         telephone: response.data.telephone,

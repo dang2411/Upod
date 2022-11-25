@@ -57,7 +57,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     typeName: currentDevice?.type?.name || '',
     ip: currentDevice?.ip || '',
     port: currentDevice?.port || '',
-    agencyName: currentDevice?.agency.agencyName,
+    agencyName: currentDevice?.agency.name,
     deviceAccount: currentDevice?.deviceAccount || '',
     devicePassword: currentDevice?.devicePassword || '',
     technician: currentDevice?.technician?.name || '',
@@ -81,6 +81,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     //
   };
   const disable = !isEdit && currentDevice != null;
+  
   const onDeleteClick = () => {
     // deleteAccount();
   };

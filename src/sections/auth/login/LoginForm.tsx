@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 // @mui
 import { LoadingButton } from '@mui/lab';
-import { Alert, IconButton, InputAdornment, Link, Stack } from '@mui/material';
+import { Alert, IconButton, InputAdornment, Link, Stack, Typography } from '@mui/material';
 // routes
 import { PATH_AUTH } from '../../../routes/paths';
 // hooks
@@ -15,6 +15,7 @@ import useIsMountedRef from '../../../hooks/useIsMountedRef';
 // components
 import { FormProvider, RHFTextField } from '../../../components/hook-form';
 import Iconify from '../../../components/Iconify';
+import { error } from 'console';
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +30,8 @@ export default function LoginForm() {
   const { login } = useAuth();
 
   const isMountedRef = useIsMountedRef();
-
+  const [status, setStatus] = useState(0);
+  const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({

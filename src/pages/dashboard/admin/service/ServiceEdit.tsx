@@ -28,6 +28,7 @@ export default function ServiceEdit() {
         name: response.data.service_name,
         createDate: response.data.create_date,
         description: response.data.description,
+        guideline: response.data.guideline,
       };
       if (response.status === 200) {
         setData(result);

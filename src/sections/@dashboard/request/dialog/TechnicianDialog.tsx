@@ -55,13 +55,12 @@ export default function TechnicianDialog({
           params: { id },
         });
       }
-      console.log(response);
       setLoading(false);
       if (response.data) {
         setData(
           response.data.map((x) => ({
             id: x.id,
-            name: x.technician_name,
+            tech_name: x.technician_name,
             address: x.address,
             // skills: x.service.map((e) => e.service_name),
           }))
@@ -77,7 +76,7 @@ export default function TechnicianDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const options = data.filter((option: Technician) => {
-    var result = option!.name!.toLowerCase().includes(search.toLowerCase());
+    var result = option!.tech_name!.toLowerCase().includes(search.toLowerCase());
     if (option.address) {
       return result || option.address.toLowerCase().includes(search.toLowerCase());
     }
@@ -128,7 +127,7 @@ export default function TechnicianDialog({
                 alignItems: 'flex-start',
               }}
             >
-              <Typography variant="subtitle2">{technician.name}</Typography>
+              <Typography variant="subtitle2">{technician.tech_name}</Typography>
 
               {/* <Typography
                 variant="caption"

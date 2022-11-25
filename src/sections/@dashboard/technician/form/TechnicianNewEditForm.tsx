@@ -14,6 +14,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFSelect, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -61,6 +62,12 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   });
 
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
 
   const [areas, setAreas] = useState([]);
 
@@ -148,10 +155,12 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const createTechnician = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/technicians/create_technician', data);
+      const response: any = await axios.post('/api/technicians/create_technician', data);
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Create technician successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create technician failed', { variant: 'error' });
@@ -162,12 +171,14 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const updateTechnician = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/technicians/update_technician_by_id', data, {
+      const response: any = await axios.put('/api/technicians/update_technician_by_id', data, {
         params: { id: currentTechnician!.id },
       });
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Update technician successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update technician failed', { variant: 'error' });
@@ -204,12 +215,11 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
       const params = {
         area_id: data!.area.id,
         technician_name: data.name,
-        account_id: data.account.id,
         telephone: data.phone,
         email: data.email,
         gender: data.gender,
         address: data.address,
-        rating_avg: data.rating,
+        rating_avg: 0,
         service_id: data.service.map((x: any) => x.id),
       };
       updateTechnician(params);
@@ -231,6 +241,10 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   const disable = !isEdit && currentTechnician != null;
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteTechnician();
   };
 
@@ -252,10 +266,13 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   };
 
   const editPage = isEdit && currentTechnician;
+  console.log(isEdit);
 
   const newPage = !isEdit && !currentTechnician;
 
   const detailPage = !isEdit && currentTechnician;
+
+  const isAsign = isEdit && currentTechnician;
 
   return (
     <>
@@ -309,7 +326,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                     options={accounts}
                     onChange={(_: any, newValue: any) => onChange(newValue)}
                     disableClearable
-                    disabled={disable}
+                    disabled={isAsign}
                     value={value}
                     renderInput={(params) => (
                       <TextField
@@ -376,6 +393,13 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         onClose={onCloseDialog}
         role="Technician"
         onSuccess={onCreateAccountSuccess}
+      />
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Technician"
+        text="Are you sure you want to delete?"
       />
     </>
   );

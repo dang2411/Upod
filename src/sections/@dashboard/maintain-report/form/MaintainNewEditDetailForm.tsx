@@ -43,14 +43,14 @@ export default function MaintainNewEditDetailForm({ currentMaintain }: any) {
           <TextField
             label="Created Date"
             variant="outlined"
-            value={format(new Date(currentMaintain?.create_date), 'dd/MM/yyyy')}
+            value={format(new Date(currentMaintain?.create_date), 'HH:mm dd/MM/yyyy')}
             fullWidth
             disabled
           />
           <TextField
             label="Update Date"
             variant="outlined"
-            value={format(new Date(currentMaintain?.update_date), 'dd/MM/yyyy')}
+            value={format(new Date(currentMaintain?.update_date), 'HH:mm dd/MM/yyyy')}
             fullWidth
             disabled
           />

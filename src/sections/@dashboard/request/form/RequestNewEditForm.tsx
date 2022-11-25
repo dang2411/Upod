@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { RequestStatus } from 'src/@types/request';
 import { Technician } from 'src/@types/user';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -106,6 +107,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
   const defaultValues = {
     code: currentRequest?.code || '',
     name: currentRequest?.name || '',
+    contract: currentRequest?.contract,
     service: currentRequest?.service,
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
@@ -114,11 +116,12 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     description: currentRequest?.description || '',
     customer: currentRequest?.customer,
     status: currentRequest?.status || 'pending',
+    createdAt: currentRequest?.createdAt || '',
     createdBy: isCreatedByAdmin ? 'Admin' : currentRequest?.createdBy?.name,
     technician: currentRequest?.technician,
     rejectReason: currentRequest?.rejectReason || '',
+    cancelReason: currentRequest?.cancelReason || '',
   };
-
   const methods = useForm<any>({
     resolver: yupResolver(RequestSchema),
     defaultValues,
@@ -278,12 +281,24 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cancelRequest = useCallback(async (data: any) => {
+  const cancelRequest = useCallback(async (data: string) => {
     try {
-      const response = await axios.put('/api/requests/cancel_request_by_id', {}, { params: data });
+      const response = await axios.put(
+        '/api/requests/cancel_request_by_id',
+        { reason: data },
+        {
+          params: { id: currentRequest?.id },
+        }
+      );
       if (response.status === 200 || response.status === 201) {
-        navigate(PATH_DASHBOARD.admin.request.root);
-        enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+        if (!isCustomer) {
+          navigate(PATH_DASHBOARD.admin.request.root);
+          enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+        } else {
+          navigate(PATH_DASHBOARD.customer.request.root);
+          enqueueSnackbar('Cancel request successfully', { variant: 'success' });
+        }
+
       }
       setValue('status', 'canceled');
     } catch (error) {
@@ -342,12 +357,19 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     reopenRequest({ id: currentRequest?.id });
   };
 
-  const handleCancelClick = (event) => {
-    cancelRequest({ id: currentRequest?.id });
+
+  const {
+    toggle: openCancelDialog,
+    onClose: onCloseCancelDialog,
+    setToggle: setOpenCancelDialog,
+  } = useToggle(false);
+
+  const onConfirmCancle = (value: string) => {
+    cancelRequest(value);
   };
 
-  const handleDeleteClick = (event) => {
-    deleteRequest({ id: currentRequest?.id });
+  const handleCancelClick = (event) => {
+    setOpenCancelDialog(true);
   };
 
   const {
@@ -405,7 +427,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         };
         updateRequest(params);
       }
-    } else {
+    } else if (!isCustomer) {
       const params = {
         admin_id: user?.account?.id,
         report_service_id: currentRequest?.reportId,
@@ -414,7 +436,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         agency_id: data.agency.id,
         request_description: data.description,
         request_name: data.name,
-        // priority: parseInt(data.priority),
+        technician_id: data.technician.id || '',
+      };
+      createRequest(params);
+    } else {
+      const params = {
+        service_id: data.service.id,
+        agency_id: data.agency.id,
+        request_description: data.description,
+        request_name: data.name,
       };
       createRequest(params);
     }
@@ -428,7 +458,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     rejectRequest(value);
   };
 
-  const newPage = !isEdit && !currentRequest;
+  const newPage = !isEdit;
 
   const editPage = isEdit && currentRequest;
 
@@ -439,246 +469,326 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
   const isCreatedByCurrentUser =
     currentRequest?.createdBy?.role === 'Customer' &&
     currentRequest?.createdBy?.id === user?.account?.id;
-    
+
+  const diableServiceAgency = !(
+    (newPage && isCustomer) ||
+    (currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser)
+  );
+  const disabledNameDescription = !(
+    (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+    newPage ||
+    (currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser)
+  );
+
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Stack spacing={3}>
-        {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />}
-        <Card sx={{ p: 3 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <RHFTextField
-                name="name"
-                label="Name"
-                variant="outlined"
-                fullWidth
-                disabled={disabled}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <RHFAutocomplete
-                name="agency"
-                label="Agency"
-                variant="outlined"
-                options={agencies}
-                fullWidth
-                disabled={disabled}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <RHFAutocomplete
-                name="service"
-                label="Service"
-                variant="outlined"
-                options={services}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                disabled={disabled}
-              />
-            </Grid>
-            {/* <Grid item xs={12} md={6}>
-              <RHFSelect disabled={disabled} name="priority" label="Priority">
-                {PRIORITY_OPTIONS.map(({ text, value }) => (
-                  <option key={text} value={value}>
-                    {text}
-                  </option>
-                ))}
-              </RHFSelect>
-            </Grid> */}
-            {(editPage || isMaintain) && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  value={getValues('customer')?.name ?? ''}
-                  label="Customer"
-                  variant="outlined"
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  disabled={true}
-                />
-              </Grid>
-            )}
-            {watch('address') && (
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Stack spacing={3}>
+          {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />}
+          <Card sx={{ p: 3 }}>
+            <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <RHFTextField
-                  name="address"
-                  label="Address"
+                  name="name"
+                  label="Name"
                   variant="outlined"
+                  fullWidth
+                  disabled={disabledNameDescription}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <RHFAutocomplete
+                  name="agency"
+                  label="Agency"
+                  variant="outlined"
+                  options={agencies}
+                  fullWidth
+                  disabled={diableServiceAgency}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <RHFAutocomplete
+                  name="service"
+                  label="Service"
+                  variant="outlined"
+                  options={services}
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  disabled={true}
+                  disabled={diableServiceAgency}
                 />
               </Grid>
-            )}
-            {watch('phone') && (
-              <Grid item xs={12} md={6}>
-                <RHFTextField
-                  name="phone"
-                  label="Phone"
-                  variant="outlined"
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  disabled={true}
-                />
-              </Grid>
-            )}
-            {currentRequest?.startTime && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Start Time"
-                  variant="outlined"
-                  fullWidth
-                  disabled
-                  value={format(new Date(currentRequest!.startTime), 'dd/MM/yyyy HH:mm')}
-                />
-              </Grid>
-            )}
-            {currentRequest?.endTime && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="End Time"
-                  variant="outlined"
-                  fullWidth
-                  disabled
-                  value={format(new Date(currentRequest!.endTime), 'dd/MM/yyyy HH:mm')}
-                />
-              </Grid>
-            )}
-            {!newPage && !isMaintain && (
-              <Grid item xs={12} md={6}>
-                <RHFTextField
-                  value={getValues('createdBy')}
-                  name="createdBy"
-                  label="Created By"
-                  variant="outlined"
-                  fullWidth
-                  disabled={disabled}
-                />
-              </Grid>
-            )}
-            {((editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending'))) ||
-              isMaintain) && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  value={watch('technician')?.name ?? ''}
-                  helperText={
-                    currentStatus === 'pending' ? (
-                      <Typography sx={{ color: 'error.main' }} variant="body2">
-                        Please assign a technician
-                      </Typography>
-                    ) : undefined
-                  }
-                  error={
-                    (currentStatus === 'pending' || currentStatus === 'preparing') && !isCustomer
-                  }
-                  label="Technician"
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => {
-                    if (
-                      (currentStatus === 'pending' || currentStatus === 'preparing') &&
-                      !isCustomer
-                    ) {
-                      setOpenConfirmDialog(true);
+              {/* <Grid item xs={12} md={6}>
+      <RHFSelect disabled={disabled} name="priority" label="Priority">
+        {PRIORITY_OPTIONS.map(({ text, value }) => (
+          <option key={text} value={value}>
+            {text}
+          </option>
+        ))}
+      </RHFSelect>
+    </Grid> */}
+              {(editPage || isMaintain) && (
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    value={getValues('customer')?.name ?? ''}
+                    label="Customer"
+                    variant="outlined"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {watch('address') && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="address"
+                    label="Address"
+                    variant="outlined"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {watch('phone') && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="phone"
+                    label="Phone"
+                    variant="outlined"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {editPage && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    value={format(new Date(getValues('createdAt')), 'HH:mm dd/MM/yyyy')}
+                    name="createdAt"
+                    label="Created At"
+                    variant="outlined"
+                    fullWidth
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+
+              {currentRequest?.startTime &&
+                (currentStatus === 'resolving' ||
+                  currentStatus === 'resolved' ||
+                  currentStatus === 'editing') && (
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      label="Start Time"
+                      variant="outlined"
+                      fullWidth
+                      disabled
+                      value={format(new Date(currentRequest!.startTime), 'HH:mm dd/MM/yyyy')}
+                    />
+                  </Grid>
+                )}
+
+              {!newPage && !isMaintain && (
+                <>
+                  <Grid item xs={12} md={6}>
+                    <RHFTextField
+                      value={getValues('createdBy')}
+                      name="createdBy"
+                      label="Created By"
+                      variant="outlined"
+                      fullWidth
+                      disabled={true}
+                    />
+                  </Grid>
+                  {currentRequest?.endTime &&
+                    (currentStatus === 'resolved' || currentStatus === 'editing') && (
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          label="End Time"
+                          variant="outlined"
+                          fullWidth
+                          disabled
+                          value={format(new Date(currentRequest!.endTime), 'HH:mm dd/MM/yyyy')}
+                        />
+                      </Grid>
+                    )}
+                </>
+              )}
+              {editPage && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    value={getValues('contract')?.name ?? ''}
+                    name="contract"
+                    label="Contract"
+                    variant="outlined"
+                    fullWidth
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {((editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending'))) ||
+                isMaintain) && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="technician"
+                    value={watch('technician')?.tech_name ?? ''}
+                    helperText={
+                      currentStatus === 'pending' ? (
+                        <Typography sx={{ color: 'error.main' }} variant="body2">
+                          Please assign a technician
+                        </Typography>
+                      ) : undefined
                     }
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{ readOnly: true }}
-                  disabled={
-                    !((currentStatus === 'pending' || currentStatus === 'preparing') && !isCustomer)
-                  }
-                />
-              </Grid>
-            )}
-            <Grid item xs={12} md={6}>
-              <RHFTextField
-                name="description"
-                label="Description"
-                variant="outlined"
-                multiline
-                minRows={6}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                disabled={disabled}
-              />
-            </Grid>
-            {currentStatus === 'rejected' && (
+                    error={
+                      (currentStatus === 'pending' || currentStatus === 'preparing') && !isCustomer
+                    }
+                    label="Technician"
+                    variant="outlined"
+                    fullWidth
+                    onClick={() => {
+                      if (
+                        (currentStatus === 'pending' || currentStatus === 'preparing') &&
+                        !isCustomer
+                      ) {
+                        setOpenConfirmDialog(true);
+                      }
+                    }}
+                    InputLabelProps={{ shrink: true }}
+                    inputProps={{ readOnly: true }}
+                    disabled={
+                      !(
+                        (currentStatus === 'pending' || currentStatus === 'preparing') &&
+                        !isCustomer
+                      )
+                    }
+                  />
+                </Grid>
+              )}
               <Grid item xs={12} md={6}>
                 <RHFTextField
-                  name="rejectReason"
-                  label="Reject Reason"
+                  name="description"
+                  label="Description"
                   variant="outlined"
                   multiline
                   minRows={6}
                   fullWidth
                   InputLabelProps={{ shrink: true }}
-                  disabled={true}
+                  disabled={disabledNameDescription}
                 />
               </Grid>
-            )}
-          </Grid>
-        </Card>
-        {(currentStatus === 'editing' || currentStatus === 'resolved') && (
-          <RequestNewEditTicketForm
-            requestId={id}
-            agencyId={watch('agency').id}
-            editable={currentStatus === 'editing'}
-          />
-        )}
-        <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
-          {(currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin) ||
-            (currentStatus === 'pending' && editPage && isCustomer && isCreatedByCurrentUser && (
-              <Button onClick={handleDeleteClick} color="error" variant="contained">
-                Delete
+              {currentStatus === 'rejected' && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="rejectReason"
+                    label="Reject Reason"
+                    variant="outlined"
+                    multiline
+                    minRows={6}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {currentStatus === 'canceled' && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="cancelReason"
+                    label="Cancel Reason"
+                    variant="outlined"
+                    multiline
+                    minRows={6}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+            </Grid>
+          </Card>
+          {(currentStatus === 'editing' || currentStatus === 'resolved') && (
+            <RequestNewEditTicketForm
+              requestId={id}
+              agencyId={watch('agency').id}
+              editable={currentStatus === 'editing'}
+            />
+          )}
+          <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
+            {(currentStatus === 'pending' && !isCustomer && editPage && isCreatedByAdmin && (
+              <Button onClick={handleCancelClick} color="error" variant="contained">
+                Cancel
               </Button>
-            ))}
-          {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
-            (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser && (
+            )) ||
+              (currentStatus === 'pending' && editPage && isCustomer && isCreatedByCurrentUser && (
+                <Button onClick={handleCancelClick} color="error" variant="contained">
+                  Cancel
+                </Button>
+              ))}
+            {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
               <Button onClick={handleCancelClick} color="error" variant="outlined">
                 Cancel
               </Button>
-            ))}
-          {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
-            <Button onClick={handleShowReject} color="error" variant="outlined">
-              Reject
-            </Button>
-          )}
-          {currentStatus === 'resolved' && !isCustomer && (
-            <Button onClick={handleReopenClick} color="info" variant="outlined">
-              Reopen
-            </Button>
-          )}
-          {currentStatus === 'pending' && !isCustomer && watch('technician') && (
-            <Button variant="contained" color="info" onClick={handleConfirm}>
-              Confirm
-            </Button>
-          )}
-          {((currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||
-            (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
-            (currentStatus === 'editing' && !isCustomer)) &&
-            editPage && (
+            )) ||
+              (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser && (
+                <Button onClick={handleCancelClick} color="error" variant="outlined">
+                  Cancel
+                </Button>
+              ))}
+            {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
+              <Button onClick={handleShowReject} color="error" variant="outlined">
+                Reject
+              </Button>
+            )}
+            {currentStatus === 'resolved' && !isCustomer && (
+              <Button onClick={handleReopenClick} color="info" variant="outlined">
+                Reopen
+              </Button>
+            )}
+            {(currentStatus === 'pending' || currentStatus === 'preparing') &&
+              !isCustomer &&
+              editPage &&
+              watch('technician') && (
+                <Button variant="contained" color="info" onClick={handleConfirm}>
+                  Confirm
+                </Button>
+              )}
+            {((currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||
+              (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+              (currentStatus === 'editing' && !isCustomer)) &&
+              editPage && (
+                <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                  Save
+                </LoadingButton>
+              )}
+            {(newPage || isMaintain) && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                Save
+                Create
               </LoadingButton>
             )}
-          {(newPage || isMaintain) && (
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              Create
-            </LoadingButton>
-          )}
-        </Box>
-      </Stack>
-      <TechnicianDialog
-        open={openConfirmDialog}
-        onClose={onConfirmDialogClose}
-        onSelect={onConfirm}
-        id={isMaintain ? currentRequest.reportId : id}
-        isMaintain={isMaintain}
-      />
+          </Box>
+        </Stack>
+        <TechnicianDialog
+          open={openConfirmDialog}
+          onClose={onConfirmDialogClose}
+          onSelect={onConfirm}
+          id={isMaintain ? currentRequest.reportId : id}
+          isMaintain={isMaintain}
+        />
+        <RequestRejectDialog
+          open={openRejectDialog}
+          onClose={onRejectDialogClose}
+          onReject={onReject}
+          title="Reject request"
+        />
+      </FormProvider>
       <RequestRejectDialog
-        open={openRejectDialog}
-        onClose={onRejectDialogClose}
-        onReject={onReject}
+        open={openCancelDialog}
+        onClose={onCloseCancelDialog}
+        onReject={onConfirmCancle}
+        title="Cancel request"
       />
-    </FormProvider>
+    </>
   );
 }

@@ -7,8 +7,10 @@ import { useSnackbar } from 'notistack';
 import { useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
@@ -39,6 +41,10 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     agency: {
       name: currentMaintainSchedule.agency.agency_name,
       id: currentMaintainSchedule.agency.id,
+    },
+    contract: {
+      id: currentMaintainSchedule.contract.id,
+      name: currentMaintainSchedule.contract.name,
     },
     technician: {
       name: currentMaintainSchedule.technician.tech_name,
@@ -108,10 +114,23 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     resolver: yupResolver(serviceSchema),
     defaultValues,
   });
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteMaintainSchedule();
   };
+
+
 
   const {
     handleSubmit,
@@ -124,7 +143,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
   const editPage = isEdit && currentMaintainSchedule;
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+    <><FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
       {isEdit && (
         <Box mb={2}>
           <MaintainTitleSection label={'Status'} status={watch('status')} />
@@ -145,18 +164,15 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                     value={field.value}
                     onChange={(newValue) => {
                       field.onChange(newValue);
-                    }}
+                    } }
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         fullWidth
                         error={!!error}
-                        helperText={error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
+                        helperText={error?.message} />
+                    )} />
+                )} />
               <RHFTextField name="description" label="Description" multiline minRows={4} />
             </Stack>
           </Card>
@@ -169,26 +185,26 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
               <TextField
                 disabled
                 value={currentMaintainSchedule.agency.agency_name}
-                label="Agency"
-              />
+                label="Agency" />
               <TextField
                 disabled
                 value={currentMaintainSchedule.technician.tech_name}
-                label="Techician"
-              />
+                label="Techician" />
+                <TextField
+                disabled
+                value={currentMaintainSchedule.contract.name}
+                label="Contract" />
               <TextField
                 disabled
-                value={format(new Date(currentMaintainSchedule.start_time), 'dd/MM/yyy')}
+                value={format(new Date(currentMaintainSchedule.start_time), 'HH:mm dd/MM/yyy')}
                 label="Start Time"
-                fullWidth
-              />
+                fullWidth />
 
               <TextField
                 disabled
-                value={format(new Date(currentMaintainSchedule.end_time), 'dd/MM/yyy')}
+                value={format(new Date(currentMaintainSchedule.end_time), 'HH:mm dd/MM/yyy')}
                 label="End Time"
-                fullWidth
-              />
+                fullWidth />
             </Stack>
           </Card>
         </Grid>
@@ -202,6 +218,12 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
           {editPage ? 'Save' : 'Create'}
         </LoadingButton>
       </Stack>
-    </FormProvider>
+    </FormProvider><ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Maintain Schedule"
+        text="Are you sure you want to delete?" /></>
+
   );
 }

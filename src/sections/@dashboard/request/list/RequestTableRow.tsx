@@ -1,4 +1,5 @@
 import { Chip, TableCell, TableRow, Typography } from '@mui/material';
+import { format } from 'date-fns';
 import { Request, RequestStatus } from 'src/@types/request';
 import { cutOut } from 'src/utils/cutOut';
 
@@ -7,8 +8,10 @@ type Props = {
   onRowClick: VoidFunction;
 };
 
+
+
 export default function RequestTableRow({ row, onRowClick }: Props) {
-  const { code, name, agency, service, createdByAdmin, customer, contract, description, status } =
+  const { code, name, agency, service, createdByAdmin, customer, createdAt, description, status } =
     row;
 
   const parseStatus = (status: RequestStatus) => {
@@ -37,12 +40,12 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
           {code}
         </Typography>
       </TableCell>
-      <TableCell align="left">{name} </TableCell>
+      <TableCell align="left">{cutOut(name)} </TableCell>
       <TableCell align="left">{agency.name} </TableCell>
       <TableCell align="left">{service.name} </TableCell>
-      <TableCell align="left">{customer.name} </TableCell>
-      <TableCell align="left">{contract.name ?? ''} </TableCell>
       <TableCell align="left">{createdByAdmin ? 'Admin' : customer.name} </TableCell>
+      <TableCell align="left">{customer.name} </TableCell>
+      <TableCell align="left">{format(new Date(createdAt), 'HH:mm dd/MM/yyyy')} </TableCell>
       {/* <TableCell align="left">{createdAt} </TableCell> */}
       <TableCell align="left">{cutOut(description)} </TableCell>
       <TableCell align="left">{parseStatus(status)} </TableCell>

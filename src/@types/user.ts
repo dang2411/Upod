@@ -140,7 +140,7 @@ export type AuthCredential  = {
 export type Technician = {
   id: string;
   code?: string;
-  name?: string;
+  tech_name?: string;
   address?: string;
   skills?: string[];
   avatar?: string;

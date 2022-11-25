@@ -5,8 +5,10 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
@@ -104,6 +106,14 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
+
   const methods = useForm({
     resolver: yupResolver(AccountSchema),
     defaultValues,
@@ -118,7 +128,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     if (isEdit) {
       const params = {
         id: currentAccount!.id,
-        role_name: data.role.name,
+        role_id: data.role.id,
         password: data.password,
       };
       updateAccount(params);
@@ -133,6 +143,10 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   };
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteAccount();
   };
 
@@ -140,48 +154,56 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     fetchRoles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  
   const disable = !isEdit && currentAccount != null;
 
   const editPage = isEdit && currentAccount;
 
-  const newPage = !isEdit && !currentAccount;
+  const disableUsername = isEdit && currentAccount != null;
 
-  const detailPage = !isEdit && currentAccount;
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Card sx={{ p: 3 }}>
-        <Stack spacing={3}>
-          {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
-          <Box display="grid" sx={{ gap: 2, gridTemplateColumns: 'auto' }}>
-            {isEdit && <RHFTextField name="code" label="Code" disabled />}
-            <RHFAutocomplete
-              name="role"
-              label="Role"
-              variant="outlined"
-              options={roles}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable}
-            />
-            <RHFTextField name="username" label="Username" disabled={disable} />
-            <RHFTextField name="password" label="Password" disabled={disable} />
-          </Box>
-        </Stack>
-        {!disable && (
-          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            {editPage && !isCustomer && (
-              <Button variant="outlined" color="error" onClick={onDeleteClick}>
-                Delete
-              </Button>
-            )}
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              {isEdit ? 'Save' : 'Create'}
-            </LoadingButton>
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Card sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            {/* <Typography variant="subtitle1">{getValues('code')}</Typography> */}
+            <Box display="grid" sx={{ gap: 2, gridTemplateColumns: 'auto' }}>
+              {isEdit && <RHFTextField name="code" label="Code" disabled />}
+              <RHFAutocomplete
+                name="role"
+                label="Role"
+                variant="outlined"
+                options={roles}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                disabled={false}
+              />
+              <RHFTextField name="username" label="Username" disabled={disableUsername} />
+              <RHFTextField name="password" label="Password" disabled={false} />
+            </Box>
           </Stack>
-        )}
-      </Card>
-    </FormProvider>
+          {!disable && (
+            <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+              {editPage && !isCustomer && (
+                <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                  Delete
+                </Button>
+              )}
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                {isEdit ? 'Save' : 'Create'}
+              </LoadingButton>
+            </Stack>
+          )}
+        </Card>
+      </FormProvider>
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Account"
+        text="Are you sure you want to delete?"
+      />
+    </>
   );
 }

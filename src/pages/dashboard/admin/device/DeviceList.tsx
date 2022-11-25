@@ -78,11 +78,11 @@ export default function DeviceList() {
         id: x.id,
         code: x.code,
         name: x.device_name,
-        customer: { id: x.customer.id, name: x.customer.cus_name },
-        service: { id: x.service.id, name: x.service.service_name },
-        agency: x.agency.agency_name,
+        customer: x.customer,
+        service: x.service,
+        agency: x.agency,
         type: x.devicetype.device_type_name,
-        technician: { id: x.technician.id, name: x.technician.tech_name },
+        technician: x.technician,
       }));
       setData(result);
     } catch (error) {

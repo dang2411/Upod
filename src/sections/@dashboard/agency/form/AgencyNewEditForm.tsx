@@ -5,8 +5,10 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
+import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
@@ -113,10 +115,12 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const createAgency = useCallback(async (data: any) => {
     try {
-      const response = await axios.post('/api/agencies/create_agency', data);
+      const response:any = await axios.post('/api/agencies/create_agency', data);
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.agency.root);
         enqueueSnackbar('Create agenycy successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Create agenycy failed', { variant: 'error' });
@@ -126,7 +130,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const updateAgency = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/agencies/update_agency_by_id', data, {
+      const response:any = await axios.put('/api/agencies/update_agency_by_id', data, {
         params: { id: currentAgency!.id },
       });
       if (response.status === 200 || response.status === 201) {
@@ -136,6 +140,8 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
           navigate(PATH_DASHBOARD.admin.agency.root);
         }
         enqueueSnackbar('Update agencies successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update agencies failed', { variant: 'error' });
@@ -193,9 +199,21 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     //
   };
 
+  const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
+
   const disable = (!isEdit && currentAgency != null) || isCustomer;
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteAgency();
   };
 
@@ -219,58 +237,70 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   // const detailPage = !isEdit && currentAgency;
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Card sx={{ p: 3 }}>
-        <Stack spacing={3}>
-          <Typography variant="subtitle1">{getValues('code')}</Typography>
-          <Box display="grid" sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}>
-            {/* {isEdit && <RHFTextField name="code" label="Code" disabled />} */}
-            <RHFTextField name="name" label="Name" disabled={disable} />
-            <RHFTextField name="address" label="Address" disabled={disable} />
-            <RHFTextField name="phone" label="Phone" disabled={disable} />
-            <RHFTextField name="manager" label="Manager" disabled={disable} />
-            <RHFAutocomplete
-              name="area"
-              label="Area"
-              variant="outlined"
-              options={areas}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable}
-            />
-            {watch('area') && technicians != null && (
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Card sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            <Typography variant="subtitle1">{getValues('code')}</Typography>
+            <Box
+              display="grid"
+              sx={{ gap: 2, gridTemplateColumns: { xs: 'auto', md: 'auto auto' } }}
+            >
+              {/* {isEdit && <RHFTextField name="code" label="Code" disabled />} */}
+              <RHFTextField name="name" label="Name" disabled={disable} />
+              <RHFTextField name="address" label="Address" disabled={disable} />
+              <RHFTextField name="phone" label="Phone" disabled={disable} />
+              <RHFTextField name="manager" label="Manager" disabled={disable} />
               <RHFAutocomplete
-                name="technician"
-                label="Technician"
+                name="area"
+                label="Area"
                 variant="outlined"
-                options={technicians}
+                options={areas}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
                 disabled={disable}
               />
-            )}
-            <RHFAutocomplete
-              name="customer"
-              label="Customer"
-              variant="outlined"
-              options={customers}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              disabled={disable || isEdit}
-            />
-          </Box>
-        </Stack>
-        {!isCustomer && (
-          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
-              Delete
-            </Button>
-            <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-              {editPage ? 'Save' : 'Create'}
-            </LoadingButton>
+              {watch('area') && technicians != null && (
+                <RHFAutocomplete
+                  name="technician"
+                  label="Technician"
+                  variant="outlined"
+                  options={technicians}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  disabled={disable}
+                />
+              )}
+              <RHFAutocomplete
+                name="customer"
+                label="Customer"
+                variant="outlined"
+                options={customers}
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                disabled={disable || isEdit}
+              />
+            </Box>
           </Stack>
-        )}
-      </Card>
-    </FormProvider>
+          {!isCustomer && (
+            <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+              <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                Delete
+              </Button>
+              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                {editPage ? 'Save' : 'Create'}
+              </LoadingButton>
+            </Stack>
+          )}
+        </Card>
+      </FormProvider>
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Agency"
+        text="Are you sure you want to delete?"
+      />
+    </>
   );
 }

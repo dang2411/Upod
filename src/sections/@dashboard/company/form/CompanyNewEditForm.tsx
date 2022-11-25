@@ -5,6 +5,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
@@ -82,12 +83,14 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const updateCompany = useCallback(async (data: any) => {
     try {
-      const response = await axios.put('/api/customers/update_customer_by_id', data, {
+      const response: any = await axios.put('/api/customers/update_customer_by_id', data, {
         params: { id: currentCompany!.id },
       });
       if (response.status === 200 || response.status === 201) {
         navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Update company successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar(response.message , { variant: 'error' });
       }
     } catch (error) {
       enqueueSnackbar('Update company failed', { variant: 'error' });
@@ -144,7 +147,6 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     if (isEdit) {
       const params = {
         name: data.name,
-        account_id: data.account.id,
         description: data.description,
         address: data.address,
         mail: data.email,
@@ -175,9 +177,18 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
   const disable = !isEdit && currentCompany != null;
 
   const onDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const onConfirmDelete = () => {
     deleteCompany();
   };
 
@@ -186,6 +197,8 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   const newPage = !isEdit && !currentCompany;
 
   const detailPage = !isEdit && currentCompany;
+
+  const isAsign = isEdit && currentCompany;
 
   const handleCreateAccountClick = () => {
     setOpenDialog(true);
@@ -227,7 +240,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
                     options={accounts}
                     onChange={(_: any, newValue: any) => onChange(newValue)}
                     disableClearable
-                    disabled={disable}
+                    disabled={isAsign}
                     value={value}
                     renderInput={(params) => (
                       <TextField
@@ -266,6 +279,13 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         onClose={onCloseDialog}
         role="Customer"
         onSuccess={onCreateAccountSuccess}
+      />
+       <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={onCloseDeleteDialog}
+        onConfirm={onConfirmDelete}
+        title="Delete Customer"
+        text="Are you sure you want to delete?"
       />
     </>
   );

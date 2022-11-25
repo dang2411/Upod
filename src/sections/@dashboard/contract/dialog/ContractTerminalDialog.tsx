@@ -6,7 +6,7 @@ type Props = {
   onReject: (description: string) => void;
   title: string;
 };
-export default function RequestRejectDialog({ open, onClose, onReject, title }: Props) {
+export default function ContractTerminalDialog({ open, onClose, onReject, title }: Props) {
   const [value, setValue] = useState('');
 
   const handleCancel = () => {
@@ -28,7 +28,7 @@ export default function RequestRejectDialog({ open, onClose, onReject, title }: 
         <TextField
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          placeholder="Reason"
+          placeholder="Terminal content"
           multiline
           minRows={5}
         />

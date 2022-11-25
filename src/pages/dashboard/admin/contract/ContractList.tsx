@@ -29,6 +29,7 @@ const TABLE_HEAD = [
   { id: 'company', label: 'Customer', align: 'left' },
   { id: 'createdAt', label: 'Created At', align: 'left' },
   { id: 'expiredAt', label: 'Expired At', align: 'left' },
+  { id: 'is_expire', label: 'Available', align: 'left' },
 ];
 
 export default function ContractList() {
@@ -78,6 +79,7 @@ export default function ContractList() {
         code: x.code,
         name: x.contract_name,
         company: x.customer.cus_name,
+        is_expire: x.is_expire,
         createdAt: x.start_date,
         expiredAt: x.end_date,
       }));
