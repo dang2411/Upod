@@ -50,6 +50,7 @@ export default function DeviceDetail() {
           id: response.data.technician.id,
           name: response.data.technician.tech_name,
         },
+        img: response.data.img,
       };
       if (response.status === 200) {
         setData(result);

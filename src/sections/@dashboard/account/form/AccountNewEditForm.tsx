@@ -251,7 +251,6 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
             </Stack>
           )}
         </Card>
-        <RHFUploadSingleFile name="cover" maxSize={3145728} onDrop={handleDropSingle} />
         <RHFUploadMultiFile
           showPreview
           name="images"
