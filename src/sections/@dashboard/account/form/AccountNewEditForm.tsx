@@ -6,7 +6,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
-import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
+import {
+  FormProvider,
+  RHFAutocomplete,
+  RHFTextField,
+  RHFUploadMultiFile,
+  RHFUploadSingleFile,
+} from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
@@ -51,6 +57,10 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     role: currentAccount?.role,
     username: currentAccount?.username || '',
     password: currentAccount?.password || '',
+    // single file
+    cover: null,
+    // multi file
+    images: currentAccount?.images || [],
   };
 
   const createAccount = useCallback(async (data: any) => {
@@ -121,6 +131,8 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const {
     handleSubmit,
+    setValue,
+    watch,
     formState: { isSubmitting },
   } = methods;
 
@@ -154,12 +166,55 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     fetchRoles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   const disable = !isEdit && currentAccount != null;
 
   const editPage = isEdit && currentAccount;
 
   const disableUsername = isEdit && currentAccount != null;
+
+  const values = watch();
+
+  const handleDropSingle = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+
+      if (file) {
+        setValue(
+          'cover',
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        );
+      }
+    },
+    [setValue]
+  );
+
+  const handleDropMultiple = useCallback(
+    (acceptedFiles) => {
+      const images = values.images || [];
+
+      setValue('images', [
+        ...images,
+        ...acceptedFiles.map((file: Blob | MediaSource) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        ),
+      ]);
+    },
+    [setValue, values.images]
+  );
+
+  const handleRemoveAll = () => {
+    setValue('images', []);
+  };
+
+  const handleRemove = (file: File | string) => {
+    const filteredItems = values.images?.filter((_file) => _file !== file);
+    setValue('images', filteredItems);
+  };
 
 
   return (
@@ -196,6 +251,16 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
             </Stack>
           )}
         </Card>
+        <RHFUploadSingleFile name="cover" maxSize={3145728} onDrop={handleDropSingle} />
+        <RHFUploadMultiFile
+          showPreview
+          name="images"
+          maxSize={3145728}
+          onDrop={handleDropMultiple}
+          onRemove={handleRemove}
+          onRemoveAll={handleRemoveAll}
+          onUpload={() => console.log('ON UPLOAD')}
+        />
       </FormProvider>
       <ConfirmDialog
         open={openDeleteDialog}
