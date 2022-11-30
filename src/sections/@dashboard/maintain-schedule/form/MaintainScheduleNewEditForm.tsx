@@ -146,12 +146,14 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
   const editPage = isEdit && currentMaintainSchedule;
 
+  const status = currentMaintainSchedule.status.toLowerCase();
+
   return (
     <>
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         {isEdit && (
           <Box mb={2}>
-            <MaintainTitleSection label={''} status={watch('status')} />
+            <MaintainTitleSection label={currentMaintainSchedule.code} status={watch('status')} />
           </Box>
         )}
         <Grid container spacing={3}>
@@ -212,19 +214,25 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   value={currentMaintainSchedule.contract.name}
                   label="Contract"
                 />
-                <TextField
-                  disabled
-                  value={format(new Date(currentMaintainSchedule.start_time), 'HH:mm dd/MM/yyy')}
-                  label="Start Time"
-                  fullWidth
-                />
-
-                <TextField
-                  disabled
-                  value={format(new Date(currentMaintainSchedule.end_time), 'HH:mm dd/MM/yyy')}
-                  label="End Time"
-                  fullWidth
-                />
+                {status === 'completed' && (
+                  <>
+                    <TextField
+                      disabled
+                      value={format(
+                        new Date(currentMaintainSchedule.start_time),
+                        'HH:mm dd/MM/yyy'
+                      )}
+                      label="Start Time"
+                      fullWidth
+                    />
+                    <TextField
+                      disabled
+                      value={format(new Date(currentMaintainSchedule.end_time), 'HH:mm dd/MM/yyy')}
+                      label="End Time"
+                      fullWidth
+                    />
+                  </>
+                )}
               </Stack>
             </Card>
           </Grid>

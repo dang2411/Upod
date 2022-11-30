@@ -83,31 +83,6 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     onClose: () => void;
   }
 
-  const [currentImage, setCurrentImage] = useState({});
-
-  function BootstrapDialogTitle(props: DialogTitleProps) {
-    const { children, onClose, ...other } = props;
-
-    return (
-      <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
-        {children}
-        {onClose ? (
-          <IconButton
-            aria-label="close"
-            onClick={onClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        ) : null}
-      </DialogTitle>
-    );
-  }
   const fetchAgencies = useCallback(async () => {
     try {
       const response = await axios.get('/api/agencies/get_list_agencies');
@@ -134,7 +109,6 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     guarantyEndDate: currentDevice?.guarantyEndDate,
     image: currentDevice?.img ?? [],
   };
-  console.log(currentDevice);
 
   const methods = useForm({
     resolver: yupResolver(deviceSchema),
@@ -164,6 +138,8 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
 
   return (
     <>
+      {/* <ImageCard image={defaultValues.image[0]} width="80%" height="80%" /> */}
+     
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         <Card sx={{ p: 3 }}>
           <Stack spacing={3}>
@@ -260,7 +236,6 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
                   />
                 )}
               />
-              <Typography variant="subtitle1">Image</Typography>
             </Box>
           </Stack>
           {!disable && (
@@ -274,26 +249,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
             </Stack>
           )}
         </Card>
-        <Stack>
-          {defaultValues.image.map((img, index) => (
-            <ImageCard
-              image={img}
-              key={index}
-              sx={{cursor: 'pointer'}}
-              onClick={() => {
-                setCurrentImage(img);
-                handleImageClick(img);
-              }}
-            />
-          ))}
-        </Stack>
       </FormProvider>
-      <BootstrapDialog onClose={handleClose} open={open}>
-        <BootstrapDialogTitle onClose={handleClose} id="dialog"></BootstrapDialogTitle>
-        <DialogContent dividers>
-          <ImageCard image={currentImage} width="100%" height="100%" />
-        </DialogContent>
-      </BootstrapDialog>
     </>
   );
 }

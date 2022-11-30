@@ -1,10 +1,12 @@
-import { Container } from '@mui/material';
+import { Container, Grid } from '@mui/material';
+import { Box } from '@mui/system';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
+import DeviceNewEditImageContainer from 'src/sections/@dashboard/device/card/DeviceNewEditImageContainer';
 import DeviceNewEditForm from 'src/sections/@dashboard/device/form/DeviceNewEditForm';
 import axiosInstance from 'src/utils/axios';
 
@@ -91,7 +93,14 @@ export default function DeviceDetail() {
             { name: title },
           ]}
         />
-        <DeviceNewEditForm isEdit={false} currentDevice={data} />
+        <Grid container>
+          <Grid item md={4} xs={12}>
+            <DeviceNewEditImageContainer listImage={data.img}/>
+          </Grid>
+          <Grid item md={8} xs={12}>
+            <DeviceNewEditForm isEdit={false} currentDevice={data} />
+          </Grid>
+        </Grid>
       </Container>
     </Page>
   );

@@ -1,13 +1,13 @@
-import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, Grid, Stack, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useCallback, useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import Iconify from 'src/components/Iconify';
 import axios from 'src/utils/axios';
+import RequestNewEditImageFormField from '../card/RequestNewEditImageFormField';
 
-export default function RequestNewEditTicketForm({ requestId, agencyId, editable }: any) {
-
+export default function RequestNewEditTicketForm({ requestId, status, agencyId, editable }: any) {
   const {
     control,
     setValue,
@@ -21,7 +21,7 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
   const [devices, setDevices] = useState([]);
 
   const handleAppend = () => {
-    append({ frequencyMaintain: 0 });
+    append({ frequencyMaintain: 0, img: [], files: [] });
   };
 
   const handleRemove = (index: number) => {
@@ -38,6 +38,8 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
         device: { id: x.device_id, name: x.name },
         solution: x.solution,
         description: x.description,
+        img: x.img || [],
+        files: [],
       }));
       setValue('ticket', ticket);
     } catch (error) {
@@ -45,7 +47,7 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  
   const fetchDevices = useCallback(async (id: string) => {
     try {
       const response = await axios.get('/api/devices/get_list_devices_by_agency_id', {
@@ -90,36 +92,44 @@ export default function RequestNewEditTicketForm({ requestId, agencyId, editable
                     borderBottom: 1,
                     borderBottomStyle: 'dashed',
                     borderBottomColor: theme.palette.divider,
+                    // borderBottomColor: 'red',
                   }}
                   key={index}
                 >
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Box
-                      display="grid"
-                      sx={{ gridTemplateColumns: 'auto auto auto', flexGrow: 1, gap: 2 }}
-                    >
-                      <RHFAutocomplete
-                        name={`ticket[${index}].device`}
-                        label="Device"
-                        variant="outlined"
-                        options={item?.value ? [item!.value, ...deviceList] : deviceList}
-                        disabled={!editable}
-                        fullWidth
+                  <Grid container>
+                    <Grid item md={6} xs={12}>
+                      <RequestNewEditImageFormField
+                        name={`ticket[${index}].files`}
+                        image={`ticket[${index}].img`}
+                        currentStatus={status}
                       />
-                      <RHFTextField
-                        name={`ticket[${index}].solution`}
-                        label="Solution"
-                        fullWidth
-                        disabled={!editable}
-                      />
-                      <RHFTextField
-                        name={`ticket[${index}].description`}
-                        label="Description"
-                        fullWidth
-                        disabled={!editable}
-                      />
-                    </Box>
-                  </Box>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                      <Stack spacing={2}>
+                        <RHFAutocomplete
+                          name={`ticket[${index}].device`}
+                          label="Device"
+                          variant="outlined"
+                          options={item?.value ? [item!.value, ...deviceList] : deviceList}
+                          disabled={!editable}
+                          fullWidth
+                        />
+                        <RHFTextField
+                          name={`ticket[${index}].solution`}
+                          label="Solution"
+                          fullWidth
+                          disabled={!editable}
+                        />
+                        <RHFTextField
+                          name={`ticket[${index}].description`}
+                          label="Description"
+                          fullWidth
+                          disabled={!editable}
+                        />
+                      </Stack>
+                    </Grid>
+                  </Grid>
+
                   {editable && (
                     <Box textAlign="end">
                       <Button variant="text" onClick={() => handleRemove(index)} color="error">

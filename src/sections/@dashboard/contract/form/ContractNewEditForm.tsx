@@ -408,6 +408,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                 />
               </Stack>
             </Card>
+            
           </Grid>
         </Grid>
         {newPage && (
@@ -424,20 +425,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
             />
           </>
         )}
-        {/* {!disable && (
-          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            {editPage && !isCustomer && (
-              <Button variant="outlined" color="error" onClick={onDeleteClick}>
-                Delete
-              </Button>
-            )}
-            {!isEdit && (
-              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                Create
-              </LoadingButton>
-            )}
-          </Stack>
-        )} */}
+
         {!disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             {!isEdit && (
