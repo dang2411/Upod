@@ -97,14 +97,14 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
                   key={index}
                 >
                   <Grid container>
-                    <Grid item md={6} xs={12}>
+                    <Grid item md={4} xs={12}>
                       <RequestNewEditImageFormField
                         name={`ticket[${index}].files`}
                         image={`ticket[${index}].img`}
                         currentStatus={status}
                       />
                     </Grid>
-                    <Grid item md={6} xs={12}>
+                    <Grid item md={8} xs={12}>
                       <Stack spacing={2}>
                         <RHFAutocomplete
                           name={`ticket[${index}].device`}
