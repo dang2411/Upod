@@ -8,29 +8,29 @@ type Props = {
   onRowClick: VoidFunction;
 };
 
-
-
 export default function RequestTableRow({ row, onRowClick }: Props) {
   const { code, name, agency, service, createdByAdmin, customer, createdAt, description, status } =
     row;
 
   const parseStatus = (status: RequestStatus) => {
     if (status === 'pending') {
-      return <Chip label="Pending" />;
+      return <Chip label="Pending" size="small" />;
     } else if (status === 'preparing') {
-      return <Chip label="Preparing" color="info" />;
+      return <Chip label="Preparing" color="info" size="small" />;
     } else if (status === 'rejected') {
-      return <Chip label="Rejected" color="error" />;
+      return <Chip label="Rejected" color="error" size="small" />;
     } else if (status === 'resolving') {
-      return <Chip label="Resolving" color="warning" />;
+      return <Chip label="Resolving" color="warning" size="small" />;
     } else if (status === 'resolved') {
-      return <Chip label="Resolved" color="success" />;
+      return <Chip label="Resolved" color="success" size="small" />;
     } else if (status === 'editing') {
-      return <Chip label="Editing" color="secondary" />;
+      return <Chip label="Editing" color="secondary" size="small" />;
     } else if (status === 'canceled') {
-      return <Chip label="Canceled" color="error" />;
+      return <Chip label="Canceled" color="error" size="small" />;
+    } else if (status === 'closed') {
+      return <Chip label="Closed" color="success" size="small" />;
     }
-    return <Chip label="Default" />;
+    return <Chip label="Default" size="small" />;
   };
 
   return (

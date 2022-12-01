@@ -17,6 +17,7 @@ import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
+import uploadFirebase from 'src/utils/uploadFirebase';
 import * as Yup from 'yup';
 
 type Props = {
@@ -191,6 +192,16 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     [setValue]
   );
 
+  const onUploadClick = async () => {
+    //
+    const images = values.images || [];
+    const urlList = await Promise.all(
+      images.map(async (item) => uploadFirebase(item, user?.account?.id ?? 'other'))
+    );
+    console.log(urlList);
+  };
+
+  // input cua ham la files
   const handleDropMultiple = useCallback(
     (acceptedFiles) => {
       const images = values.images || [];
@@ -215,7 +226,6 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     const filteredItems = values.images?.filter((_file) => _file !== file);
     setValue('images', filteredItems);
   };
-
 
   return (
     <>
@@ -251,7 +261,6 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
             </Stack>
           )}
         </Card>
-        <RHFUploadSingleFile name="cover" maxSize={3145728} onDrop={handleDropSingle} />
         <RHFUploadMultiFile
           showPreview
           name="images"
@@ -259,7 +268,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
           onDrop={handleDropMultiple}
           onRemove={handleRemove}
           onRemoveAll={handleRemoveAll}
-          onUpload={() => console.log('ON UPLOAD')}
+          onUpload={onUploadClick}
         />
       </FormProvider>
       <ConfirmDialog

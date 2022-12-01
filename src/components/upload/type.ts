@@ -23,6 +23,7 @@ export interface UploadMultiFileProps extends DropzoneOptions {
   files: (File | string)[];
   error?: boolean;
   showPreview?: boolean;
+  showButton?: boolean;
   sx?: SxProps<Theme>;
   helperText?: ReactNode;
   onUpload?: VoidFunction;

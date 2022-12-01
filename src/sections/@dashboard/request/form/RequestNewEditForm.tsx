@@ -14,6 +14,7 @@ import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
+import uploadFirebase from 'src/utils/uploadFirebase';
 import * as Yup from 'yup';
 import RequestRejectDialog from '../dialog/RequestRejectDialog';
 import TechnicianDialog from '../dialog/TechnicianDialog';
@@ -54,6 +55,8 @@ const parseStatus = (status: RequestStatus) => {
     return <Chip label="Editing" color="secondary" size="small" />;
   } else if (status === 'canceled') {
     return <Chip label="Canceled" color="error" size="small" />;
+  } else if (status === 'closed') {
+    return <Chip label="Closed" color="success" size="small" />;
   }
   return <Chip label="Default" size="small" />;
 };
@@ -313,23 +316,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const deleteRequest = useCallback(async (data: any) => {
-    try {
-      const response = await axios.put('/api/requests/disable_request_by_id', {}, { params: data });
-
-      enqueueSnackbar('Disable request successfully', { variant: 'success' });
-      if (isCustomer) {
-        navigate(PATH_DASHBOARD.customer.request.root);
-      } else {
-        navigate(PATH_DASHBOARD.admin.request.root);
-      }
-    } catch (error) {
-      enqueueSnackbar('Disable request failed', { variant: 'error' });
-      console.error(error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const updateTicket = useCallback(async (data: any) => {
     try {
       const response = await axios.post(
@@ -409,16 +395,25 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch('agency')]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     if (isEdit) {
       if (currentStatus === 'editing') {
+        const files = data.ticket.map(({ files }) => files); // lấy danh sách files: FILE
+        const response = await Promise.all(
+          files.map((e) => Promise.all(e.map((item) => uploadFirebase(item, user?.account?.id))))
+        );
+
         const params = {
-          ticket: data.ticket.map(({ device, solution, description }) => ({
-            device_id: device.id,
-            description: description,
-            solution: solution,
-            img:[],
-          })),
+          ticket: data.ticket.map((ticket, index) => {
+            const { device, solution, description, img } = ticket;
+
+            return {
+              device_id: device.id,
+              description: description,
+              solution: solution,
+              img: [...img, ...response[index]],
+            };
+          }),
         };
         updateTicket(params);
       } else {
@@ -585,6 +580,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               {currentRequest?.startTime &&
                 (currentStatus === 'resolving' ||
                   currentStatus === 'resolved' ||
+                  currentStatus === 'closed' ||
                   currentStatus === 'editing') && (
                   <Grid item xs={12} md={6}>
                     <TextField
@@ -610,7 +606,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                     />
                   </Grid>
                   {currentRequest?.endTime &&
-                    (currentStatus === 'resolved' || currentStatus === 'editing') && (
+                    (currentStatus === 'resolved' ||
+                      currentStatus === 'closed' ||
+                      currentStatus === 'editing') && (
                       <Grid item xs={12} md={6}>
                         <TextField
                           label="End Time"
@@ -715,11 +713,14 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               )}
             </Grid>
           </Card>
-          {(currentStatus === 'editing' || currentStatus === 'resolved') && (
+          {(currentStatus === 'editing' ||
+            currentStatus === 'closed' ||
+            currentStatus === 'resolved') && (
             <RequestNewEditTicketForm
               requestId={id}
               agencyId={watch('agency').id}
               editable={currentStatus === 'editing'}
+              status={currentStatus}
             />
           )}
           <Box mt={3} display="flex" justifyContent="end" textAlign="end" gap={2}>
@@ -753,14 +754,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                 Reopen
               </Button>
             )}
-            {currentStatus === 'pending'  &&
-              !isCustomer &&
-              editPage &&
-              watch('technician') && (
-                <Button variant="contained" color="info" onClick={handleConfirm}>
-                  Confirm
-                </Button>
-              )}
+            {currentStatus === 'pending' && !isCustomer && editPage && watch('technician') && (
+              <Button variant="contained" color="info" onClick={handleConfirm}>
+                Confirm
+              </Button>
+            )}
             {((currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||
               (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
               (currentStatus === 'editing' && !isCustomer)) &&

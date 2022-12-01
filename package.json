@@ -52,6 +52,7 @@
     "rehype-raw": "^6.1.1",
     "simplebar": "^5.3.6",
     "simplebar-react": "^2.3.6",
+    "swiper": "^8.4.5",
     "yup": "^0.32.11"
   },
   "devDependencies": {

@@ -25,6 +25,7 @@ const DropZoneStyle = styled('div')(({ theme }) => ({
 export default function UploadMultiFile({
   error,
   showPreview = false,
+  showButton = true,
   files,
   onUpload,
   onRemove,
@@ -59,7 +60,7 @@ export default function UploadMultiFile({
 
       <MultiFilePreview files={files} showPreview={showPreview} onRemove={onRemove} />
 
-      {files.length > 0 && (
+      {showButton && files.length > 0 && (
         <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
           <Button color="inherit" size="small" onClick={onRemoveAll}>
             Remove all

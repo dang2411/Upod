@@ -15,6 +15,7 @@ const STATUS_OPTIONS = [
   'editing',
   'rejected',
   'canceled',
+  'closed'
 ];
 export default function RequestTableToolbar({
   filterText,

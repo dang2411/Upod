@@ -8,7 +8,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
-import { FormProvider, RHFAutocomplete, RHFTextField, RHFUploadMultiFile } from 'src/components/hook-form';
+import {
+  FormProvider,
+  RHFAutocomplete,
+  RHFTextField,
+  RHFUploadMultiFile,
+} from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
@@ -65,7 +70,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     description: currentContract?.description || '',
     frequencyMaintain: currentContract?.frequencyMaintain || 0,
     service: currentContract?.service,
-    files: [],
+    images: currentContract?.images || [],
   };
 
   const fetchCustomer = useCallback(async () => {
@@ -182,6 +187,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     control,
     watch,
     getValues,
+    setValue,
     formState: { isSubmitting },
   } = methods;
 
@@ -234,13 +240,39 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
 
   const editPage = isEdit && currentContract;
 
-  // const newPage = !isEdit && !currentContract;
+  const newPage = !isEdit && !currentContract;
 
   // const detailPage = !isEdit && currentContract;
 
   const serviceList = services.filter(
     (x: { id: string; name: string }) => !services.find((y: any) => y.value?.id === x.id)
   ) as any[];
+
+  const values = watch();
+  const handleDropMultiple = useCallback(
+    (acceptedFiles) => {
+      const images = values.images || [];
+
+      setValue('images', [
+        ...images,
+        ...acceptedFiles.map((file: Blob | MediaSource) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        ),
+      ]);
+    },
+    [setValue, values.images]
+  );
+
+  const handleRemoveAll = () => {
+    setValue('images', []);
+  };
+
+  const handleRemove = (file: File | string) => {
+    const filteredItems = values.images?.filter((_file) => _file !== file);
+    setValue('images', filteredItems);
+  };
 
   return (
     <>
@@ -376,22 +408,24 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                 />
               </Stack>
             </Card>
+            
           </Grid>
         </Grid>
-        {/* {!disable && (
-          <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            {editPage && !isCustomer && (
-              <Button variant="outlined" color="error" onClick={onDeleteClick}>
-                Delete
-              </Button>
-            )}
-            {!isEdit && (
-              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                Create
-              </LoadingButton>
-            )}
-          </Stack>
-        )} */}
+        {newPage && (
+          <>
+            <Typography variant="subtitle1">Image</Typography>
+            <RHFUploadMultiFile
+              showPreview
+              name="images"
+              maxSize={3145728}
+              onDrop={handleDropMultiple}
+              onRemove={handleRemove}
+              onRemoveAll={handleRemoveAll}
+              onUpload={() => console.log('ON UPLOAD')}
+            />
+          </>
+        )}
+
         {!disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             {!isEdit && (
