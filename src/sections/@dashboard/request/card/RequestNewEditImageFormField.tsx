@@ -5,15 +5,18 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
+import "swiper/css/navigation";
 
 import { useCallback, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { RHFUploadMultiFile } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import uploadFirebase from 'src/utils/uploadFirebase';
-import { Pagination } from 'swiper';
+import { Pagination, Navigation } from 'swiper';
 import RequestNewEditImageCard from './RequestNewEditImageCard';
 import Iconify from 'src/components/Iconify';
+import { indexOf } from 'lodash';
+import { fileURLToPath } from 'url';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
@@ -56,9 +59,10 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
     setValue(name, []);
   };
 
-  const handleCloseClick = () => {
-    console.log(getValues(image));
-    // setValue(name, getValues(image));
+  const handleCloseClick = (img: File | string) => {
+    const filteredItems = getValues(image)?.filter((_file) => _file !== img);
+    setSwipers(filteredItems);
+    setValue(image, filteredItems);
   };
 
   const handleRemove = (file: File | string) => {
@@ -70,16 +74,28 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
     <Box p={3}>
       <Swiper
         pagination={{
-          dynamicBullets: true,
+          type: 'fraction',
         }}
-        modules={[Pagination]}
+        navigation={true}
+        modules={[Pagination, Navigation]}
         className="mySwiper"
       >
         {Array.from(swipers).map((img: any, index) => (
           <SwiperSlide key={index}>
             {currentStatus === 'editing' && (
-              <Button onClick={handleCloseClick} sx={{ float: 'right' }}>
-                <Iconify icon="charm:circle-cross" sx={{ width: 20, height: 20 }} />
+              <Button
+                key={img}
+                variant="outlined"
+                sx={{
+                  float: 'right',
+                  '&:hover': {
+                    backgroundColor: 'secondary',
+                    opacity: [0.5, 0.5, 0.5],
+                  },
+                }}
+                onClick={() => handleCloseClick(img)}
+              >
+                Remove
               </Button>
             )}
 
