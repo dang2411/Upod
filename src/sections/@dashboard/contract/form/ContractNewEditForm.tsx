@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
-import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
+import { FormProvider, RHFAutocomplete, RHFTextField, RHFUploadMultiFile } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
@@ -65,6 +65,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     description: currentContract?.description || '',
     frequencyMaintain: currentContract?.frequencyMaintain || 0,
     service: currentContract?.service,
+    files: [],
   };
 
   const fetchCustomer = useCallback(async () => {
