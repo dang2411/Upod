@@ -519,11 +519,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   return (
     <>
-      {isLoading && (
-        <Box sx={{ minWidth: '100%', display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      )}
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         <Stack spacing={3}>
           {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />}
@@ -828,6 +823,17 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           title="Reject request"
         />
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <RequestRejectDialog
         open={openCancelDialog}
         onClose={onCloseCancelDialog}

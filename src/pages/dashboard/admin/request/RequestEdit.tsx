@@ -80,7 +80,17 @@ export default function RequestEdit() {
   const title = request?.name || 'Request';
 
   if (!request) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (

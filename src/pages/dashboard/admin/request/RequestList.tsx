@@ -194,8 +194,14 @@ export default function RequestList() {
 
         <Card>
           {isLoading && (
-            <Box sx={{ minWidth: '100%', display: 'flex' }}>
-              <CircularProgress />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
             </Box>
           )}
           {/* <Tabs
