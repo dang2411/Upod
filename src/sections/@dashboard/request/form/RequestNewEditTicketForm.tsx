@@ -105,7 +105,7 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
                       />
                     </Grid>
                     <Grid item md={8} xs={12}>
-                      <Stack spacing={2}>
+                      <Stack spacing={6}>
                         <RHFAutocomplete
                           name={`ticket[${index}].device`}
                           label="Device"
@@ -153,7 +153,7 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
             )}
           </Stack>
           {editable && (
-            <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={2}>
+            <Stack mt={2} direction="row" justifyContent="start" textAlign="start" spacing={4}>
               <Button variant="outlined" color="info" onClick={handleAppend}>
                 Add
               </Button>

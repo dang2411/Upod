@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -24,6 +25,7 @@ import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTabl
 import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
 import axiosInstance from 'src/utils/axios';
 import useAuth from 'src/hooks/useAuth';
+import axios from 'axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -32,6 +34,7 @@ const TABLE_HEAD = [
   { id: 'createdAt', label: 'Created At', align: 'left' },
   { id: 'expiredAt', label: 'Expired At', align: 'left' },
   { id: 'is_expire', label: 'Available', align: 'left' },
+  { id: 'action', lable: '', align: 'left' },
 ];
 
 export default function ContractList() {
@@ -40,6 +43,8 @@ export default function ContractList() {
   const navigate = useNavigate();
 
   const [filterText, setFilterText] = useState('');
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleBtnClick = () => {
     navigate(PATH_DASHBOARD.admin.contract.new);
@@ -70,6 +75,29 @@ export default function ContractList() {
 
   const { user } = useAuth();
 
+  const approveContract = useCallback(async (value) => {
+    try {
+      const response: any = await axios.put(
+        '/api/customers/approve_contract_by_id',
+        {},
+        {
+          params: { cus_id: user?.account?.id, con_id: value },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+        enqueueSnackbar('Approve successfully', { variant: 'success' });
+      } else {
+        setIsLoading(false);
+        enqueueSnackbar(response.message || 'Approve failed', { variant: 'error' });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar('Approve failed', { variant: 'error' });
+      console.error(error);
+    }
+  }, []);
+
   const fetch = useCallback(
     async ({ value, page, rowsPerPage, filterStatus }: any) => {
       try {
@@ -94,12 +122,15 @@ export default function ContractList() {
           name: x.contract_name,
           company: x.customer.cus_name,
           is_expire: x.is_expire,
+          is_accepted: x.is_accepted,
           createdAt: x.start_date,
           expiredAt: x.end_date,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,9 +144,10 @@ export default function ContractList() {
     ),
     []
   );
-  useEffect(() => {
-    debounceSearch({ value: filterText, page, rowsPerPage });
 
+  useEffect(() => {
+    setIsLoading(true);
+    debounceSearch({ value: filterText, page, rowsPerPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 
@@ -142,7 +174,17 @@ export default function ContractList() {
             { name: 'Listing' },
           ]}
         />
-
+        {isLoading && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {<CircularProgress />}
+          </Box>
+        )}
         <Card>
           <ContractTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
@@ -159,6 +201,7 @@ export default function ContractList() {
               <TableBody>
                 {data.map((row: any) => (
                   <ContractTableRow
+                    isCustomer={true}
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.id)}
@@ -169,8 +212,6 @@ export default function ContractList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

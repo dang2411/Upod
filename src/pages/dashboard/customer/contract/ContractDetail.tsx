@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -13,12 +13,15 @@ export default function ContractDetail() {
 
   const { id = '' } = useParams();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const [data, setData] = useState<any>(null);
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/contracts/get_contract_details_by_id`, {
         params: { id },
       });
@@ -36,6 +39,8 @@ export default function ContractDetail() {
         attachment: response.data.attachment,
         img: response.data.img,
         is_expire: response.data.is_expire,
+        is_accepted: response.data.is_accepted,
+        reject_reason: response.data.reject_reason,
         terminal_content: response.data.terminal_content,
         description: response.data.description,
         frequencyMaintain: response.data.frequency_maintain_time,
@@ -57,13 +62,24 @@ export default function ContractDetail() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = data?.name || 'Contract';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (

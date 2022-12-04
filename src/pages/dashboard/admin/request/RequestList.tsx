@@ -1,6 +1,7 @@
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
-  Button,
+  Typography,
   Card,
   Container,
   FormControlLabel,
@@ -9,6 +10,8 @@ import {
   TableBody,
   TableContainer,
   TablePagination,
+  Grid,
+  CircularProgress,
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { useSnackbar } from 'notistack';
@@ -101,6 +104,8 @@ export default function RequestList() {
 
   const [total, setTotal] = useState(0);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const isNotFound = !data.length;
@@ -138,6 +143,7 @@ export default function RequestList() {
             } as Request)
         );
         setData(result);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
@@ -163,6 +169,7 @@ export default function RequestList() {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterStatus, filterText]);
@@ -186,6 +193,17 @@ export default function RequestList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           {/* <Tabs
             allowScrollButtonsMobile
             variant="scrollable"
@@ -218,7 +236,6 @@ export default function RequestList() {
                 rowCount={data.length}
                 numSelected={selected.length}
               />
-
               <TableBody>
                 {data.map((row: Request) => (
                   <RequestTableRow
@@ -227,13 +244,6 @@ export default function RequestList() {
                     onRowClick={() => handleRowClick(row.id)}
                   />
                 ))}
-                {/* 
-                <TableEmptyRows
-                  height={denseHeight}
-                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

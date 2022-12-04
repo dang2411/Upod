@@ -1,6 +1,16 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Card, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Chip,
+  CircularProgress,
+  Grid,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -105,6 +115,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const id = currentRequest?.id;
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
 
   const defaultValues = {
@@ -132,6 +144,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const fetchCustomer = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get('/api/customers/get_all_customers', {
         params: { pageSize: 10000, pageNumber: 1 },
       });
@@ -141,6 +154,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           name: x.name,
         }))
       );
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -149,6 +163,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const fetchAgencies = useCallback(async () => {
     try {
+      setIsLoading(true);
       var response;
       if (isCustomer) {
         response = await axios.get('/api/customers/get_agencies_by_customer_id', {
@@ -165,6 +180,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           phone: isCustomer ? x.phone : x.telephone,
         }))
       );
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -173,6 +189,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const fetchServices = useCallback(async () => {
     try {
+      setIsLoading(true);
       var response;
       if (isCustomer) {
         response = await axios.get('/api/customers/get_services_by_customer_id', {
@@ -182,6 +199,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         response = await axios.get('/api/services/get_all_services');
       }
       setServices(response.data.map((x) => ({ id: x.id, name: x.service_name })));
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -190,11 +208,13 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const updateRequest = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       if (isCustomer) {
         const response = await axios.put('/api/requests/update_request_by_id', data, {
           params: { id: currentRequest?.id },
         });
         if (response.status === 200 || response.status === 201) {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.customer.request.root);
           enqueueSnackbar('Update request successfully', { variant: 'success' });
         }
@@ -203,6 +223,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           params: { id: currentRequest?.id },
         });
         if (response.status === 200 || response.status === 201) {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.admin.request.root);
           enqueueSnackbar('Update request successfully', { variant: 'success' });
         }
@@ -216,11 +237,13 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const confirmRequest = useCallback(async (data: Technician) => {
     try {
+      setIsLoading(true);
       const response = await axios.put('/api/requests/mapping_technician_to_request_by_id', data, {
         params: { request_id: currentRequest?.id, technician_id: data.id },
       });
 
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.request.root);
         enqueueSnackbar('Confirm request successfully', { variant: 'success' });
       }
@@ -233,6 +256,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const rejectRequest = useCallback(async (data: string) => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/requests/reject_request_by_id',
         {},
@@ -243,6 +267,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
       setValue('status', 'reject');
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.request.root);
         enqueueSnackbar('Reject request successfully', { variant: 'success' });
       }
@@ -255,15 +280,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const createRequest = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       if (isCustomer) {
         const response = await axios.post('/api/requests/create_request', data);
         if (response.status === 200 || response.status === 201) {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.customer.request.root);
           enqueueSnackbar('Create request successfully', { variant: 'success' });
         }
       } else {
         const response = await axios.post('/api/requests/create_request_by_admin', data);
         if (response.status === 200 || response.status === 201) {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.admin.request.root);
           enqueueSnackbar('Create request successfully', { variant: 'success' });
         }
@@ -277,9 +305,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const reopenRequest = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       const response = await axios.put('/api/requests/reopen_request_by_id', {}, { params: data });
       setValue('status', 'editing');
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.request.root);
         enqueueSnackbar('Reopen request successfully', { variant: 'success' });
       }
@@ -292,6 +322,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const cancelRequest = useCallback(async (data: string) => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/requests/cancel_request_by_id',
         { reason: data },
@@ -301,9 +332,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
       );
       if (response.status === 200 || response.status === 201) {
         if (!isCustomer) {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.admin.request.root);
           enqueueSnackbar('Cancel request successfully', { variant: 'success' });
         } else {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.customer.request.root);
           enqueueSnackbar('Cancel request successfully', { variant: 'success' });
         }
@@ -318,6 +351,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const updateTicket = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       const response = await axios.post(
         '/api/technicians/update_device_of_ticket_by_request_id',
         data,
@@ -326,6 +360,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
         }
       );
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.request.root);
         enqueueSnackbar('Update ticket successfully', { variant: 'success' });
       }
@@ -788,6 +823,17 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           title="Reject request"
         />
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <RequestRejectDialog
         open={openCancelDialog}
         onClose={onCloseCancelDialog}

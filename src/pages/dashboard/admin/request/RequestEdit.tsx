@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container, Grid } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -9,11 +9,14 @@ import { PATH_DASHBOARD } from 'src/routes/paths';
 import RequestNewEditForm from 'src/sections/@dashboard/request/form/RequestNewEditForm';
 import axiosInstance from 'src/utils/axios';
 import { Request } from 'src/@types/request';
+import { LoadingButton } from '@mui/lab';
 
 export default function RequestEdit() {
   const { themeStretch } = useSettings();
 
   const { id = '' } = useParams();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [request, setRequest] = useState<Request | null>(null);
 
@@ -23,6 +26,7 @@ export default function RequestEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/requests/get_request_details_by_id`, {
         params: { id },
       });
@@ -69,17 +73,33 @@ export default function RequestEdit() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = request?.name || 'Request';
 
   if (!request) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (
     <Page title="Request: Edit">
+      {isLoading && (
+        <Box sx={{ minWidth: '100%', display: 'flex' }}>
+          <CircularProgress />
+        </Box>
+      )}
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
@@ -95,7 +115,6 @@ export default function RequestEdit() {
             { name: title },
           ]}
         />
-
         <RequestNewEditForm isEdit={true} currentRequest={request} />
       </Container>
     </Page>

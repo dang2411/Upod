@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -38,6 +39,8 @@ export default function ContractList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filterText, setFilterText] = useState('');
 
@@ -87,11 +90,14 @@ export default function ContractList() {
           name: x.contract_name,
           company: x.customer.cus_name,
           is_expire: x.is_expire,
+          is_accepted: x.is_accepted,
           createdAt: x.start_date,
           expiredAt: x.end_date,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
@@ -106,6 +112,7 @@ export default function ContractList() {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
@@ -138,7 +145,17 @@ export default function ContractList() {
             </Button>
           }
         />
-
+        {isLoading && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {<CircularProgress />}
+          </Box>
+        )}
         <Card>
           <ContractTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
@@ -155,6 +172,7 @@ export default function ContractList() {
               <TableBody>
                 {data.map((row: any) => (
                   <ContractTableRow
+                    isCustomer={false}
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.id)}

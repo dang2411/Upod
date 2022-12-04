@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
-import "swiper/css/navigation";
+import 'swiper/css/navigation';
 
 import { useCallback, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -82,6 +82,7 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
       >
         {Array.from(swipers).map((img: any, index) => (
           <SwiperSlide key={index}>
+            <RequestNewEditImageCard image={img} />
             {currentStatus === 'editing' && (
               <Button
                 key={img}
@@ -98,8 +99,6 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
                 Remove
               </Button>
             )}
-
-            <RequestNewEditImageCard image={img} />
           </SwiperSlide>
         ))}
         {currentStatus === 'editing' && (

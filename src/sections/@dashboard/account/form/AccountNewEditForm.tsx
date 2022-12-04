@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Stack } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Stack } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,6 +27,8 @@ type Props = {
 
 export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const AccountSchema = Yup.object().shape({
     role: Yup.object().required('Role is required'),
@@ -66,9 +68,11 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const createAccount = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       const response: any = await axios.post('/api/accounts/create_account', data);
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Create account successfully', { variant: 'success' });
+        setIsLoading(true);
         navigate(PATH_DASHBOARD.admin.account.root);
       } else {
         enqueueSnackbar(response.message || 'Create account failed', { variant: 'error' });
@@ -229,6 +233,11 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   return (
     <>
+      {isLoading && (
+        <Box sx={{ minWidth: '100%', display: 'flex' }}>
+          <CircularProgress />
+        </Box>
+      )}
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         <Card sx={{ p: 3 }}>
           <Stack spacing={3}>
@@ -261,7 +270,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
             </Stack>
           )}
         </Card>
-        <RHFUploadMultiFile
+        {/* <RHFUploadMultiFile
           showPreview
           name="images"
           maxSize={3145728}
@@ -269,7 +278,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
           onRemove={handleRemove}
           onRemoveAll={handleRemoveAll}
           onUpload={onUploadClick}
-        />
+        /> */}
       </FormProvider>
       <ConfirmDialog
         open={openDeleteDialog}

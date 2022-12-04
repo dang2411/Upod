@@ -95,7 +95,7 @@ export default function DeviceDetail() {
         />
         <Grid container>
           <Grid item md={4} xs={12}>
-            <DeviceNewEditImageContainer listImage={data.img}/>
+            <DeviceNewEditImageContainer listImage={data.img} maxHeight="500px" />
           </Grid>
           <Grid item md={8} xs={12}>
             <DeviceNewEditForm isEdit={false} currentDevice={data} />

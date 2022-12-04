@@ -1,6 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
-import { Autocomplete, Button, Card, Grid, Stack, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Grid,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { add } from 'date-fns';
 import { useSnackbar } from 'notistack';
@@ -20,6 +31,11 @@ import { PATH_DASHBOARD } from 'src/routes/paths';
 import ContractTerminalDialog from '../dialog/ContractTerminalDialog';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
+import Iconify from 'src/components/Iconify';
+import { SwiperSlide } from 'swiper/react';
+import uploadFirebase from 'src/utils/uploadFirebase';
+import ContractNewEditImageCard from '../card/ContractNewEditImageCard';
+import ContractNewEditImageContainer from '../card/ContractNewEditImageContainer';
 
 type Props = {
   currentContract: any;
@@ -40,15 +56,20 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         test: (arr) => arr!.length > 0,
       }),
     frequencyMaintain: Yup.number().required('Frequency maintain is required'),
+    contractPrice: Yup.number(),
   });
 
   const { user } = useAuth();
 
   const [services, setServices] = useState([]);
 
+  const [file, setFile] = useState<any>();
+
   const [customers, setCustomers] = useState([]);
 
   const isCustomer = user?.account?.roleName === 'Customer';
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -65,7 +86,9 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       : add(new Date(), { months: 6 }),
     attachment: currentContract?.attachment || '',
     is_expire: currentContract?.is_expire,
+    is_accepted: currentContract?.is_accepted,
     terminal_content: currentContract?.terminal_content,
+    reject_reason: currentContract?.reject_reason,
     img: currentContract?.img || '',
     description: currentContract?.description || '',
     frequencyMaintain: currentContract?.frequencyMaintain || 0,
@@ -116,7 +139,19 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     setToggle: setOpenTerminateDialog,
   } = useToggle(false);
 
+  const {
+    toggle: openRejectDialog,
+    onClose: onCloseRejectDialog,
+    setToggle: setOpenRejectDialog,
+  } = useToggle(false);
+
+  const onConfirmReject = (value: string) => {
+    setIsLoading(true);
+    RejectContract(value);
+  };
+
   const onConfirmTerminate = (value: string) => {
+    setIsLoading(true);
     TerminateContract(value);
   };
 
@@ -130,15 +165,43 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         }
       );
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.contract.root);
         enqueueSnackbar('Terminal contract successfully', { variant: 'success' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Terminal contract failed', { variant: 'error' });
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const RejectContract = useCallback(async (data: string) => {
+    try {
+      const response = await axios.put(
+        '/api/customers/reject_contract_by_id',
+        { reject_reason: data },
+        {
+          params: { cus_id: user?.account?.id, con_id: currentContract?.id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+        navigate(PATH_DASHBOARD.customer.contract.root);
+        enqueueSnackbar('Reject successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar('Reject failed', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onRejectClick = (event) => {
+    setOpenRejectDialog(true);
+  };
 
   const onTerminateClick = (event) => {
     setOpenTerminateDialog(true);
@@ -148,6 +211,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     try {
       const response: any = await axios.post('/api/contracts/create_contract', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.contract.root);
         enqueueSnackbar('Create contract successfully', { variant: 'success' });
       } else {
@@ -158,6 +222,30 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const approveContract = useCallback(async () => {
+    try {
+      const response: any = await axios.put(
+        '/api/customers/approve_contract_by_id',
+        {},
+        {
+          params: { cus_id: user?.account?.id, con_id: currentContract.id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+        navigate(PATH_DASHBOARD.customer.contract.root);
+        enqueueSnackbar('Approve successfully', { variant: 'success' });
+      } else {
+        setIsLoading(false);
+        enqueueSnackbar(response.message || 'Approve failed', { variant: 'error' });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar('Approve failed', { variant: 'error' });
+      console.error(error);
+    }
   }, []);
 
   const deleteContract = useCallback(async () => {
@@ -191,16 +279,25 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = (data: any) => {
-    if (isEdit) {
-      //
+  const onUploadClick = () =>
+    Promise.all(
+      values.images.map(async (item) => uploadFirebase(item, user?.account?.id ?? 'other'))
+    );
+
+  const onSubmit = async (data: any) => {
+    if (isCustomer) {
+      setIsLoading(true);
+      approveContract();
     } else {
+      setIsLoading(true);
+      const fileUrl = await uploadFirebase(file, user?.account?.id ?? 'other');
+      const urlList = await onUploadClick();
       const params = {
         customer_id: data.customer.id,
         contract_name: data.name,
         contract_price: data.contractPrice,
-        attachment: undefined,
-        img: undefined,
+        attachment: fileUrl,
+        img: urlList,
         description: data.description,
         start_date: data.startDate,
         end_date: data.endDate,
@@ -210,7 +307,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
       createContract(params);
     }
   };
-  const is_expire = currentContract != null && currentContract.is_expire === true;
+  const is_expire = defaultValues.is_expire;
 
   useEffect(() => {
     fetchCustomer();
@@ -264,6 +361,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     },
     [setValue, values.images]
   );
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    // @ts-ignore: Object is possibly 'null'.
+    setFile(e.target.files[0]);
+  };
 
   const handleRemoveAll = () => {
     setValue('images', []);
@@ -331,13 +433,20 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                   multiline
                   minRows={4}
                 />
-                {is_expire && (
+                {defaultValues.terminal_content && (
                   <RHFTextField
                     name="terminal_content"
                     label="Terminal Content"
                     disabled={disable}
                     multiline
-                    minRows={4}
+                  />
+                )}
+                {defaultValues.reject_reason && (
+                  <RHFTextField
+                    name="reject_reason"
+                    label="Reject reason"
+                    disabled={disable}
+                    multiline
                   />
                 )}
               </Stack>
@@ -396,7 +505,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                   name="contractPrice"
                   label="Contract Price"
                   variant="outlined"
-                  fullWidth
                   type="number"
                   disabled={disable}
                 />
@@ -406,47 +514,203 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                   type="number"
                   disabled={disable}
                 />
+                {newPage && (
+                  <RHFTextField
+                    name=""
+                    label="Attachment"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <input type="file" id="myFile" name="filename" onChange={onFileChange} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    disabled={disable}
+                  />
+                )}
+
+                {!newPage &&
+                  ((is_expire && (
+                    <RHFTextField
+                      name=""
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Iconify
+                              icon="akar-icons:circle-check"
+                              sx={{ width: 20, height: 20, color: 'success.main' }}
+                            />
+                          </InputAdornment>
+                        ),
+                      }}
+                      label="Expired"
+                      disabled={disable}
+                    />
+                  )) ||
+                    (!is_expire && (
+                      <RHFTextField
+                        name=""
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Iconify
+                                icon="charm:circle-cross"
+                                sx={{ width: 20, height: 20, color: 'error.main' }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
+                        label="Expired"
+                        disabled={disable}
+                      />
+                    )))}
+                {!newPage &&
+                  ((defaultValues.is_accepted && (
+                    <RHFTextField
+                      name=""
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Iconify
+                              icon="akar-icons:circle-check"
+                              sx={{ width: 20, height: 20, color: 'success.main' }}
+                            />
+                          </InputAdornment>
+                        ),
+                      }}
+                      label="Accepted"
+                      disabled={disable}
+                    />
+                  )) ||
+                    (!defaultValues.is_accepted && (
+                      <RHFTextField
+                        name=""
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Iconify
+                                icon="charm:circle-cross"
+                                sx={{ width: 20, height: 20, color: 'error.main' }}
+                              />
+                            </InputAdornment>
+                          ),
+                        }}
+                        label="Accepted"
+                        disabled={disable}
+                      />
+                    )))}
               </Stack>
             </Card>
-            
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={2}>
+                {!newPage && (
+                  <>
+                    <Typography variant="subtitle1">Files</Typography>
+                    <RHFTextField
+                      name=""
+                      label="Attachment"
+                      value={defaultValues.attachment}
+                      InputProps={{
+                        endAdornment: (
+                          <LoadingButton
+                            href={defaultValues.attachment}
+                            variant="contained"
+                            type="submit"
+                            size="small"
+                          >
+                            Download
+                          </LoadingButton>
+                        ),
+                      }}
+                      disabled={disable}
+                    />
+                  </>
+                )}
+              </Stack>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 3 }}>
+              {!newPage && (
+                <RHFTextField
+                  name=""
+                  value={''}
+                  label="Images"
+                  InputProps={{
+                    startAdornment: (
+                      <ContractNewEditImageContainer fullWidth listImage={defaultValues.img} />
+                    ),
+                  }}
+                  disabled={disable}
+                />
+              )}
+            </Card>
           </Grid>
         </Grid>
         {newPage && (
           <>
             <Typography variant="subtitle1">Image</Typography>
-            <RHFUploadMultiFile
-              showPreview
-              name="images"
-              maxSize={3145728}
-              onDrop={handleDropMultiple}
-              onRemove={handleRemove}
-              onRemoveAll={handleRemoveAll}
-              onUpload={() => console.log('ON UPLOAD')}
-            />
+            <SwiperSlide key={'Add'}>
+              <RHFUploadMultiFile
+                showPreview
+                showButton={false}
+                name="images"
+                maxSize={3145728}
+                onDrop={handleDropMultiple}
+                onRemove={handleRemove}
+                onRemoveAll={handleRemoveAll}
+                onUpload={onUploadClick}
+              />
+            </SwiperSlide>
           </>
         )}
 
         {!disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             {!isEdit && (
-              <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-                Create
-              </LoadingButton>
+              <>
+                <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                  Create
+                </LoadingButton>
+              </>
             )}
           </Stack>
         )}
         {disable && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            {!isCustomer && !is_expire && (
+            {!isCustomer && !is_expire && defaultValues.is_accepted && (
               <>
-                <Button variant="outlined" color="error" onClick={onTerminateClick}>
+                <LoadingButton variant="outlined" color="error" onClick={onTerminateClick}>
                   Terminate
-                </Button>
+                </LoadingButton>
+              </>
+            )}
+            {isCustomer && !is_expire && !defaultValues.is_accepted && (
+              <>
+                <LoadingButton variant="outlined" color="error" onClick={onRejectClick}>
+                  Reject
+                </LoadingButton>
+                <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+                  Approve
+                </LoadingButton>
               </>
             )}
           </Stack>
         )}
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
@@ -459,6 +723,14 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         onClose={onCloseTerminateDialog}
         onReject={onConfirmTerminate}
         title="Terminate contract"
+        text="Terminate content"
+      />
+      <ContractTerminalDialog
+        open={openRejectDialog}
+        onClose={onCloseRejectDialog}
+        onReject={onConfirmReject}
+        title="Reject contract"
+        text="Reaject reason"
       />
     </>
   );

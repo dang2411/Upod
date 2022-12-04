@@ -1,12 +1,14 @@
-import { Button, Dialog, Stack, TextField, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { Dialog, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 type Props = {
   open: boolean;
   onClose: VoidFunction;
   onReject: (description: string) => void;
+  text: string ;
   title: string;
 };
-export default function ContractTerminalDialog({ open, onClose, onReject, title }: Props) {
+export default function ContractTerminalDialog({ open, onClose, onReject, title, text }: Props) {
   const [value, setValue] = useState('');
 
   const handleCancel = () => {
@@ -28,17 +30,17 @@ export default function ContractTerminalDialog({ open, onClose, onReject, title 
         <TextField
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          placeholder="Terminal content"
+          placeholder={text}
           multiline
           minRows={5}
         />
         <Stack sx={{ width: '100%' }} direction="row" justifyContent="end" spacing={2}>
-          <Button onClick={handleCancel} color="info" variant="outlined">
+          <LoadingButton onClick={handleCancel} color="info" variant="outlined">
             Cancel
-          </Button>
-          <Button variant="contained" color="error" onClick={handleConfirm}>
+          </LoadingButton>
+          <LoadingButton variant="contained" color="error" onClick={handleConfirm}>
             Confirm
-          </Button>
+          </LoadingButton>
         </Stack>
       </Stack>
     </Dialog>

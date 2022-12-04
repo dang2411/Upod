@@ -8,6 +8,7 @@ import { _request } from 'src/_mock/_requests';
 
 export default function RequestDetail() {
   const { themeStretch } = useSettings();
+  
 
   const { id = '' } = useParams();
 
