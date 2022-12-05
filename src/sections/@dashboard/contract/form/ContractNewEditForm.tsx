@@ -34,7 +34,6 @@ import * as Yup from 'yup';
 import Iconify from 'src/components/Iconify';
 import { SwiperSlide } from 'swiper/react';
 import uploadFirebase from 'src/utils/uploadFirebase';
-import ContractNewEditImageCard from '../card/ContractNewEditImageCard';
 import ContractNewEditImageContainer from '../card/ContractNewEditImageContainer';
 
 type Props = {
@@ -49,11 +48,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     name: Yup.string().required('Name is required'),
     startDate: Yup.date().required('Start date is required'),
     endDate: Yup.date().required('End date is required'),
+    customer: Yup.object().required('Customer is required'),
     service: Yup.array()
       .required('Service is required')
       .test({
         message: 'At least one service is required',
-        test: (arr) => arr!.length > 0,
+        test: (arr) => arr!?.length > 0,
       }),
     frequencyMaintain: Yup.number().required('Frequency maintain is required'),
     contractPrice: Yup.number(),
@@ -215,9 +215,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         navigate(PATH_DASHBOARD.admin.contract.root);
         enqueueSnackbar('Create contract successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create contract failed', { variant: 'error' });
       console.error(error);
     }
@@ -285,12 +287,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     );
 
   const onSubmit = async (data: any) => {
+    setIsLoading(true);
     if (isCustomer) {
-      setIsLoading(true);
       approveContract();
     } else {
-      setIsLoading(true);
-      const fileUrl = await uploadFirebase(file, user?.account?.id ?? 'other');
+      let fileUrl = '';
+      if (file) fileUrl = await uploadFirebase(file, user?.account?.id ?? 'other');
       const urlList = await onUploadClick();
       const params = {
         customer_id: data.customer.id,

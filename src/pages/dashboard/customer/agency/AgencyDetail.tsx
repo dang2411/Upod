@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  CircularProgress,
   Container,
   DialogContent,
   DialogTitle,
@@ -44,13 +45,14 @@ export default function AgencyDetail() {
     { id: 'name', label: 'Name', align: 'left' },
     { id: 'customer', label: 'Customer', align: 'left' },
     { id: 'agency', label: 'Agency', align: 'left' },
-    { id: 'service', label: 'Service', align: 'left' },
     { id: 'type', label: 'Type', align: 'left' },
+    { id: 'created_by', label: 'Created By', align: 'left' },
   ];
 
   const navigate = useNavigate();
 
   const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [device, setDevice] = useState<any>({});
 
@@ -125,6 +127,7 @@ export default function AgencyDetail() {
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/agencies/get_agency_details`, {
         params: { id },
       });
@@ -161,6 +164,7 @@ export default function AgencyDetail() {
 
   const fetchDevice = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/devices/get_device_details_by_id`, {
         params: { id },
       });
@@ -195,8 +199,10 @@ export default function AgencyDetail() {
       };
       if (response.status === 200) {
         setDevice(result);
+        setIsLoading(false);
       }
     } catch (e) {
+      setIsLoading(false);
       console.error(e);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,11 +219,11 @@ export default function AgencyDetail() {
       const result = Array.from(response.data).map((x: any) => ({
         id: x.id,
         customer: x.customer,
-        service: x.service,
         code: x.code,
         name: x.device_name,
         agency: x.agency,
         type: x.devicetype.device_type_name,
+        technician: x.technician,
       }));
       setDevices(result);
     } catch (error) {
@@ -230,6 +236,8 @@ export default function AgencyDetail() {
   useEffect(() => {
     fetch(id);
     fetchListDevice();
+    console.log(devices[0]);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -240,7 +248,17 @@ export default function AgencyDetail() {
   const title = data?.name || 'Agency';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (

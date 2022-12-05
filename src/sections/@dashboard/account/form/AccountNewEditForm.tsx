@@ -69,7 +69,6 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const createAccount = useCallback(async (data: any) => {
     try {
-      setIsLoading(true);
       const response: any = await axios.post('/api/accounts/create_account', data);
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Create account successfully', { variant: 'success' });
@@ -88,7 +87,6 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const updateAccount = useCallback(async (data: any) => {
     try {
-      setIsLoading(true);
       const response = await axios.put('/api/accounts/update_account_by_id', data, {
         params: { id: currentAccount!.id },
       });
@@ -152,6 +150,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   } = methods;
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       const params = {
         id: currentAccount!.id,

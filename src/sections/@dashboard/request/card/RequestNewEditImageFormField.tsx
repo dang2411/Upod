@@ -83,7 +83,7 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
         {Array.from(swipers).map((img: any, index) => (
           <SwiperSlide key={index}>
             <RequestNewEditImageCard image={img} />
-            {currentStatus === 'editing' && (
+            {currentStatus === 'resolved' && (
               <Button
                 key={img}
                 variant="outlined"
@@ -95,13 +95,17 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
                   },
                 }}
                 onClick={() => handleCloseClick(img)}
+                color="error"
               >
-                Remove
+                <Iconify
+                  icon="fluent:delete-12-regular"
+                  sx={{ width: 25, height: 25, color: 'error.main', cursor: 'pointer' }}
+                />
               </Button>
             )}
           </SwiperSlide>
         ))}
-        {currentStatus === 'editing' && (
+        {currentStatus === 'resolved' && (
           <SwiperSlide key={'Add'}>
             <RHFUploadMultiFile
               showPreview

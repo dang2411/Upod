@@ -98,11 +98,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
     code: currentDevice?.code || '',
     name: currentDevice?.name || '',
     typeName: currentDevice?.type?.name || '',
-    ip: currentDevice?.ip || '',
-    port: currentDevice?.port || '',
     agencyName: currentDevice?.agency.name,
-    deviceAccount: currentDevice?.deviceAccount || '',
-    devicePassword: currentDevice?.devicePassword || '',
     technician: currentDevice?.technician?.name || '',
     settingDate: currentDevice?.settingDate,
     guarantyStartDate: currentDevice?.guarantyStartDate,
@@ -139,7 +135,7 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
   return (
     <>
       {/* <ImageCard image={defaultValues.image[0]} width="80%" height="80%" /> */}
-     
+
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         <Card sx={{ p: 3 }}>
           <Stack spacing={3}>
@@ -157,15 +153,6 @@ export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
               />
               <RHFTextField name="agencyName" label="Agency" disabled={disable} />
               <RHFTextField name="typeName" label="Device Type" disabled={disable} />
-              <TextField
-                label="Service"
-                value={currentDevice?.service?.name ?? ''}
-                disabled={disable}
-              />
-              <RHFTextField name="ip" label="Ip" disabled={disable} />
-              <RHFTextField name="port" label="port" disabled={disable} />
-              <RHFTextField name="deviceAccount" label="Device Account" disabled={disable} />
-              <RHFTextField name="devicePassword" label="Device Password" disabled={disable} />
               <RHFTextField name="technician" label="Created By" disabled={disable} />
               <Controller
                 name="settingDate"

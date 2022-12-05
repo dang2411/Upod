@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -14,12 +14,15 @@ export default function AreaEdit() {
 
   const { id = '' } = useParams();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const [data, setData] = useState<any>(null);
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/areas/get_area_details_by_id`, {
         params: { id },
       });
@@ -43,13 +46,24 @@ export default function AreaEdit() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = data?.name || 'Area';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
   return (
     <Page title="Area: Edit">

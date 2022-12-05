@@ -158,7 +158,6 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const createTechnician = useCallback(async (data: any) => {
     try {
-      setIsLoading(true);
       const response: any = await axios.post('/api/technicians/create_technician', data);
       if (response.status === 200 || response.status === 201) {
         setIsLoading(false);
@@ -168,7 +167,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
-    } catch (error) {
+    } catch (error) { 
       setIsLoading(false);
       enqueueSnackbar('Create technician failed', { variant: 'error' });
       console.error(error);
@@ -178,7 +177,6 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const updateTechnician = useCallback(async (data: any) => {
     try {
-      setIsLoading(true);
       const response: any = await axios.put('/api/technicians/update_technician_by_id', data, {
         params: { id: currentTechnician!.id },
       });
@@ -225,6 +223,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   }, []);
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       // update
       const params = {

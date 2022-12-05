@@ -12,6 +12,7 @@ import {
   TablePagination,
   Grid,
   CircularProgress,
+  Button,
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { useSnackbar } from 'notistack';
@@ -35,7 +36,7 @@ const STATUS_OPTIONS = [
   'preparing',
   'resolving',
   'resolved',
-  'editing',
+  'waring',
   'rejected',
   'canceled',
 ];
@@ -137,6 +138,7 @@ export default function RequestList() {
               description: x.description,
               customer: { id: x.customer.id, name: x.customer.cus_name },
               contract: { id: x.contract.id, name: x.contract.name },
+              createdBySystem: x.is_system,
               createdByAdmin: x.admin_id != null,
               status: x.request_status.toLowerCase(),
               technician: x.technician,
@@ -190,6 +192,11 @@ export default function RequestList() {
             },
             { name: 'Listing' },
           ]}
+          action={
+            <Button variant="contained" onClick={() => handleBtnClick()}>
+              Create
+            </Button>
+          }
         />
 
         <Card>

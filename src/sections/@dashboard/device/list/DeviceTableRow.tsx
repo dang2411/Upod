@@ -17,7 +17,6 @@ export default function DeviceTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{name} </TableCell>
       <TableCell align="left">{customer?.cus_name || ''} </TableCell>
       <TableCell align="left">{agency?.agency_name || ''} </TableCell>
-      <TableCell align="left">{service?.service_name || ''} </TableCell>
       <TableCell align="left">{type}</TableCell>
       <TableCell align="left">{technician?.tech_name || ''}</TableCell>
     </TableRow>

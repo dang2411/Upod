@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import Iconify from 'src/components/Iconify';
+import LoadingButton from 'src/theme/overrides/LoadingButton';
 import axios from 'src/utils/axios';
 import RequestNewEditImageFormField from '../card/RequestNewEditImageFormField';
 
@@ -47,7 +48,7 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   const fetchDevices = useCallback(async (id: string) => {
     try {
       const response = await axios.get('/api/devices/get_list_devices_by_agency_id', {
@@ -80,7 +81,7 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
         <Card sx={{ p: 3 }}>
           <Stack spacing={2}>
             <Typography variant="h6" fontWeight={600}>
-              Ticket
+              Devices
             </Typography>
             {fields.map((item: any, index) => (
               <>
@@ -105,10 +106,10 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
                       />
                     </Grid>
                     <Grid item md={8} xs={12}>
-                      <Stack spacing={6}>
+                      <Stack spacing={3}>
                         <RHFAutocomplete
                           name={`ticket[${index}].device`}
-                          label="Device"
+                          label="Device name"
                           variant="outlined"
                           options={item?.value ? [item!.value, ...deviceList] : deviceList}
                           disabled={!editable}

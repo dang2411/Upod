@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -28,7 +29,6 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'agency', label: 'Agency', align: 'left' },
-  { id: 'service', label: 'Service', align: 'left' },
   { id: 'type', label: 'Type', align: 'left' },
   { id: 'createdBy', label: 'Created By', align: 'left' },
 ];
@@ -37,6 +37,7 @@ export default function DeviceList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filterText, setFilterText] = useState('');
 
@@ -91,7 +92,9 @@ export default function DeviceList() {
           technician: x.technician,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
@@ -107,6 +110,7 @@ export default function DeviceList() {
     []
   );
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,8 +146,18 @@ export default function DeviceList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <DeviceTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
-
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
               <TableHeadCustom
@@ -167,8 +181,6 @@ export default function DeviceList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

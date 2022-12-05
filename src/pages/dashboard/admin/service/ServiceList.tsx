@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -37,6 +38,8 @@ export default function ServiceList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filterText, setFilterText] = useState('');
 
@@ -89,7 +92,9 @@ export default function ServiceList() {
           isDelete: x.is_delete,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
@@ -105,6 +110,7 @@ export default function ServiceList() {
     []
   );
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
@@ -139,8 +145,18 @@ export default function ServiceList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <ServiceTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
-
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
               <TableHeadCustom
@@ -164,8 +180,6 @@ export default function ServiceList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

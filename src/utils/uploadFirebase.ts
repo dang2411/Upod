@@ -7,7 +7,7 @@ import uuidv4 from './uuidv4.js';
  * @param file File to upload
  * @param userId folder in firebase
  */
-function uploadFirebase(file, userId): Promise<String> {
+function uploadFirebase(file, userId): Promise<string> {
   if (!file) {
     alert('Please choose a file first!');
   }

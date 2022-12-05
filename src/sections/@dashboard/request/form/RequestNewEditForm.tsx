@@ -25,6 +25,7 @@ import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import uploadFirebase from 'src/utils/uploadFirebase';
+import { isContext } from 'vm';
 import * as Yup from 'yup';
 import RequestRejectDialog from '../dialog/RequestRejectDialog';
 import TechnicianDialog from '../dialog/TechnicianDialog';
@@ -58,15 +59,15 @@ const parseStatus = (status: RequestStatus) => {
   } else if (status === 'rejected') {
     return <Chip label="Rejected" color="error" size="small" />;
   } else if (status === 'resolving') {
-    return <Chip label="Resolving" color="warning" size="small" />;
+    return <Chip label="Resolving" color="info" size="small" />;
   } else if (status === 'resolved') {
     return <Chip label="Resolved" color="success" size="small" />;
-  } else if (status === 'editing') {
-    return <Chip label="Editing" color="secondary" size="small" />;
+  } else if (status === 'warning') {
+    return <Chip label="Warning" color="warning" size="small" />;
   } else if (status === 'canceled') {
     return <Chip label="Canceled" color="error" size="small" />;
-  } else if (status === 'closed') {
-    return <Chip label="Closed" color="success" size="small" />;
+  } else if (status === 'completed') {
+    return <Chip label="Completed" color="success" size="small" />;
   }
   return <Chip label="Default" size="small" />;
 };
@@ -77,7 +78,7 @@ type Props = {
   isMaintain?: boolean;
 };
 
-export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain = false }: Props) {
+export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   const RequestSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     service: Yup.object().required('Service is required'),
@@ -117,6 +118,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const isCreatedBySystem = currentRequest?.createdBySystem === true;
+
   const isCreatedByAdmin = currentRequest?.createdBy?.role === 'Admin';
 
   const defaultValues = {
@@ -127,12 +130,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     address: currentRequest?.agency?.address || '',
     phone: currentRequest?.agency?.phone || '',
     agency: currentRequest?.agency,
-    // priority: currentRequest?.priority || 1,
     description: currentRequest?.description || '',
     customer: currentRequest?.customer,
     status: currentRequest?.status || 'pending',
     createdAt: currentRequest?.createdAt || '',
-    createdBy: isCreatedByAdmin ? 'Admin' : currentRequest?.createdBy?.name,
+    createdBy: isCreatedBySystem
+      ? 'System'
+      : isCreatedByAdmin
+      ? 'Admin'
+      : currentRequest?.createdBy?.name,
     technician: currentRequest?.technician,
     rejectReason: currentRequest?.rejectReason || '',
     cancelReason: currentRequest?.cancelReason || '',
@@ -161,7 +167,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchAgencies = useCallback(async () => {
+  const fetchAgencies = useCallback(async (id: string) => {
     try {
       setIsLoading(true);
       var response;
@@ -170,14 +176,16 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           params: { id: user?.account?.id },
         });
       } else {
-        response = await axios.get('/api/agencies/get_list_agencies', {});
+        response = await axios.get('/api/customers/get_agencies_by_customer_id', {
+          params: { id: id },
+        });
       }
       setAgencies(
         response.data.map((x) => ({
           id: x.id,
           name: x.agency_name,
           address: x.address,
-          phone: isCustomer ? x.phone : x.telephone,
+          phone: x.phone,
         }))
       );
       setIsLoading(false);
@@ -187,7 +195,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchServices = useCallback(async () => {
+  const fetchServices = useCallback(async (id: string) => {
     try {
       setIsLoading(true);
       var response;
@@ -196,7 +204,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           params: { id: user?.account?.id },
         });
       } else {
-        response = await axios.get('/api/services/get_all_services');
+        response = await axios.get('/api/customers/get_services_by_customer_id', {
+          params: { id: id },
+        });
       }
       setServices(response.data.map((x) => ({ id: x.id, name: x.service_name })));
       setIsLoading(false);
@@ -303,22 +313,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const reopenRequest = useCallback(async (data: any) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.put('/api/requests/reopen_request_by_id', {}, { params: data });
-      setValue('status', 'editing');
-      if (response.status === 200 || response.status === 201) {
-        setIsLoading(false);
-        navigate(PATH_DASHBOARD.admin.request.root);
-        enqueueSnackbar('Reopen request successfully', { variant: 'success' });
-      }
-    } catch (error) {
-      enqueueSnackbar('Reopen request failed', { variant: 'error' });
-      console.error(error);
+  const parseTime = (s: string) => {
+    const hour = parseInt(s.substring(0, 2), 10);
+    const min = parseInt(s.substring(3, 5), 10);
+    if (hour < 2 && min < 2) {
+      return `${hour} hour ${min} minute`;
+    } else if (hour < 2 && min >= 2) {
+      return `${hour} hour ${min} minutes`;
+    } else if (hour >= 2 && min < 2) {
+      return `${hour} hours ${min} minute`;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return `${hour} hours ${min} minutes`;
+  };
 
   const cancelRequest = useCallback(async (data: string) => {
     try {
@@ -362,10 +368,10 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
       if (response.status === 200 || response.status === 201) {
         setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.request.root);
-        enqueueSnackbar('Update ticket successfully', { variant: 'success' });
+        enqueueSnackbar('Update devices successfully', { variant: 'success' });
       }
     } catch (error) {
-      enqueueSnackbar('Update ticket failed', { variant: 'error' });
+      enqueueSnackbar('Update devices failed', { variant: 'error' });
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -377,10 +383,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const handleShowReject = (event) => {
     setOpenRejectDialog(true);
-  };
-
-  const handleReopenClick = (event) => {
-    reopenRequest({ id: currentRequest?.id });
   };
 
   const {
@@ -406,8 +408,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
   } = methods;
 
   useEffect(() => {
-    fetchAgencies();
-    fetchServices();
     fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -430,9 +430,44 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watch('agency')]);
 
+  useEffect(() => {
+    fetchServices(watch('customer')?.id);
+    fetchAgencies(watch('customer')?.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('customer')]);
+
+  useEffect(() => {
+    onchangeService(watch('service')?.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch('service')]);
+
+  const onchangeService = useCallback(async (id: string) => {
+    try {
+      setIsLoading(true);
+      let response;
+      if (isCustomer) {
+        response = await axios.get('/api/requests/get_contract_by_customer_service', {
+          params: { cus_id: user?.account?.id, service_id: id },
+        });
+      } else {
+        response = await axios.get('/api/requests/get_contract_by_customer_service', {
+          params: { cus_id: watch('customer').id, service_id: id },
+        });
+      }
+      if (response.status === 200 || response.status === 201) {
+        setValue('contract', { id: response.data.id, name: response.data.contract_name });
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onSubmit = async (data: any) => {
     if (isEdit) {
-      if (currentStatus === 'editing') {
+      if (currentStatus === 'resolved') {
         const files = data.ticket.map(({ files }) => files); // lấy danh sách files: FILE
         const response = await Promise.all(
           files.map((e) => Promise.all(e.map((item) => uploadFirebase(item, user?.account?.id))))
@@ -467,8 +502,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
     } else if (!isCustomer) {
       const params = {
         admin_id: user?.account?.id,
-        report_service_id: currentRequest?.reportId,
-        customer_id: currentRequest?.customer.id,
+        customer_id: data.customer.id,
         service_id: data.service.id,
         agency_id: data.agency.id,
         request_description: data.description,
@@ -509,7 +543,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
 
   const diableServiceAgency = !(
     (newPage && isCustomer) ||
-    (currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser)
+    (currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||
+    (!isCustomer && newPage)
   );
   const disabledNameDescription = !(
     (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
@@ -533,16 +568,44 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   disabled={disabledNameDescription}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <RHFAutocomplete
-                  name="agency"
-                  label="Agency"
-                  variant="outlined"
-                  options={agencies}
-                  fullWidth
-                  disabled={diableServiceAgency}
-                />
-              </Grid>
+              {(editPage || !isCustomer) && (
+                <Grid item xs={12} md={6}>
+                  <RHFAutocomplete
+                    name="customer"
+                    label="Customer"
+                    variant="outlined"
+                    options={customers}
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={!(!isCustomer && newPage)}
+                  />
+                </Grid>
+              )}
+              {((!isCustomer && watch('customer') && watch('service')) ||
+                (isCustomer && watch('service'))) && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    value={getValues('contract')?.name ?? ''}
+                    name="contract"
+                    label="Contract"
+                    variant="outlined"
+                    fullWidth
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {((!isCustomer && watch('customer')) || isCustomer) && (
+                <Grid item xs={12} md={6}>
+                  <RHFAutocomplete
+                    name="agency"
+                    label="Agency"
+                    variant="outlined"
+                    options={agencies ?? []}
+                    fullWidth
+                    disabled={diableServiceAgency}
+                  />
+                </Grid>
+              )}
               <Grid item xs={12} md={6}>
                 <RHFAutocomplete
                   name="service"
@@ -554,27 +617,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   disabled={diableServiceAgency}
                 />
               </Grid>
-              {/* <Grid item xs={12} md={6}>
-      <RHFSelect disabled={disabled} name="priority" label="Priority">
-        {PRIORITY_OPTIONS.map(({ text, value }) => (
-          <option key={text} value={value}>
-            {text}
-          </option>
-        ))}
-      </RHFSelect>
-    </Grid> */}
-              {(editPage || isMaintain) && (
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    value={getValues('customer')?.name ?? ''}
-                    label="Customer"
-                    variant="outlined"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    disabled={true}
-                  />
-                </Grid>
-              )}
               {watch('address') && (
                 <Grid item xs={12} md={6}>
                   <RHFTextField
@@ -615,8 +657,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               {currentRequest?.startTime &&
                 (currentStatus === 'resolving' ||
                   currentStatus === 'resolved' ||
-                  currentStatus === 'closed' ||
-                  currentStatus === 'editing') && (
+                  currentStatus === 'completed' ||
+                  currentStatus === 'preparing' ||
+                  currentStatus === 'warning') && (
                   <Grid item xs={12} md={6}>
                     <TextField
                       label="Start Time"
@@ -628,7 +671,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   </Grid>
                 )}
 
-              {!newPage && !isMaintain && (
+              {!newPage && (
                 <>
                   <Grid item xs={12} md={6}>
                     <RHFTextField
@@ -641,35 +684,22 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                     />
                   </Grid>
                   {currentRequest?.endTime &&
-                    (currentStatus === 'resolved' ||
-                      currentStatus === 'closed' ||
-                      currentStatus === 'editing') && (
+                    (currentStatus === 'resolved' || currentStatus === 'completed') && (
                       <Grid item xs={12} md={6}>
                         <TextField
-                          label="End Time"
+                          label="Duration Time"
                           variant="outlined"
                           fullWidth
                           disabled
-                          value={format(new Date(currentRequest!.endTime), 'HH:mm dd/MM/yyyy')}
+                          value={parseTime(currentRequest!.duration_time)}
                         />
                       </Grid>
                     )}
                 </>
               )}
-              {editPage && (
-                <Grid item xs={12} md={6}>
-                  <RHFTextField
-                    value={getValues('contract')?.name ?? ''}
-                    name="contract"
-                    label="Contract"
-                    variant="outlined"
-                    fullWidth
-                    disabled={true}
-                  />
-                </Grid>
-              )}
+
               {((editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending'))) ||
-                isMaintain) && (
+                (newPage && !isCustomer)) && (
                 <Grid item xs={12} md={6}>
                   <RHFTextField
                     name="technician"
@@ -682,14 +712,19 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                       ) : undefined
                     }
                     error={
-                      (currentStatus === 'pending' || currentStatus === 'preparing') && !isCustomer
+                      (currentStatus === 'pending' ||
+                        currentStatus === 'preparing' ||
+                        currentStatus === 'warning') &&
+                      !isCustomer
                     }
                     label="Technician"
                     variant="outlined"
                     fullWidth
                     onClick={() => {
                       if (
-                        (currentStatus === 'pending' || currentStatus === 'preparing') &&
+                        (currentStatus === 'pending' ||
+                          currentStatus === 'preparing' ||
+                          currentStatus === 'warning') &&
                         !isCustomer
                       ) {
                         setOpenConfirmDialog(true);
@@ -699,7 +734,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                     inputProps={{ readOnly: true }}
                     disabled={
                       !(
-                        (currentStatus === 'pending' || currentStatus === 'preparing') &&
+                        (currentStatus === 'pending' ||
+                          currentStatus === 'preparing' ||
+                          currentStatus === 'warning') &&
                         !isCustomer
                       )
                     }
@@ -748,13 +785,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               )}
             </Grid>
           </Card>
-          {(currentStatus === 'editing' ||
-            currentStatus === 'closed' ||
-            currentStatus === 'resolved') && (
+          {(currentStatus === 'resolved' || currentStatus === 'completed') && (
             <RequestNewEditTicketForm
               requestId={id}
               agencyId={watch('agency').id}
-              editable={currentStatus === 'editing'}
+              editable={currentStatus === 'resolved'}
               status={currentStatus}
             />
           )}
@@ -769,24 +804,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                   Cancel
                 </Button>
               ))}
-            {(currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin && (
+            {((currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
+              (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser)) && (
               <Button onClick={handleCancelClick} color="error" variant="outlined">
                 Cancel
               </Button>
-            )) ||
-              (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser && (
-                <Button onClick={handleCancelClick} color="error" variant="outlined">
-                  Cancel
-                </Button>
-              ))}
+            )}
             {currentStatus === 'pending' && !isCustomer && editPage && !isCreatedByAdmin && (
               <Button onClick={handleShowReject} color="error" variant="outlined">
                 Reject
-              </Button>
-            )}
-            {currentStatus === 'resolved' && !isCustomer && (
-              <Button onClick={handleReopenClick} color="info" variant="outlined">
-                Reopen
               </Button>
             )}
             {currentStatus === 'pending' && !isCustomer && editPage && watch('technician') && (
@@ -795,14 +821,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
               </Button>
             )}
             {((currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||
-              (currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
-              (currentStatus === 'editing' && !isCustomer)) &&
+              (currentStatus === 'preparing' && !isCustomer) ||
+              (currentStatus === 'resolved' && !isCustomer) ||
+              (currentStatus === 'warning' && !isCustomer)) &&
               editPage && (
                 <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                   Save
                 </LoadingButton>
               )}
-            {(newPage || isMaintain) && (
+            {newPage && (
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                 Create
               </LoadingButton>
@@ -813,8 +840,10 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
           open={openConfirmDialog}
           onClose={onConfirmDialogClose}
           onSelect={onConfirm}
-          id={isMaintain ? currentRequest.reportId : id}
-          isMaintain={isMaintain}
+          id={id}
+          isAdminCreate={!isCustomer}
+          agencyId={watch('agency')?.id ?? null}
+          serviceId={watch('service')?.id ?? null}
         />
         <RequestRejectDialog
           open={openRejectDialog}

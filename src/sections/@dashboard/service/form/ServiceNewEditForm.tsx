@@ -1,17 +1,29 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  InputAdornment,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { format } from 'date-fns';
+import { watch } from 'fs';
 import { useSnackbar } from 'notistack';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFTextField } from 'src/components/hook-form';
+import Iconify from 'src/components/Iconify';
 import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
+import uploadFirebase from 'src/utils/uploadFirebase';
 import * as Yup from 'yup';
 
 type Props = {
@@ -25,8 +37,11 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   });
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [file, setFile] = useState<any>();
 
   const isCustomer = user?.account?.roleName === 'Customer';
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -40,6 +55,7 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
 
   const deleteService = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/services/disable_service_by_id',
         {},
@@ -49,11 +65,14 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
       );
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Delete service successfully', { variant: 'success' });
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.service.root);
       } else {
+        setIsLoading(false);
         enqueueSnackbar('Delete account failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete service failed', { variant: 'error' });
       console.error(error);
     }
@@ -66,12 +85,15 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
         params: { id: currentService!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.service.root);
         enqueueSnackbar('Update service successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update service failed', { variant: 'error' });
       console.error(error);
     }
@@ -82,17 +104,32 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
     try {
       const response: any = await axios.post('/api/services/create_service', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.service.root);
         enqueueSnackbar('Create service successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create service failed', { variant: 'error' });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const {
+    toggle: openDeleteDialog,
+    onClose: onCloseDeleteDialog,
+    setToggle: setOpenDeleteDialog,
+  } = useToggle(false);
+
+  const {
+    toggle: openDeleteImageDialog,
+    onClose: onCloseDeleteImageDialog,
+    setToggle: setOpenDeleteImageDialog,
+  } = useToggle(false);
 
   const methods = useForm({
     resolver: yupResolver(serviceSchema),
@@ -101,23 +138,28 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
 
   const {
     handleSubmit,
+    watch,
+    setValue,
     getValues,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    let fileUrl = '';
+    if (file) fileUrl = await uploadFirebase(file, user?.account?.id ?? 'other');
     if (isEdit) {
       const params = {
         service_name: data.name,
         description: data.description,
-        guideline: data.guideline,
+        guideline: fileUrl,
       };
       updateService(params);
     } else {
       const params = {
         service_name: data.name,
         description: data.description,
-        guideline: data.guideline,
+        guideline: fileUrl,
       };
       createService(params);
     }
@@ -126,18 +168,26 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
 
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
 
-  const {
-    toggle: openDeleteDialog,
-    onClose: onCloseDeleteDialog,
-    setToggle: setOpenDeleteDialog,
-  } = useToggle(false);
-
   const onDeleteClick = () => {
     setOpenDeleteDialog(true);
   };
 
+  const onDeleteImageClick = () => {
+    setOpenDeleteImageDialog(true);
+  };
+
   const onConfirmDelete = () => {
     deleteService();
+  };
+
+  const onConfirmDeleteImage = () => {
+    setValue('guideline', '');
+    setOpenDeleteImageDialog(false);
+  };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    // @ts-ignore: Object is possibly 'null'.
+    setFile(e.target.files[0]);
   };
 
   const editPage = isEdit && currentService;
@@ -158,7 +208,50 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
             >
               <RHFTextField name="name" label="Name" disabled={disable} />
               <RHFTextField name="description" label="Description " disabled={disable} />
-              <RHFTextField name="guideline" label="Guideline " disabled={disable} />
+              {!watch('guideline') && (
+                <RHFTextField
+                  name=""
+                  label="Guideline"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <input type="file" id="myFile" name="filename" onChange={onFileChange} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  disabled={disable}
+                />
+              )}
+              {watch('guideline') && (
+                <RHFTextField
+                  name="guideline"
+                  label="Guideline"
+                  value={getValues('guideline')}
+                  InputProps={{
+                    endAdornment: getValues('guideline') && (
+                      <>
+                        <Stack direction={'row'} spacing={3}>
+                          <LoadingButton
+                            href={getValues('guideline')}
+                            target="_blank"
+                            variant="contained"
+                            type="submit"
+                            size="small"
+                          >
+                            Download
+                          </LoadingButton>
+                          <Iconify
+                            icon="akar-icons:cross"
+                            sx={{ cursor: 'pointer', width: 20, height: 20, color: 'black' }}
+                            onClick={onDeleteImageClick}
+                          />
+                        </Stack>
+                      </>
+                    ),
+                  }}
+                  disabled={disable}
+                />
+              )}
               {!newPage && (
                 <TextField
                   value={format(new Date(currentService.createDate), 'HH:mm dd/MM/yyyy')}
@@ -182,11 +275,29 @@ export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
           )}
         </Card>
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
         onConfirm={onConfirmDelete}
         title="Delete Service"
+        text="Are you sure you want to delete?"
+      />
+      <ConfirmDialog
+        open={openDeleteImageDialog}
+        onClose={onCloseDeleteImageDialog}
+        onConfirm={onConfirmDeleteImage}
+        title="Delete file"
         text="Are you sure you want to delete?"
       />
     </>

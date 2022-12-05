@@ -76,7 +76,6 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const createCompany = useCallback(async (data: any) => {
     try {
-      setIsLoading(true);
       const response: any = await axios.post('/api/customers/create_customer', data);
       if (response.status === 200 || response.status === 201) {
         setIsLoading(false);
@@ -98,7 +97,6 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const updateCompany = useCallback(async (data: any) => {
     try {
-      setIsLoading(true);
       const response: any = await axios.put('/api/customers/update_customer_by_id', data, {
         params: { id: currentCompany!.id },
       });
@@ -167,6 +165,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   }, []);
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       const params = {
         name: data.name,

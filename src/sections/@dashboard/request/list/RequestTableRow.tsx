@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function RequestTableRow({ row, onRowClick }: Props) {
-  const { code, name, agency, service, createdByAdmin, customer, createdAt, description, status } =
+  const { code, name, agency, service, createdBySystem , createdByAdmin, customer, createdAt, description, status } =
     row;
 
   const parseStatus = (status: RequestStatus) => {
@@ -20,15 +20,15 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
     } else if (status === 'rejected') {
       return <Chip label="Rejected" color="error" size="small" />;
     } else if (status === 'resolving') {
-      return <Chip label="Resolving" color="warning" size="small" />;
+      return <Chip label="Resolving" color="info" size="small" />;
     } else if (status === 'resolved') {
       return <Chip label="Resolved" color="success" size="small" />;
-    } else if (status === 'editing') {
-      return <Chip label="Editing" color="secondary" size="small" />;
+    } else if (status === 'warning') {
+      return <Chip label="Warning" color="warning" size="small" />;
     } else if (status === 'canceled') {
       return <Chip label="Canceled" color="error" size="small" />;
-    } else if (status === 'closed') {
-      return <Chip label="Closed" color="success" size="small" />;
+    } else if (status === 'completed') {
+      return <Chip label="Completed" color="success" size="small" />;
     }
     return <Chip label="Default" size="small" />;
   };
@@ -43,7 +43,7 @@ export default function RequestTableRow({ row, onRowClick }: Props) {
       <TableCell align="left">{cutOut(name)} </TableCell>
       <TableCell align="left">{agency.name} </TableCell>
       <TableCell align="left">{service.name} </TableCell>
-      <TableCell align="left">{createdByAdmin ? 'Admin' : customer.name} </TableCell>
+      <TableCell align="left">{createdBySystem ? 'System'  : createdByAdmin ? 'Admin' : customer.name} </TableCell>
       <TableCell align="left">{customer.name} </TableCell>
       <TableCell align="left">{format(new Date(createdAt), 'HH:mm dd/MM/yyyy')} </TableCell>
       {/* <TableCell align="left">{createdAt} </TableCell> */}

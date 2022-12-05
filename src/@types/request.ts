@@ -28,9 +28,11 @@ export type Request = {
   priority: Priority;
   description: string;
   status: RequestStatus;
+  createdBySystem?: boolean;
   createdByAdmin?: boolean;
   technician: any;
-  startTime: Date | null;
-  endTime: Date | null;
+  startTime?: Date | null;
+  endTime?: Date | null;
+  duration_time?: Date | null;
   createdBy: Date;
 };

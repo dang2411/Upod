@@ -35,10 +35,10 @@ export default function ContractTerminalDialog({ open, onClose, onReject, title,
           minRows={5}
         />
         <Stack sx={{ width: '100%' }} direction="row" justifyContent="end" spacing={2}>
-          <LoadingButton onClick={handleCancel} color="info" variant="outlined">
+          <LoadingButton onClick={handleCancel} color="error" variant="outlined">
             Cancel
           </LoadingButton>
-          <LoadingButton variant="contained" color="error" onClick={handleConfirm}>
+          <LoadingButton variant="contained" onClick={handleConfirm}>
             Confirm
           </LoadingButton>
         </Stack>

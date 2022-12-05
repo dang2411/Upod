@@ -20,8 +20,9 @@ type Props = {
   onClose: VoidFunction;
   onSelect?: (value: Technician) => void;
   id: string | null;
-  isMaintain?: boolean;
-  onSchedule?: boolean;
+  agencyId: string | null;
+  serviceId: string | null;
+  isAdminCreate?: boolean;
 };
 
 export default function TechnicianDialog({
@@ -29,8 +30,9 @@ export default function TechnicianDialog({
   onClose,
   onSelect,
   id,
-  isMaintain = false,
-  onSchedule = false,
+  agencyId,
+  serviceId,
+  isAdminCreate = false,
 }: Props): JSX.Element {
   const handleSelect = (value: Technician) => {
     if (onSelect) {
@@ -48,12 +50,10 @@ export default function TechnicianDialog({
   const fetch = useCallback(async () => {
     try {
       let response: any;
-      if (isMaintain) {
+      if (isAdminCreate) {
         response = await axios.get('/api/requests/get_technicians_by_id_report_service', {
-          params: { id },
+          params: { agency_id: agencyId, service_id: serviceId },
         });
-      } else if (onSchedule) {
-        response = await axios.get('/api/technicians/get_list_technicians', {});
       } else {
         response = await axios.get('/api/requests/get_technicians_by_id_request', {
           params: { id },
@@ -73,12 +73,14 @@ export default function TechnicianDialog({
     } catch (error) {
       console.error(error);
     }
-  }, [id, isMaintain, onSchedule]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, serviceId, agencyId]);
 
   useEffect(() => {
-    fetch();
+    if (open) fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [open, serviceId, agencyId]);
+
   const options = data.filter((option: Technician) => {
     var result = option!.tech_name!.toLowerCase().includes(search.toLowerCase());
     if (option.number_of_requests) {

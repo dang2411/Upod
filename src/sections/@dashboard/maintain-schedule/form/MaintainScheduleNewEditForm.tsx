@@ -256,13 +256,12 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   </>
                 )}
               </Stack>
-              <TechnicianDialog
+              {/* <TechnicianDialog
                 open={openConfirmDialog}
                 onClose={onConfirmDialogClose}
                 onSelect={handleConfirm}
                 id={currentMaintainSchedule.id}
-                onSchedule={true}
-              />
+              /> */}
             </Card>
           </Grid>
         </Grid>

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -37,6 +38,8 @@ export default function AgencyList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filterText, setFilterText] = useState('');
 
@@ -95,7 +98,9 @@ export default function AgencyList() {
           phone: x.phone,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
@@ -104,14 +109,11 @@ export default function AgencyList() {
     [filterText, page, rowsPerPage]
   );
   const debounceSearch = useCallback(
-    debounce(
-      ({ value, page, rowsPerPage }: any) =>
-        fetch({ value, page, rowsPerPage }),
-      1000
-    ),
+    debounce(({ value, page, rowsPerPage }: any) => fetch({ value, page, rowsPerPage }), 1000),
     []
   );
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,8 +144,18 @@ export default function AgencyList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <AgencyTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
-
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
               <TableHeadCustom
@@ -167,8 +179,6 @@ export default function AgencyList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>
