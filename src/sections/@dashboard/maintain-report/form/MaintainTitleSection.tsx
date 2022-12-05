@@ -12,6 +12,8 @@ const parseStatus = (status: any) => {
     return <Chip label="Missed" color="error" />;
   } else if (status.toLowerCase() === 'completed') {
     return <Chip label="Completed" color ='success' />;
+  } else if (status.toLowerCase() === 'warning') {
+    return <Chip label="Warning" color ='warning' />;  
   }
   return <Chip label="Default" />;
 };

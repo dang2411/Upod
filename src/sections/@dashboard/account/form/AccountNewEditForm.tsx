@@ -60,6 +60,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
     role: currentAccount?.role,
     username: currentAccount?.username || '',
     password: currentAccount?.password || '',
+    is_assign: currentAccount?.is_assign,
     // single file
     cover: null,
     // multi file
@@ -72,27 +73,32 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
       const response: any = await axios.post('/api/accounts/create_account', data);
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Create account successfully', { variant: 'success' });
-        setIsLoading(true);
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.account.root);
       } else {
         enqueueSnackbar(response.message || 'Create account failed', { variant: 'error' });
+        setIsLoading(false);
       }
     } catch (error) {
       enqueueSnackbar('Create account failed', { variant: 'error' });
+      setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateAccount = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       const response = await axios.put('/api/accounts/update_account_by_id', data, {
         params: { id: currentAccount!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.account.root);
         enqueueSnackbar('Update account successfully', { variant: 'success' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update account failed', { variant: 'error' });
       console.error(error);
     }
@@ -101,20 +107,24 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const deleteAccount = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/accounts/disable_account_by_id',
         {},
         {
-          params: { id: currentAccount!.id },
+          params: { id: currentAccount.id },
         }
       );
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         enqueueSnackbar('Delete account successfully', { variant: 'success' });
         navigate(PATH_DASHBOARD.admin.account.root);
       } else {
+        setIsLoading(false);
         enqueueSnackbar('Delete account failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete account failed', { variant: 'error' });
       console.error(error);
     }
@@ -164,6 +174,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
   };
 
   const onConfirmDelete = () => {
+    setOpenDeleteDialog(false);
     deleteAccount();
   };
 
@@ -233,11 +244,6 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   return (
     <>
-      {isLoading && (
-        <Box sx={{ minWidth: '100%', display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      )}
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
         <Card sx={{ p: 3 }}>
           <Stack spacing={3}>
@@ -259,7 +265,7 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
           </Stack>
           {!disable && (
             <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-              {editPage && !isCustomer && (
+              {editPage && !isCustomer && !defaultValues.is_assign && (
                 <Button variant="outlined" color="error" onClick={onDeleteClick}>
                   Delete
                 </Button>
@@ -280,6 +286,17 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
           onUpload={onUploadClick}
         /> */}
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}

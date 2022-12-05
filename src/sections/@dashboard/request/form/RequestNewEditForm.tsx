@@ -675,7 +675,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit, isMaintain 
                     name="technician"
                     value={watch('technician')?.tech_name ?? ''}
                     helperText={
-                      currentStatus === 'pending' ? (
+                      currentRequest !== null && currentStatus === 'pending' ? (
                         <Typography sx={{ color: 'error.main' }} variant="body2">
                           Please assign a technician
                         </Typography>

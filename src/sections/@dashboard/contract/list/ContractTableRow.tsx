@@ -42,6 +42,13 @@ export default function ContractTableRow({ isCustomer, row, onRowClick }: Props)
           </TableCell>
         </>
       )}
+      {!isCustomer && !is_expire && !is_accepted && (
+        <>
+          <TableCell align="left">
+            <Chip label="Pending approval" size="medium" color="warning" />
+          </TableCell>
+        </>
+      )}
     </TableRow>
   );
 }

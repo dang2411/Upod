@@ -3,7 +3,10 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Button, Card, Grid, Stack, TextField } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { format } from 'date-fns';
+import { values } from 'lodash';
 import { useSnackbar } from 'notistack';
+import { Technician } from 'src/@types/user';
+import { useState } from 'react';
 import { useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +18,7 @@ import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
 import { MaintainTitleSection } from '../../maintain-report/form/MaintainTitleSection';
+import TechnicianDialog from '../../request/dialog/TechnicianDialog';
 
 type Props = {
   currentMaintainSchedule: any;
@@ -57,6 +61,9 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     description: currentMaintainSchedule.description,
   };
 
+  const handleConfirm = (value: any) => {
+    setValue('technician', value);
+  };
   const updateMaintainSchedule = useCallback(async (data: any) => {
     try {
       const response: any = await axios.put(
@@ -133,10 +140,16 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
   };
 
   const {
+    toggle: openConfirmDialog,
+    onClose: onConfirmDialogClose,
+    setToggle: setOpenConfirmDialog,
+  } = useToggle();
+
+  const {
     handleSubmit,
     control,
     watch,
-    getValues,
+    setValue,
     formState: { isSubmitting },
   } = methods;
   const disableNameDescription =
@@ -145,6 +158,8 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     currentMaintainSchedule.status === 'COMPLETED';
 
   const editPage = isEdit && currentMaintainSchedule;
+
+  const disableTechnician = currentMaintainSchedule.status !== ('NOTIFIED' && 'WARNING');
 
   const status = currentMaintainSchedule.status.toLowerCase();
 
@@ -205,9 +220,16 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   label="Agency"
                 />
                 <TextField
-                  disabled
+                  disabled={disableTechnician}
                   value={currentMaintainSchedule.technician.tech_name}
                   label="Techician"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => {
+                    setOpenConfirmDialog(true);
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
                 />
                 <TextField
                   disabled
@@ -234,16 +256,24 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   </>
                 )}
               </Stack>
+              <TechnicianDialog
+                open={openConfirmDialog}
+                onClose={onConfirmDialogClose}
+                onSelect={handleConfirm}
+                id={currentMaintainSchedule.id}
+                onSchedule={true}
+              />
             </Card>
           </Grid>
         </Grid>
 
         {(currentMaintainSchedule.status === 'SCHEDULED' ||
-          currentMaintainSchedule.status === 'NOTIFIED') && (
+          currentMaintainSchedule.status === 'NOTIFIED' ||
+          currentMaintainSchedule.status === 'WARNING') && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+            {/* <Button variant="outlined" color="error" onClick={onDeleteClick}>
               Delete
-            </Button>
+            </Button> */}
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               {editPage ? 'Save' : 'Create'}
             </LoadingButton>

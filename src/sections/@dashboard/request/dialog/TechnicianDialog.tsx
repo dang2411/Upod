@@ -21,6 +21,7 @@ type Props = {
   onSelect?: (value: Technician) => void;
   id: string | null;
   isMaintain?: boolean;
+  onSchedule?: boolean;
 };
 
 export default function TechnicianDialog({
@@ -29,7 +30,8 @@ export default function TechnicianDialog({
   onSelect,
   id,
   isMaintain = false,
-}: Props) {
+  onSchedule = false,
+}: Props): JSX.Element {
   const handleSelect = (value: Technician) => {
     if (onSelect) {
       onSelect(value);
@@ -50,6 +52,8 @@ export default function TechnicianDialog({
         response = await axios.get('/api/requests/get_technicians_by_id_report_service', {
           params: { id },
         });
+      } else if (onSchedule) {
+        response = await axios.get('/api/technicians/get_list_technicians', {});
       } else {
         response = await axios.get('/api/requests/get_technicians_by_id_request', {
           params: { id },
@@ -61,7 +65,7 @@ export default function TechnicianDialog({
           response.data.map((x) => ({
             id: x.id,
             tech_name: x.technician_name,
-            number_of_requests: x.number_of_requests,
+            number_of_requests: x.number_of_requests || 0,
             // skills: x.service.map((e) => e.service_name),
           }))
         );
@@ -69,7 +73,7 @@ export default function TechnicianDialog({
     } catch (error) {
       console.error(error);
     }
-  }, [id]);
+  }, [id, isMaintain, onSchedule]);
 
   useEffect(() => {
     fetch();
@@ -137,9 +141,9 @@ export default function TechnicianDialog({
               </Typography> */}
 
               <Typography variant="body2" sx={{ p: 1.5, pt: 0, color: 'black' }}>
-                Requests in month: 
+                Requests in month:
                 {technician.number_of_requests || 0}
-              </Typography>            
+              </Typography>
             </ListItemButton>
           ))}
         </Scrollbar>

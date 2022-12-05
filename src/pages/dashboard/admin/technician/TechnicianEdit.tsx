@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -15,10 +15,13 @@ export default function TechnicianEdit() {
 
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [data, setData] = useState<any>(null);
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/technicians/get_technician_details`, {
         params: { id },
       });
@@ -58,13 +61,24 @@ export default function TechnicianEdit() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = data?.name || 'Technician';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (

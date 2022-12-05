@@ -32,6 +32,7 @@ const TABLE_HEAD = [
   { id: 'createdAt', label: 'Created At', align: 'left' },
   { id: 'expiredAt', label: 'Expired At', align: 'left' },
   { id: 'is_expire', label: 'Available', align: 'left' },
+  { id: 'action', label: '', align: 'left' },
 ];
 
 export default function ContractList() {

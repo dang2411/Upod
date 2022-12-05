@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   ListItem,
   Stack,
   TextField,
@@ -70,6 +71,8 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   } = useToggle(false);
 
   const [areas, setAreas] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [services, setServices] = useState([]);
 
@@ -155,14 +158,18 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const createTechnician = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       const response: any = await axios.post('/api/technicians/create_technician', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Create technician successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create technician failed', { variant: 'error' });
       console.error(error);
     }
@@ -171,16 +178,20 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const updateTechnician = useCallback(async (data: any) => {
     try {
+      setIsLoading(true);
       const response: any = await axios.put('/api/technicians/update_technician_by_id', data, {
         params: { id: currentTechnician!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Update technician successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update technician failed', { variant: 'error' });
       console.error(error);
     }
@@ -189,6 +200,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const deleteTechnician = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/technicians/disable_technician_by_id',
         {},
@@ -198,11 +210,14 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
       );
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Delete account successfully', { variant: 'success' });
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.technician.root);
       } else {
+        setIsLoading(false);
         enqueueSnackbar('Delete account failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete technician failed', { variant: 'error' });
       console.error(error);
     }
@@ -388,6 +403,17 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
           )}
         </Card>
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <CreateAccountDialog
         open={openDialog}
         onClose={onCloseDialog}

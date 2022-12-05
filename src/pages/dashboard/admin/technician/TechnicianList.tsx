@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -34,6 +35,8 @@ const TABLE_HEAD = [
 
 export default function TechnicianList() {
   const { themeStretch } = useSettings();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -87,6 +90,7 @@ export default function TechnicianList() {
           phone: x.telephone,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
@@ -103,6 +107,7 @@ export default function TechnicianList() {
     []
   );
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,6 +143,17 @@ export default function TechnicianList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <TechnicianTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
           <TableContainer>
@@ -163,8 +179,6 @@ export default function TechnicianList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

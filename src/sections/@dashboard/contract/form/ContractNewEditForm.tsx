@@ -602,52 +602,54 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={8}>
-            <Card sx={{ p: 3 }}>
-              <Stack spacing={2}>
-                {!newPage && (
-                  <>
-                    <Typography variant="subtitle1">Files</Typography>
-                    <RHFTextField
-                      name=""
-                      label="Attachment"
-                      value={defaultValues.attachment}
-                      InputProps={{
-                        endAdornment: (
-                          <LoadingButton
-                            href={defaultValues.attachment}
-                            variant="contained"
-                            type="submit"
-                            size="small"
-                          >
-                            Download
-                          </LoadingButton>
-                        ),
-                      }}
-                      disabled={disable}
-                    />
-                  </>
-                )}
-              </Stack>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Card sx={{ p: 3 }}>
-              {!newPage && (
-                <RHFTextField
-                  name=""
-                  value={''}
-                  label="Images"
-                  InputProps={{
-                    startAdornment: (
-                      <ContractNewEditImageContainer fullWidth listImage={defaultValues.img} />
-                    ),
-                  }}
-                  disabled={disable}
-                />
-              )}
-            </Card>
-          </Grid>
+          {!newPage && (
+            <>
+              <Grid item xs={12} md={8}>
+                <Card sx={{ p: 3 }}>
+                  <Stack spacing={2}>
+                    <>
+                      <Typography variant="subtitle1">Files</Typography>
+                      {defaultValues.attachment && (
+                        <RHFTextField
+                          name=""
+                          label="Attachment"
+                          value={defaultValues.attachment}
+                          InputProps={{
+                            endAdornment: (
+                              <LoadingButton
+                                href={defaultValues.attachment}
+                                variant="contained"
+                                type="submit"
+                                size="small"
+                              >
+                                Download
+                              </LoadingButton>
+                            ),
+                          }}
+                          disabled={disable}
+                        />
+                      )}
+                    </>
+                  </Stack>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Card sx={{ p: 3 }}>
+                  <RHFTextField
+                    name=""
+                    value={''}
+                    label="Images"
+                    InputProps={{
+                      startAdornment: (
+                        <ContractNewEditImageContainer fullWidth listImage={defaultValues.img} />
+                      ),
+                    }}
+                    disabled={disable}
+                  />
+                </Card>
+              </Grid>
+            </>
+          )}
         </Grid>
         {newPage && (
           <>

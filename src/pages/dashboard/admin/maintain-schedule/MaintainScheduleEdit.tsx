@@ -1,4 +1,4 @@
-import { Button, Container, Stack } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Stack } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -15,12 +15,15 @@ export default function MaintainScheduleEdit() {
 
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [data, setData] = useState<any>(null);
 
   const title = data?.name || 'Maintain Schedule';
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `/api/maintenance_schedules/get_details_maintenance_schedule`,
         {
@@ -42,12 +45,23 @@ export default function MaintainScheduleEdit() {
     navigate(PATH_DASHBOARD.admin.maintainReport.edit(data.id));
   };
   useEffect(() => {
+    setIsLoading(false);
     fetch(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (

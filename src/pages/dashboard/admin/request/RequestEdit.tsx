@@ -95,11 +95,6 @@ export default function RequestEdit() {
 
   return (
     <Page title="Request: Edit">
-      {isLoading && (
-        <Box sx={{ minWidth: '100%', display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      )}
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
