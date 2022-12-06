@@ -33,10 +33,10 @@ export default function RequestRejectDialog({ open, onClose, onReject, title }: 
           minRows={5}
         />
         <Stack sx={{ width: '100%' }} direction="row" justifyContent="end" spacing={2}>
-          <Button onClick={handleCancel} color="info" variant="outlined">
+          <Button onClick={handleCancel} color="error" variant="outlined">
             Cancel
           </Button>
-          <Button variant="contained" color="error" onClick={handleConfirm}>
+          <Button variant="contained" onClick={handleConfirm}>
             Confirm
           </Button>
         </Stack>

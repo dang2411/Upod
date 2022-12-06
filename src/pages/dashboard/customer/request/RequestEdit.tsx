@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -15,6 +15,8 @@ export default function RequestEdit() {
 
   const { id = '' } = useParams();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [request, setRequest] = useState<Request | null>(null);
 
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ export default function RequestEdit() {
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/requests/get_request_details_by_id`, {
         params: { id },
       });
@@ -41,10 +44,11 @@ export default function RequestEdit() {
         },
         rejectReason: response.data.reject_reason,
         cancelReason: response.data.cancel_reason,
-        contract: {id : response.data.contract.id, name: response.data.contract.name},
+        contract: { id: response.data.contract.id, name: response.data.contract.name },
         priority: response.data.priority,
         description: response.data.description,
         status: response.data.request_status.toLowerCase(),
+        createdBySystem: response.data.is_system,
         technician: response.data.technicican,
         createdBy: response.data.create_by,
       } as Request;
@@ -67,13 +71,24 @@ export default function RequestEdit() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = request?.name || 'Request';
 
   if (!request) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   return (

@@ -33,6 +33,6 @@ export type Request = {
   technician: any;
   startTime?: Date | null;
   endTime?: Date | null;
-  duration_time?: Date | null;
+  duration_time?: string | null;
   createdBy: Date;
 };

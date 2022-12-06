@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   FormControlLabel,
   Switch,
@@ -99,6 +100,8 @@ export default function RequestList() {
 
   const [data, setData] = useState<Request[]>([]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [total, setTotal] = useState(0);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -135,16 +138,19 @@ export default function RequestList() {
               agency: { id: x.agency.id, name: x.agency.agency_name },
               priority: parsePriority(x.priority),
               description: x.description,
-              customer: { id: x.customer.id, name: x.customer.cus_name }, 
+              customer: { id: x.customer.id, name: x.customer.cus_name },
               contract: x.contract,
+              createdBySystem: x.is_system,
               createdByAdmin: x.admin_id != null,
               status: x.request_status.toLowerCase(),
               technician: x.technician,
             } as Request)
         );
         setData(result);
+        setIsLoading(false);
       } catch (err) {
         console.error(err);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
     },
@@ -163,6 +169,7 @@ export default function RequestList() {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterStatus, filterText]);
@@ -179,7 +186,7 @@ export default function RequestList() {
             },
             {
               name: 'Request',
-              href: PATH_DASHBOARD.admin.request.root,
+              href: PATH_DASHBOARD.customer.request.root,
             },
             { name: 'Listing' },
           ]}
@@ -191,6 +198,17 @@ export default function RequestList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           {/* <Tabs
             allowScrollButtonsMobile
             variant="scrollable"
@@ -237,8 +255,6 @@ export default function RequestList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

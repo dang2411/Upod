@@ -147,6 +147,7 @@ export default function RequestList() {
         setData(result);
         setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }

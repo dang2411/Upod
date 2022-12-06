@@ -167,6 +167,28 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const approveRequest = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.put('/api/customers/approve_request_by_id', {}, {
+        params: {
+          id: currentRequest.id,
+        },
+      });
+      if (response.status === 200 || response.status === 201) {
+        console.log(currentRequest.id, response);
+        setIsLoading(false);
+        navigate(PATH_DASHBOARD.customer.request.root);
+        enqueueSnackbar('Approve request successfully', { variant: 'success' });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar('Approve request fail', { variant: 'error' });
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fetchAgencies = useCallback(async (id: string) => {
     try {
       setIsLoading(true);
@@ -371,6 +393,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
         enqueueSnackbar('Update devices successfully', { variant: 'success' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update devices failed', { variant: 'error' });
       console.error(error);
     }
@@ -788,8 +811,9 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
           {(currentStatus === 'resolved' || currentStatus === 'completed') && (
             <RequestNewEditTicketForm
               requestId={id}
+              isCustomer={isCustomer}
               agencyId={watch('agency').id}
-              editable={currentStatus === 'resolved'}
+              editable={currentStatus === 'resolved' && !isCustomer}
               status={currentStatus}
             />
           )}
@@ -818,6 +842,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
             {currentStatus === 'pending' && !isCustomer && editPage && watch('technician') && (
               <Button variant="contained" color="info" onClick={handleConfirm}>
                 Confirm
+              </Button>
+            )}
+            {currentStatus === 'resolved' && isCustomer && (
+              <Button variant="contained" onClick={approveRequest}>
+                Approve
               </Button>
             )}
             {((currentStatus === 'pending' && isCustomer && isCreatedByCurrentUser) ||

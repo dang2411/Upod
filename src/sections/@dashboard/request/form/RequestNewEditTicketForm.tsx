@@ -8,7 +8,13 @@ import LoadingButton from 'src/theme/overrides/LoadingButton';
 import axios from 'src/utils/axios';
 import RequestNewEditImageFormField from '../card/RequestNewEditImageFormField';
 
-export default function RequestNewEditTicketForm({ requestId, status, agencyId, editable }: any) {
+export default function RequestNewEditTicketForm({
+  requestId,
+  status,
+  agencyId,
+  editable,
+  isCustomer,
+}: any) {
   const {
     control,
     setValue,
@@ -101,6 +107,7 @@ export default function RequestNewEditTicketForm({ requestId, status, agencyId, 
                     <Grid item md={4} xs={12}>
                       <RequestNewEditImageFormField
                         name={`ticket[${index}].files`}
+                        isCustomer={isCustomer}
                         image={`ticket[${index}].img`}
                         currentStatus={status}
                       />

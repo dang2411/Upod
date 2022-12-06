@@ -20,7 +20,13 @@ import { fileURLToPath } from 'url';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
-export default function RequestNewEditImageFormField({ image, name, currentStatus, ...rest }: any) {
+export default function RequestNewEditImageFormField({
+  image,
+  name,
+  currentStatus,
+  isCustomer,
+  ...rest
+}: any) {
   const [swipers, setSwipers] = useState([]);
 
   useEffect(() => {
@@ -83,7 +89,7 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
         {Array.from(swipers).map((img: any, index) => (
           <SwiperSlide key={index}>
             <RequestNewEditImageCard image={img} />
-            {currentStatus === 'resolved' && (
+            {currentStatus === 'resolved' && !isCustomer && (
               <Button
                 key={img}
                 variant="outlined"
@@ -105,7 +111,7 @@ export default function RequestNewEditImageFormField({ image, name, currentStatu
             )}
           </SwiperSlide>
         ))}
-        {currentStatus === 'resolved' && (
+        {currentStatus === 'resolved' && !isCustomer && (
           <SwiperSlide key={'Add'}>
             <RHFUploadMultiFile
               showPreview
