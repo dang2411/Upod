@@ -118,14 +118,14 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
       if (response.status === 200 || response.status === 201) {
         setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.agency.root);
-        enqueueSnackbar('Create agenycy successfully', { variant: 'success' });
+        enqueueSnackbar('Create agency successfully', { variant: 'success' });
       } else {
         setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       setIsLoading(false);
-      enqueueSnackbar('Create agenycy failed', { variant: 'error' });
+      enqueueSnackbar('Create agency failed', { variant: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -143,14 +143,14 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
           setIsLoading(false);
           navigate(PATH_DASHBOARD.admin.agency.root);
         }
-        enqueueSnackbar('Update agencies successfully', { variant: 'success' });
+        enqueueSnackbar('Update agency successfully', { variant: 'success' });
       } else {
         setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
       setIsLoading(false);
-      enqueueSnackbar('Update agencies failed', { variant: 'error' });
+      enqueueSnackbar('Update agency failed', { variant: 'error' });
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

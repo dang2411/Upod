@@ -50,8 +50,8 @@
     "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
     "rehype-raw": "^6.1.1",
-    "simplebar": "^5.3.6",
-    "simplebar-react": "^2.3.6",
+    "simplebar": "^5.3.8",
+    "simplebar-react": "^2.4.1",
     "swiper": "^8.4.5",
     "yup": "^0.32.11"
   },

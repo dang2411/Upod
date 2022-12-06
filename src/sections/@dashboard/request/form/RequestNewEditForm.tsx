@@ -170,11 +170,15 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   const approveRequest = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await axios.put('/api/customers/approve_request_by_id', {}, {
-        params: {
-          id: currentRequest.id,
-        },
-      });
+      const response = await axios.put(
+        '/api/customers/approve_request_by_id',
+        {},
+        {
+          params: {
+            id: currentRequest.id,
+          },
+        }
+      );
       if (response.status === 200 || response.status === 201) {
         console.log(currentRequest.id, response);
         setIsLoading(false);
@@ -591,19 +595,6 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   disabled={disabledNameDescription}
                 />
               </Grid>
-              {(editPage || !isCustomer) && (
-                <Grid item xs={12} md={6}>
-                  <RHFAutocomplete
-                    name="customer"
-                    label="Customer"
-                    variant="outlined"
-                    options={customers}
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    disabled={!(!isCustomer && newPage)}
-                  />
-                </Grid>
-              )}
               {((!isCustomer && watch('customer') && watch('service')) ||
                 (isCustomer && watch('service'))) && (
                 <Grid item xs={12} md={6}>
@@ -617,15 +608,17 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   />
                 </Grid>
               )}
-              {((!isCustomer && watch('customer')) || isCustomer) && (
+
+              {(editPage || !isCustomer) && (
                 <Grid item xs={12} md={6}>
                   <RHFAutocomplete
-                    name="agency"
-                    label="Agency"
+                    name="customer"
+                    label="Customer"
                     variant="outlined"
-                    options={agencies ?? []}
+                    options={customers}
                     fullWidth
-                    disabled={diableServiceAgency}
+                    InputLabelProps={{ shrink: true }}
+                    disabled={!(!isCustomer && newPage)}
                   />
                 </Grid>
               )}
@@ -640,87 +633,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   disabled={diableServiceAgency}
                 />
               </Grid>
-              {watch('address') && (
+              {((!isCustomer && watch('customer')) || isCustomer) && (
                 <Grid item xs={12} md={6}>
-                  <RHFTextField
-                    name="address"
-                    label="Address"
+                  <RHFAutocomplete
+                    name="agency"
+                    label="Agency"
                     variant="outlined"
+                    options={agencies ?? []}
                     fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    disabled={true}
+                    disabled={diableServiceAgency}
                   />
                 </Grid>
               )}
-              {watch('phone') && (
-                <Grid item xs={12} md={6}>
-                  <RHFTextField
-                    name="phone"
-                    label="Phone"
-                    variant="outlined"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    disabled={true}
-                  />
-                </Grid>
-              )}
-              {editPage && (
-                <Grid item xs={12} md={6}>
-                  <RHFTextField
-                    value={format(new Date(getValues('createdAt')), 'HH:mm dd/MM/yyyy')}
-                    name="createdAt"
-                    label="Created At"
-                    variant="outlined"
-                    fullWidth
-                    disabled={true}
-                  />
-                </Grid>
-              )}
-
-              {currentRequest?.startTime &&
-                (currentStatus === 'resolving' ||
-                  currentStatus === 'resolved' ||
-                  currentStatus === 'completed' ||
-                  currentStatus === 'preparing' ||
-                  currentStatus === 'warning') && (
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      label="Start Time"
-                      variant="outlined"
-                      fullWidth
-                      disabled
-                      value={format(new Date(currentRequest!.startTime), 'HH:mm dd/MM/yyyy')}
-                    />
-                  </Grid>
-                )}
-
-              {!newPage && (
-                <>
-                  <Grid item xs={12} md={6}>
-                    <RHFTextField
-                      value={getValues('createdBy')}
-                      name="createdBy"
-                      label="Created By"
-                      variant="outlined"
-                      fullWidth
-                      disabled={true}
-                    />
-                  </Grid>
-                  {currentRequest?.endTime &&
-                    (currentStatus === 'resolved' || currentStatus === 'completed') && (
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          label="Duration Time"
-                          variant="outlined"
-                          fullWidth
-                          disabled
-                          value={parseTime(currentRequest!.duration_time)}
-                        />
-                      </Grid>
-                    )}
-                </>
-              )}
-
               {((editPage && (!isCustomer || (isCustomer && currentStatus !== 'pending'))) ||
                 (newPage && !isCustomer)) && (
                 <Grid item xs={12} md={6}>
@@ -766,6 +690,87 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   />
                 </Grid>
               )}
+              {watch('address') && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="address"
+                    label="Address"
+                    variant="outlined"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+              {editPage && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    value={format(new Date(getValues('createdAt')), 'HH:mm dd/MM/yyyy')}
+                    name="createdAt"
+                    label="Created At"
+                    variant="outlined"
+                    fullWidth
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+
+              {watch('phone') && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    name="phone"
+                    label="Phone"
+                    variant="outlined"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+
+              {currentRequest?.startTime &&
+                (currentStatus === 'resolving' ||
+                  currentStatus === 'resolved' ||
+                  currentStatus === 'completed' ||
+                  currentStatus === 'preparing' ||
+                  currentStatus === 'warning') && (
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      label="Start Time"
+                      variant="outlined"
+                      fullWidth
+                      disabled
+                      value={format(new Date(currentRequest!.startTime), 'HH:mm dd/MM/yyyy')}
+                    />
+                  </Grid>
+                )}
+
+              {!newPage && (
+                <Grid item xs={12} md={6}>
+                  <RHFTextField
+                    value={getValues('createdBy')}
+                    name="createdBy"
+                    label="Created By"
+                    variant="outlined"
+                    fullWidth
+                    disabled={true}
+                  />
+                </Grid>
+              )}
+
+              {!newPage &&
+                currentRequest?.endTime &&
+                (currentStatus === 'resolved' || currentStatus === 'completed') && (
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      label="Duration Time"
+                      variant="outlined"
+                      fullWidth
+                      disabled
+                      value={parseTime(currentRequest!.duration_time)}
+                    />
+                  </Grid>
+                )}
               <Grid item xs={12} md={6}>
                 <RHFTextField
                   name="description"

@@ -1,5 +1,6 @@
 import { CircularProgress, Container, Grid } from '@mui/material';
 import { Box } from '@mui/system';
+import { watch } from 'fs';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -23,7 +24,6 @@ export default function DeviceDetail() {
 
   const fetch = useCallback(async (id: string) => {
     try {
-      setIsLoading(false);
       const response = await axiosInstance.get(`/api/devices/get_device_details_by_id`, {
         params: { id },
       });
@@ -59,7 +59,9 @@ export default function DeviceDetail() {
       };
       if (response.status === 200) {
         setData(result);
+        setIsLoading(false);
       } else {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.device.root);
       }
     } catch (e) {
@@ -85,7 +87,7 @@ export default function DeviceDetail() {
           alignItems: 'center',
         }}
       >
-        {<CircularProgress />}
+        <CircularProgress />
       </Box>
     );
   }
@@ -108,9 +110,9 @@ export default function DeviceDetail() {
           ]}
         />
         <Grid container>
-            <Grid item md={4} xs={12}>
-              <DeviceNewEditImageContainer listImage={data.img} maxHeight="500px" />
-            </Grid>
+          <Grid item md={4} xs={12}>
+            <DeviceNewEditImageContainer listImage={data.img} maxHeight="500px" />
+          </Grid>
           <Grid item md={8} xs={12}>
             <DeviceNewEditForm isEdit={false} currentDevice={data} />
           </Grid>
