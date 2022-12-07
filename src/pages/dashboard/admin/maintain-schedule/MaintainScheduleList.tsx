@@ -107,6 +107,7 @@ export default function MaintainScheduleList() {
         setIsLoading(false);
       } catch (error) {
         console.error(error);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,6 +162,7 @@ export default function MaintainScheduleList() {
         />
 
         <Card>
+          
           {isLoading && (
             <Box
               sx={{
@@ -206,7 +208,6 @@ export default function MaintainScheduleList() {
                     emptyRows={emptyRows(page, rowsPerPage, data.length)}
                   /> */}
 
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

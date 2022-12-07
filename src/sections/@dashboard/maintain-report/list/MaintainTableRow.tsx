@@ -13,14 +13,10 @@ export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Pr
   const { code, name, createdDate, agency, customer, technician, status } = row;
 
   const parseStatus = (status: MaintainStatus) => {
-    if (status === 'troubled') {
-      return <Chip label="Troubled" color="warning" />;
-    } else if (status === 'stabilized') {
-      return <Chip label="Stabilized" color="info" />;
-    } else if (status === 'processing') {
-      return <Chip label="Processing" color="secondary" />;
-    } else if (status === 'closed') {
-      return <Chip label="Closed" color="success" />;
+    if (status === 'pending') {
+      return <Chip label="Pending" color="warning" />;
+    }  else if (status === 'completed') {
+      return <Chip label="Completed" color="success" />;
     }
     return <Chip label="Default" />;
   };
@@ -50,13 +46,7 @@ export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Pr
       <TableCell align="left" onClick={onRowClick}>
         {parseStatus(status)}
       </TableCell>
-      <TableCell align="left">
-        {status === 'troubled' && (
-          <IconButton onClick={(e) => onProcessClick()}>
-            <Iconify icon="material-symbols:new-label-rounded" sx={{ color: 'neutral' }} />
-          </IconButton>
-        )}
-      </TableCell>
+     
     </TableRow>
   );
 }

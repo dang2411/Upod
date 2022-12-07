@@ -10,7 +10,9 @@ const STATUS_OPTIONS = [
   'all',
   'scheduled',
   'notified',
+  'warning',
   'missed',
+  'preparing',
   'maintaining',
   'completed',
 ];

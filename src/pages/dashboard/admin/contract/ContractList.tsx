@@ -183,8 +183,6 @@ export default function ContractList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

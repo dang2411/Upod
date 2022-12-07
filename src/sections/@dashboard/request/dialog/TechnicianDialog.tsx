@@ -41,6 +41,7 @@ type Props = {
   agencyId: string | null;
   serviceId: string | null;
   isAdminCreate?: boolean;
+  ismaintain?: boolean;
 };
 
 export default function TechnicianDialog({
@@ -50,6 +51,7 @@ export default function TechnicianDialog({
   id,
   agencyId,
   serviceId,
+  ismaintain = false,
   isAdminCreate = false,
 }: Props): JSX.Element {
   const handleSelect = (value: Technician) => {
@@ -72,6 +74,13 @@ export default function TechnicianDialog({
         response = await axios.get('/api/requests/get_technicians_by_id_report_service', {
           params: { agency_id: agencyId, service_id: serviceId },
         });
+      } else if (ismaintain) {
+        response = await axios.get(
+          '/api/maintenance_schedules/get_technician_maintenance_schedule_by_id',
+          {
+            params: { id },
+          }
+        );
       } else {
         response = await axios.get('/api/requests/get_technicians_by_id_request', {
           params: { id },

@@ -31,16 +31,11 @@ export default function MaintainServiceTableRow({ row, status, onRowClick }: Pro
         )}
       </TableCell>
       <TableCell align="left">
-        {(status === 'processing' || status === 'closed') && (
+        {status === 'completed' && (
           <>
             {created && (
               <Button variant="contained" onClick={onRowClick}>
                 View Request
-              </Button>
-            )}
-            {!created && (
-              <Button variant="contained" onClick={onRowClick}>
-                Create Request
               </Button>
             )}
           </>

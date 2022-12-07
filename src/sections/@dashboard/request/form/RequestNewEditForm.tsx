@@ -340,18 +340,27 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   }, []);
 
   const parseTime = (s: string) => {
-    const hour = parseInt(s.substring(0, 2), 10);
-    const min = parseInt(s.substring(3, 5), 10);
-    if (hour < 2 && min < 2) {
-      return `${hour} hour ${min} minute`;
-    } else if (hour < 2 && min >= 2) {
-      return `${hour} hour ${min} minutes`;
-    } else if (hour >= 2 && min < 2) {
-      return `${hour} hours ${min} minute`;
+    const day = parseInt(s.substring(0, 2), 10);
+    const hour = parseInt(s.substring(3, 5), 10);
+    const min = parseInt(s.substring(6, 8), 10);
+    if (day < 2 && hour < 2 && min < 2) {
+      return `${day} day ${hour} hour ${min} minute`;
+    } else if (day < 2 && hour < 2 && min >= 2) {
+      return `${day} day ${hour} hour ${min} minutes`;
+    } else if (day < 2 && hour >= 2 && min < 2) {
+      return `${day} day ${hour} hours ${min} minute`;
+    } else if (day < 2 && hour >= 2 && min >= 2) {
+      return `${day} day ${hour} hours ${min} minutes`;
+    } else if (day >= 2 && hour < 2 && min < 2) {
+      return `${day} days ${hour} hour ${min} minute`;
+    } else if (day >= 2 && hour < 2 && min >= 2) {
+      return `${day} days ${hour} hour ${min} minutes`;
+    } else if (day >= 2 && hour >= 2 && min < 2) {
+      return `${day} days ${hour} hours ${min} minute`;
+    } else if (day >= 2 && hour >= 2 && min >= 2) {
+      return `${day} days ${hour} hours ${min} minutes`;
     }
-    return `${hour} hours ${min} minutes`;
   };
-
   const cancelRequest = useCallback(async (data: string) => {
     try {
       setIsLoading(true);

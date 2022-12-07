@@ -7,16 +7,11 @@ import { useFormContext } from 'react-hook-form';
 import { MaintainStatus } from 'src/@types/maintain';
 import { RHFTextField } from 'src/components/hook-form';
 
-
 const parseStatus = (status: MaintainStatus) => {
-  if (status === 'troubled') {
-    return <Chip label="Troubled" color="warning" />;
-  } else if (status === 'stabilized') {
-    return <Chip label="Stabilized" color="info" />;
-  } else if (status === 'processing') {
-    return <Chip label="Processing" color="secondary" />;
-  } else if (status === 'closed') {
-    return <Chip label="Closed" color="success" />;
+  if (status === 'pending') {
+    return <Chip label="Pending" color="warning" />;
+  } else if (status === 'completed') {
+    return <Chip label="Completed" color="success" />;
   }
   return <Chip label="Default" />;
 };
