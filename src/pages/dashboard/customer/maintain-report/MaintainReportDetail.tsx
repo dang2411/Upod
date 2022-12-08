@@ -1,15 +1,15 @@
-import { Box, CircularProgress, Container } from '@mui/material';
-import { format } from 'date-fns';
+import { Box, Button, CircularProgress, Container, Stack } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import useSettings from 'src/hooks/useSettings';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import ContractNewEditForm from 'src/sections/@dashboard/contract/form/ContractNewEditForm';
-import axiosInstance from 'src/utils/axios';
+import MaintainNewEditForm from 'src/sections/@dashboard/maintain-report/form/MaintainNewEditForm';
+import axios from 'src/utils/axios';
 
-export default function ContractDetail() {
+export default function MaintainReportDetail() {
   const { themeStretch } = useSettings();
 
   const { id = '' } = useParams();
@@ -20,41 +20,34 @@ export default function ContractDetail() {
 
   const [data, setData] = useState<any>(null);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const fetch = useCallback(async (id: string) => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get(`/api/contracts/get_contract_details_by_id`, {
+      const response = await axios.get(`/api/maintenance_reports/get_details_maintenance_report`, {
         params: { id },
       });
       const result = {
         id: response.data.id,
+        status: response.data.status.toLowerCase(),
         code: response.data.code,
-        name: response.data.contract_name,
-        customer: {
-          id: response.data.customer.id,
-          name: response.data.customer.cus_name,
-        },
-        contractPrice: response.data.contract_price,
-        startDate: response.data.start_date,
-        endDate: response.data.end_date,
-        attachment: response.data.attachment,
-        img: response.data.img,
-        is_expire: response.data.is_expire,
-        is_accepted: response.data.is_accepted,
-        terminal_content: response.data.terminal_content,
-        reject_reason: response.data.reject_reason,
+        name: response.data.device_name,
+        create_date: response.data.create_date,
+        update_date: response.data.update_date,
+        agency: response.data.agency,
+        customer: response.data.customer,
+        is_processed: response.data.is_processed,
+        create_by: response.data.create_by,
+        maintenance_schedule: response.data.maintenance_schedule,
         description: response.data.description,
-        terminal_time: format(new Date(response.data.terminal_time), 'HH:mm dd/MM/yyyy'),
-        frequencyMaintain: response.data.frequency_maintain_time,
-        service: response.data.service.map((x) => ({
-          id: x.id,
-          name: x.service_name,
-        })),
+        service: response.data.service,
       };
+      console.log(result);
       if (response.status === 200) {
         setData(result);
       } else {
-        navigate(PATH_DASHBOARD.admin.contract.root);
+        navigate(PATH_DASHBOARD.customer.maintainReport.root);
       }
     } catch (e) {
       console.error(e);
@@ -64,11 +57,10 @@ export default function ContractDetail() {
 
   useEffect(() => {
     fetch(id);
-    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const title = data?.name || 'Contract';
+  const title = data?.code || 'Device';
 
   if (!data) {
     return (
@@ -84,8 +76,12 @@ export default function ContractDetail() {
     );
   }
 
+  const onScheduleClick = () => {
+    navigate(PATH_DASHBOARD.customer.maintainSchedule.edit(data.maintenance_schedule.id));
+  };
+
   return (
-    <Page title="Contract: Detail">
+    <Page title="Maintain Report: Detail">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
@@ -95,13 +91,21 @@ export default function ContractDetail() {
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Contract',
-              href: PATH_DASHBOARD.admin.contract.root,
+              name: 'Maintain Report',
+              href: PATH_DASHBOARD.customer.maintainReport.root,
             },
             { name: title },
           ]}
+          action={
+            <>
+              <Button variant="outlined" onClick={onScheduleClick}>
+                Schedule
+              </Button>
+            </>
+          }
         />
-        <ContractNewEditForm isEdit={false} currentContract={data} />
+
+        <MaintainNewEditForm isEdit={false} currentMaintain={data} />
       </Container>
     </Page>
   );

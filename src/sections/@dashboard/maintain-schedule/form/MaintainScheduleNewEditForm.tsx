@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Grid, Stack, TextField } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Grid, Stack, TextField } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { format } from 'date-fns';
 import { values } from 'lodash';
@@ -33,6 +33,8 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
   const navigate = useNavigate();
 
   const { user } = useAuth();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [currentTechnician, setCurrentTechnician] = useState<Technician>();
 
@@ -73,12 +75,18 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
         }
       );
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+
         navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
         enqueueSnackbar('Update maintain schedule successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
+
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
+
       enqueueSnackbar('Update  maintain schedule failed', { variant: 'error' });
       console.error(error);
     }
@@ -96,11 +104,17 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       );
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Delete maintain schedule successfully', { variant: 'success' });
+        setIsLoading(false);
+
         navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
       } else {
+        setIsLoading(false);
+
         enqueueSnackbar('Delete maintain schedule successfully', { variant: 'success' });
       }
     } catch (error) {
+      setIsLoading(false);
+
       enqueueSnackbar('Delete agency failed', { variant: 'error' });
       console.error(error);
     }
@@ -109,6 +123,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
   const onSubmit = (data: any) => {
     if (isEdit) {
+      setIsLoading(true);
       const params = {
         id: currentMaintainSchedule!.id,
         description: data.description,
@@ -155,12 +170,12 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
   const editPage = isEdit && currentMaintainSchedule;
 
-  const disableTechnician =
-    currentMaintainSchedule.status !== 'NOTIFIED' &&
-    currentMaintainSchedule.status !== 'SCHEDULED' &&
-    currentMaintainSchedule.status !== 'PREPARING' &&
-    currentMaintainSchedule.status !== 'WARNING';
-
+  const disableTechnician = !(
+    (currentMaintainSchedule.status === 'NOTIFIED' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'SCHEDULED' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'WARNING' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'MISSED' && !isCustomer)
+  );
   const status = currentMaintainSchedule.status.toLowerCase();
   return (
     <>
@@ -283,6 +298,17 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
           </Stack>
         )}
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}

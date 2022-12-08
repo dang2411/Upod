@@ -7,9 +7,10 @@ type Props = {
   row: any;
   onRowClick: VoidFunction;
   is_processed: boolean;
+  isCustomer: boolean;
 };
 
-export default function MaintainTableRow({ row, onRowClick, is_processed }: Props) {
+export default function MaintainTableRow({ row, onRowClick, is_processed, isCustomer }: Props) {
   const { code, name, createdDate, agency, customer, technician, status } = row;
 
   const parseStatus = (status: MaintainStatus) => {
@@ -49,11 +50,14 @@ export default function MaintainTableRow({ row, onRowClick, is_processed }: Prop
         {parseStatus(status)}
       </TableCell>
       <TableCell align="left" onClick={onRowClick}>
-        {status === 'processing' && is_processed && (
+        {status === 'processing' && is_processed && !isCustomer && (
           <Iconify
             icon="akar-icons:circle-check"
             sx={{ width: 20, height: 20, color: 'success.main' }}
           />
+        )}
+        {status === 'processing' && is_processed && isCustomer && (
+          <Chip label="Need Approve" color="error" size="small" />
         )}
       </TableCell>
     </TableRow>

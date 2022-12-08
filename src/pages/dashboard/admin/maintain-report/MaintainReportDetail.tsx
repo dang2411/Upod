@@ -1,4 +1,4 @@
-import { Button, Container, Stack } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Stack } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -15,6 +15,8 @@ export default function MaintainReportDetail() {
   const { id = '' } = useParams();
 
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [data, setData] = useState<any>(null);
 
@@ -56,6 +58,7 @@ export default function MaintainReportDetail() {
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axios.get(`/api/maintenance_reports/get_details_maintenance_report`, {
         params: { id },
       });
@@ -92,7 +95,17 @@ export default function MaintainReportDetail() {
   const title = data?.code || 'Device';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
 
   const onScheduleClick = () => {
@@ -116,7 +129,10 @@ export default function MaintainReportDetail() {
             { name: title },
           ]}
           action={
-            <><Button variant='outlined' onClick={onScheduleClick}>Schedule</Button>
+            <>
+              <Button variant="outlined" onClick={onScheduleClick}>
+                Schedule
+              </Button>
             </>
           }
         />

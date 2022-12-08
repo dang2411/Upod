@@ -3,6 +3,7 @@ import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Card,
+  CircularProgress,
   FormControlLabel,
   Grid,
   Stack,
@@ -13,7 +14,7 @@ import {
   TablePagination,
   Typography,
 } from '@mui/material';
-import axios from 'axios';
+import axios from 'src/utils/axios';
 import { useSnackbar } from 'notistack';
 import { useCallback, useState } from 'react';
 
@@ -31,13 +32,15 @@ import MaintainNewEditCustomerForm from './MaintainNewEditCustomerForm';
 import MaintainNewEditDetailForm from './MaintainNewEditDetailForm';
 import MaintainNewEditScheduleForm from './MaintainNewEditScheduleForm';
 import MaintainNewEditTechnicianForm from './MaintainNewEditTechnicianForm';
+import useToggle from 'src/hooks/useToggle';
+import MaintainReportServiceDialog from '../dialog/MaintainReportServiceDialog';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
   { id: 'description', label: 'Description', align: 'left' },
-  { id: 'created', label: 'Created', align: 'left' },
-  { id: 'action', width: 200 },
+  { id: 'is_resolved', label: 'Resolved', align: 'left' },
+  { id: 'craeted', width: 200 },
 ];
 
 type Props = {
@@ -46,13 +49,13 @@ type Props = {
 };
 
 export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) {
-  const maintainSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-  });
+  const maintainSchema = Yup.object().shape({});
 
   const { user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [currentService, setCurrentService] = useState<any>(null);
 
   const services = currentMaintain.service;
 
@@ -73,6 +76,7 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     create_by: currentMaintain?.create_by || null,
     agency: currentMaintain?.agency || null,
     maintenance_schedule: currentMaintain?.maintenance_schedule || null,
+    is_processed: currentMaintain?.is_processed || false,
     service: currentMaintain?.service || [],
   };
 
@@ -94,9 +98,13 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     defaultValues,
   });
 
-  const processMaintain = useCallback(async (data: any) => {
+  const processMaintain = useCallback(async () => {
     try {
-      const response: any = await axios.post('/api/maintenance_reports/process_maintenance_report_by_report_id', data);
+      const response: any = await axios.post(
+        '/api/maintenance_reports/process_maintenance_report_by_report_id',
+        {},
+        { params: { report_id: currentMaintain!.id } }
+      );
       if (response.status === 200 || response.status === 201) {
         setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.maintainReport.root);
@@ -112,12 +120,45 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleRowClick = async (value: string, isView: boolean) => {
-    if (isView) {
+  const handleViewClick = async (value: string) => {
+    if (!isCustomer) {
       navigate(PATH_DASHBOARD.admin.request.edit(value));
     } else {
-      navigate(PATH_DASHBOARD.admin.request.maintain(value));
+      navigate(PATH_DASHBOARD.customer.request.edit(value));
     }
+  };
+  const handleApprove = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response: any = await axios.put(
+        '/api/customers/approve_maintenance_report_by_id',
+        {},
+        { params: { id: currentMaintain!.id } }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+        navigate(PATH_DASHBOARD.customer.maintainReport.root);
+        enqueueSnackbar('Approve successfully', { variant: 'success' });
+      } else {
+        setIsLoading(false);
+        enqueueSnackbar(response.message, { variant: 'error' });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar('Approve failed', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const {
+    toggle: openServiceDialog,
+    onClose: onServiceDialogClose,
+    setToggle: setOpenServiceDialog,
+  } = useToggle(false);
+
+  const handleRowClick = (value: any) => {
+    setOpenServiceDialog(true);
+    setCurrentService(value);
   };
 
   const {
@@ -127,92 +168,128 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
 
   const onSubmit = async (data: any) => {
     setIsLoading(true);
-    const param = {
-      report_id: currentMaintain.id,
-    };
-    processMaintain(param);
+    processMaintain();
   };
 
   return (
-    <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
-      <Stack spacing={3}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={7}>
-            <MaintainNewEditDetailForm currentMaintain={currentMaintain} />
+    <>
+      <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
+        <Stack spacing={3}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={7}>
+              <MaintainNewEditDetailForm currentMaintain={currentMaintain} />
+            </Grid>
+            <Grid item md={5} xs={12}>
+              <MaintainNewEditScheduleForm currentMaintain={currentMaintain} />
+            </Grid>
+            <Grid item md={4} xs={12}>
+              <MaintainNewEditCustomerForm currentMaintain={currentMaintain} />
+            </Grid>
+            <Grid item md={4} xs={12}>
+              <MaintainNewEditAgencyForm currentMaintain={currentMaintain} />
+            </Grid>
+            <Grid item md={4} xs={12}>
+              <MaintainNewEditTechnicianForm currentMaintain={currentMaintain} />
+            </Grid>
           </Grid>
-          <Grid item md={5} xs={12}>
-            <MaintainNewEditScheduleForm currentMaintain={currentMaintain} />
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <MaintainNewEditCustomerForm currentMaintain={currentMaintain} />
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <MaintainNewEditAgencyForm currentMaintain={currentMaintain} />
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <MaintainNewEditTechnicianForm currentMaintain={currentMaintain} />
-          </Grid>
-        </Grid>
 
-        {services.length > 0 && (
-          <Card sx={{ p: 3 }}>
-            <Stack spacing={2}>
-              <Typography variant="h5">Service</Typography>
-              <Stack mt={3} spacing={2}>
-                <TableContainer>
-                  <Table size={dense ? 'small' : 'medium'}>
-                    <TableHeadCustom
-                      order={order}
-                      orderBy={orderBy}
-                      headLabel={TABLE_HEAD}
-                      rowCount={services.length}
-                      numSelected={selected.length}
+          {services.length > 0 && (
+            <Card sx={{ p: 3 }}>
+              <Stack spacing={2}>
+                <Typography variant="h5">Service</Typography>
+                <Stack mt={3} spacing={2}>
+                  <TableContainer>
+                    <Table size={dense ? 'small' : 'medium'}>
+                      <TableHeadCustom
+                        order={order}
+                        orderBy={orderBy}
+                        headLabel={TABLE_HEAD}
+                        rowCount={services.length}
+                        numSelected={selected.length}
+                      />
+
+                      <TableBody>
+                        {services.map((row: any) => (
+                          <>
+                            <MaintainServiceTableRow
+                              key={row.id}
+                              row={row}
+                              status={currentMaintain.status.toLowerCase()}
+                              onRowClick={() => {
+                                const value = {
+                                  code: row?.code,
+                                  service_name: row?.service_name,
+                                  description: row?.description,
+                                  is_resolved: row?.is_resolved,
+                                  img: row.img,
+                                };
+                                handleRowClick(value);
+                              }}
+                              onViewClick={() => handleViewClick(row.request_id)}
+                            />
+                          </>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  <Box sx={{ position: 'relative' }}>
+                    <TablePagination
+                      rowsPerPageOptions={[5, 10, 25]}
+                      component="div"
+                      count={services.length}
+                      rowsPerPage={rowsPerPage}
+                      page={page}
+                      onPageChange={onChangePage}
+                      onRowsPerPageChange={onChangeRowsPerPage}
                     />
 
-                    <TableBody>
-                      {services.map((row: any) => (
-                        <MaintainServiceTableRow
-                          key={row.id}
-                          row={row}
-                          status={currentMaintain.status.toLowerCase()}
-                          onRowClick={() =>
-                            handleRowClick(
-                              row.created ? row.request_id : row.report_service_id,
-                              row.created
-                            )
-                          }
-                        />
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                <Box sx={{ position: 'relative' }}>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={services.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={onChangePage}
-                    onRowsPerPageChange={onChangeRowsPerPage}
-                  />
-
-                  <FormControlLabel
-                    control={<Switch checked={dense} onChange={onChangeDense} />}
-                    label="Dense"
-                    sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
-                  />
-                </Box>
+                    <FormControlLabel
+                      control={<Switch checked={dense} onChange={onChangeDense} />}
+                      label="Dense"
+                      sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
+                    />
+                  </Box>
+                </Stack>
               </Stack>
-            </Stack>
-          </Card>
-        )}
-        {currentMaintain.status === 'pending' && !isCustomer && (
-          <LoadingButton loading={isSubmitting} variant="contained" type="submit">
-            Approve
-          </LoadingButton>
-        )}
-      </Stack>
-    </FormProvider>
+            </Card>
+          )}
+        </Stack>
+        <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
+          {currentMaintain.status === 'pending' && !isCustomer && (
+            <LoadingButton
+              loading={isSubmitting}
+              onClick={handleSubmit(onSubmit)}
+              variant="contained"
+              type="submit"
+            >
+              Process
+            </LoadingButton>
+          )}
+          {currentMaintain.status === 'processing' && isCustomer && defaultValues.is_processed && (
+            <LoadingButton onClick={handleApprove} variant="contained">
+              Approve
+            </LoadingButton>
+          )}
+        </Stack>
+      </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
+      {currentService && (
+        <MaintainReportServiceDialog
+          open={openServiceDialog}
+          onClose={onServiceDialogClose}
+          data={currentService}
+        />
+      )}
+    </>
   );
 }

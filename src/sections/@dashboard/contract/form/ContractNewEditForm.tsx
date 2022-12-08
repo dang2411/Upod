@@ -88,6 +88,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     is_expire: currentContract?.is_expire,
     is_accepted: currentContract?.is_accepted,
     terminal_content: currentContract?.terminal_content,
+    terminal_time: currentContract?.terminal_time,
     reject_reason: currentContract?.reject_reason,
     img: currentContract?.img || '',
     description: currentContract?.description || '',
@@ -95,6 +96,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     service: currentContract?.service,
     images: currentContract?.images || [],
   };
+
 
   const fetchCustomer = useCallback(async () => {
     try {
@@ -436,12 +438,20 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                   minRows={4}
                 />
                 {defaultValues.terminal_content && (
-                  <RHFTextField
-                    name="terminal_content"
-                    label="Terminal Content"
-                    disabled={disable}
-                    multiline
-                  />
+                  <>
+                    <RHFTextField
+                      name="terminal_content"
+                      label="Terminal Content"
+                      disabled={disable}
+                      multiline
+                    />
+                    <RHFTextField
+                      name="terminal_time"
+                      label="Terminal Date"
+                      disabled={disable}
+                      multiline
+                    />
+                  </>
                 )}
                 {defaultValues.reject_reason && (
                   <RHFTextField

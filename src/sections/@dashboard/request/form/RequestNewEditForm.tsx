@@ -838,12 +838,13 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
               </Button>
             )) ||
               (currentStatus === 'pending' && editPage && isCustomer && isCreatedByCurrentUser && (
-                <Button onClick={handleCancelClick} color="error" variant="contained">
+                <Button onClick={handleCancelClick} color="error" variant="outlined">
                   Cancel
                 </Button>
               ))}
             {((currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
-              (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser)) && (
+              (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser) ||
+              (currentStatus === 'warning' && isCustomer && isCreatedByCurrentUser)) && (
               <Button onClick={handleCancelClick} color="error" variant="outlined">
                 Cancel
               </Button>

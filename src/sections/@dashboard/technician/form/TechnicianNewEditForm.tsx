@@ -43,6 +43,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     area: Yup.object().required('Area is required'),
     account: Yup.object().required('Account is required'),
     gender: Yup.number().required('Gender is required'),
+    breach: Yup.string().required('Breach is required'),
     address: Yup.string().required('Address is required'),
     service: Yup.array()
       .required('Service is required')
@@ -120,6 +121,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     account: currentTechnician?.account,
     phone: currentTechnician?.telephone || '',
     email: currentTechnician?.email || '',
+    breach: currentTechnician?.breach || 0,
     gender: currentTechnician?.gender || 0,
     address: currentTechnician?.address || '',
     rating: currentTechnician?.rating || '',
@@ -167,7 +169,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
-    } catch (error) { 
+    } catch (error) {
       setIsLoading(false);
       enqueueSnackbar('Create technician failed', { variant: 'error' });
       console.error(error);
@@ -233,6 +235,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         email: data.email,
         gender: data.gender,
         address: data.address,
+        breach: data.breach,
         rating_avg: 0,
         service_id: data.service.map((x: any) => x.id),
       };
@@ -386,6 +389,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                   />
                 )}
               />
+              <RHFTextField name="breach" label="Breach times" type="number" disabled={disable} />
             </Box>
           </Stack>
           {!disable && (

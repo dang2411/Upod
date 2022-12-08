@@ -38,6 +38,7 @@ export default function TechnicianEdit() {
           name: response.data.account.username,
         },
         telephone: response.data.telephone,
+        breach: response.data.breach,
         email: response.data.email,
         gender: response.data.gender,
         address: response.data.address,
