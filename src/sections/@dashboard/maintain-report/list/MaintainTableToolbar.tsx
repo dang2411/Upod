@@ -6,7 +6,7 @@ type Props = {
   filterStatus: string;
   onChangeFilterStatus: (value: string) => void;
 };
-const STATUS_OPTIONS = ['all', 'pending', 'closed'];
+const STATUS_OPTIONS = ['all', 'pending','processing', 'completed'];
 export default function MaintainTableToolbar({
   filterText,
   onFilterText,

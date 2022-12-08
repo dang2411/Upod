@@ -12,6 +12,8 @@ const parseStatus = (status: MaintainStatus) => {
     return <Chip label="Pending" color="warning" />;
   } else if (status === 'completed') {
     return <Chip label="Completed" color="success" />;
+  } else if (status === 'processing') {
+    return <Chip label="Processing" color="info" />;
   }
   return <Chip label="Default" />;
 };

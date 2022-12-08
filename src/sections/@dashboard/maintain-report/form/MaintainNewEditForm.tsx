@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Card,
@@ -12,11 +13,15 @@ import {
   TablePagination,
   Typography,
 } from '@mui/material';
+import axios from 'axios';
+import { useSnackbar } from 'notistack';
+import { useCallback, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { FormProvider } from 'src/components/hook-form';
 import { TableHeadCustom } from 'src/components/table';
+import useAuth from 'src/hooks/useAuth';
 import useTable from 'src/hooks/useTable';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import * as Yup from 'yup';
@@ -45,7 +50,15 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     name: Yup.string().required('Name is required'),
   });
 
+  const { user } = useAuth();
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const services = currentMaintain.service;
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isCustomer = user?.account?.roleName === 'Customer';
 
   const navigate = useNavigate();
 
@@ -81,6 +94,24 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     defaultValues,
   });
 
+  const processMaintain = useCallback(async (data: any) => {
+    try {
+      const response: any = await axios.post('/api/maintenance_reports/process_maintenance_report_by_report_id', data);
+      if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+        navigate(PATH_DASHBOARD.admin.maintainReport.root);
+        enqueueSnackbar('Process report successfully', { variant: 'success' });
+      } else {
+        setIsLoading(false);
+        enqueueSnackbar(response.message, { variant: 'error' });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      enqueueSnackbar('Process report failed', { variant: 'error' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleRowClick = async (value: string, isView: boolean) => {
     if (isView) {
       navigate(PATH_DASHBOARD.admin.request.edit(value));
@@ -89,10 +120,17 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     }
   };
 
-  const { handleSubmit } = methods;
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
-  const onSubmit = (data: any) => {
-    //
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    const param = {
+      report_id: currentMaintain.id,
+    };
+    processMaintain(param);
   };
 
   return (
@@ -168,6 +206,11 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
               </Stack>
             </Stack>
           </Card>
+        )}
+        {currentMaintain.status === 'pending' && !isCustomer && (
+          <LoadingButton loading={isSubmitting} variant="contained" type="submit">
+            Approve
+          </LoadingButton>
         )}
       </Stack>
     </FormProvider>

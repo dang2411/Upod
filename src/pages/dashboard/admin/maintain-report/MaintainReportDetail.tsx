@@ -95,14 +95,6 @@ export default function MaintainReportDetail() {
     return <div />;
   }
 
-  const onProcessClick = () => {
-    processMaintain(data.id);
-  };
-
-  const onUnProcessClick = () => {
-    unProcessMaintain(data.id);
-  };
-
   const onScheduleClick = () => {
     navigate(PATH_DASHBOARD.admin.maintainSchedule.edit(data.maintenance_schedule.id));
   };
@@ -123,6 +115,10 @@ export default function MaintainReportDetail() {
             },
             { name: title },
           ]}
+          action={
+            <><Button variant='outlined' onClick={onScheduleClick}>Schedule</Button>
+            </>
+          }
         />
 
         <MaintainNewEditForm isEdit={false} currentMaintain={data} />

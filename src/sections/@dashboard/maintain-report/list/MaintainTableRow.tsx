@@ -6,17 +6,19 @@ import Iconify from 'src/components/Iconify';
 type Props = {
   row: any;
   onRowClick: VoidFunction;
-  onProcessClick: VoidFunction;
+  is_processed: boolean;
 };
 
-export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Props) {
+export default function MaintainTableRow({ row, onRowClick, is_processed }: Props) {
   const { code, name, createdDate, agency, customer, technician, status } = row;
 
   const parseStatus = (status: MaintainStatus) => {
     if (status === 'pending') {
       return <Chip label="Pending" color="warning" />;
-    }  else if (status === 'completed') {
+    } else if (status === 'completed') {
       return <Chip label="Completed" color="success" />;
+    } else if (status === 'processing') {
+      return <Chip label="Processing" color="info" />;
     }
     return <Chip label="Default" />;
   };
@@ -46,7 +48,14 @@ export default function MaintainTableRow({ row, onRowClick, onProcessClick }: Pr
       <TableCell align="left" onClick={onRowClick}>
         {parseStatus(status)}
       </TableCell>
-     
+      <TableCell align="left" onClick={onRowClick}>
+        {status === 'processing' && is_processed && (
+          <Iconify
+            icon="akar-icons:circle-check"
+            sx={{ width: 20, height: 20, color: 'success.main' }}
+          />
+        )}
+      </TableCell>
     </TableRow>
   );
 }

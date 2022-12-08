@@ -33,6 +33,7 @@ const TABLE_HEAD = [
   { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'createdBy', label: 'Created By', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
+  { id: 'action', label: '', align: 'left' },
 ];
 
 export default function MaintainReportList() {
@@ -115,6 +116,7 @@ export default function MaintainReportList() {
           status: x.status.toLowerCase(),
           maintenance_schedule: x.maintenance_schedule,
           technician: x.create_by,
+          is_processed: x.is_processed,
         }));
         setData(result);
         setIsLoading(false);
@@ -216,7 +218,7 @@ export default function MaintainReportList() {
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
-                    onProcessClick={() => handleProcess(row.id)}
+                    is_processed={row.is_processed}
                   />
                 ))}
                 {/* 

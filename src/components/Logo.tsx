@@ -22,12 +22,13 @@ export default function Logo({ disabledLink = false, sx, ...rest }: Props) {
   // const logo = '/logo/logo_single.svg';
 
   const logo = (
-    <Box sx={{ width: 80, height: 80, ...sx }}>
+    <Box sx={{ width: 50, height: 50, ...sx }}>
       <img
         src={
-          'https://firebasestorage.googleapis.com/v0/b/upod-fa9c5.appspot.com/o/1ec4985b-b459-487c-a1b1-d9570d44a736image.png?alt=media&token=0126655e-a2d6-421a-b3da-2b46648fda1f'
+          'https://firebasestorage.googleapis.com/v0/b/upod-fa9c5.appspot.com/o/d6dac81c-41a5-4bda-b412-220f976d775eimage.png?alt=media&token=316aaf78-8aa5-4889-a59b-82880f4f4cc0'
         }
         alt="My logo"
+        height={50}
       />
     </Box>
   );
