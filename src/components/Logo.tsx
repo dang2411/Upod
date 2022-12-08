@@ -37,5 +37,5 @@ export default function Logo({ disabledLink = false, sx, ...rest }: Props) {
     return <>{logo}</>;
   }
 
-  return <RouterLink to="/dashboard/admin/request/list">{logo}</RouterLink>;
+  return <RouterLink to="/dashboard">{logo}</RouterLink>;
 }

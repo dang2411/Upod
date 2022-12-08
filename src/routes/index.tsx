@@ -354,6 +354,7 @@ const Page404 = Loadable(lazy(() => import('../pages/Page404')));
 const CustomerRequestNewPage = Loadable(
   lazy(() => import('../pages/dashboard/customer/request/RequestNew'))
 );
+
 const CustomerRequestDetailPage = Loadable(
   lazy(() => import('../pages/dashboard/customer/request/RequestDetail'))
 );
