@@ -2,6 +2,7 @@ import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Box, BoxProps } from '@mui/material';
+import useAuth from 'src/hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -12,11 +13,15 @@ interface Props extends BoxProps {
 export default function Logo({ disabledLink = false, sx, ...rest }: Props) {
   const theme = useTheme();
 
+  const { user } = useAuth();
+
   const PRIMARY_LIGHT = theme.palette.primary.light;
 
   const PRIMARY_MAIN = theme.palette.primary.main;
 
   const PRIMARY_DARK = theme.palette.primary.dark;
+
+  const isCustomer = user?.account?.roleName === 'Customer';
 
   // OR
   // const logo = '/logo/logo_single.svg';
@@ -37,5 +42,8 @@ export default function Logo({ disabledLink = false, sx, ...rest }: Props) {
     return <>{logo}</>;
   }
 
-  return <RouterLink to="/dashboard">{logo}</RouterLink>;
+  if (!user) return <>{logo}</>;
+
+  if (!isCustomer) return <RouterLink to="/dashboard/admin/request/list">{logo}</RouterLink>;
+  else return <RouterLink to="/dashboard/customer/request/list">{logo}</RouterLink>;
 }
