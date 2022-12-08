@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -32,13 +33,15 @@ const TABLE_HEAD = [
   { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'createdBy', label: 'Created By', align: 'left' },
   { id: 'status', label: 'Status', align: 'left' },
-  { id: 'action' },
+  { id: 'action', label: '', align: 'left' },
 ];
 
 export default function MaintainReportList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filterText, setFilterText] = useState('');
 
@@ -113,10 +116,13 @@ export default function MaintainReportList() {
           status: x.status.toLowerCase(),
           maintenance_schedule: x.maintenance_schedule,
           technician: x.create_by,
+          is_processed: x.is_processed,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
     },
@@ -140,6 +146,7 @@ export default function MaintainReportList() {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterStatus, filterText]);
@@ -174,6 +181,17 @@ export default function MaintainReportList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <MaintainTableToolbar
             filterText={filterText}
             onFilterText={handleFilterTextChange}
@@ -200,7 +218,7 @@ export default function MaintainReportList() {
                     key={row.id}
                     row={row}
                     onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
-                    onProcessClick={() => handleProcess(row.id)}
+                    is_processed={row.is_processed}
                   />
                 ))}
                 {/* 
@@ -208,8 +226,6 @@ export default function MaintainReportList() {
                     height={denseHeight}
                     emptyRows={emptyRows(page, rowsPerPage, data.length)}
                   /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

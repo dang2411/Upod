@@ -1,7 +1,8 @@
-import SimpleBarReact, { Props as ScrollbarProps } from 'simplebar-react';
+import PropTypes from 'prop-types';
+import SimpleBar from 'simplebar-react';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
-import { Box, SxProps } from '@mui/material';
+import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -11,8 +12,9 @@ const RootStyle = styled('div')(() => ({
   overflow: 'hidden',
 }));
 
-const SimpleBarStyle = styled(SimpleBarReact)(({ theme }) => ({
+const SimpleBarStyle = styled(SimpleBar)(({ theme }) => ({
   maxHeight: '100%',
+  border: '1px solid red',
   '& .simplebar-scrollbar': {
     '&:before': {
       backgroundColor: alpha(theme.palette.grey[600], 0.48),
@@ -34,12 +36,12 @@ const SimpleBarStyle = styled(SimpleBarReact)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-interface Props extends ScrollbarProps {
-  children: React.ReactNode;
-  sx?: SxProps;
-}
+Scrollbar.propTypes = {
+  children: PropTypes.node.isRequired,
+  sx: PropTypes.object,
+};
 
-export default function Scrollbar({ children, sx, ...other }: Props) {
+export default function Scrollbar({ children, sx, ...other }) {
   const userAgent = typeof navigator === 'undefined' ? 'SSR' : navigator.userAgent;
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
@@ -53,10 +55,19 @@ export default function Scrollbar({ children, sx, ...other }: Props) {
   }
 
   return (
-    <RootStyle>
-      <SimpleBarStyle timeout={500} clickOnTrack={false} sx={sx} {...other}>
-        {children}
-      </SimpleBarStyle>
-     </RootStyle>
+    <Box maxHeight="100%" height="100%" sx={{ overflowY: 'scroll', ...sx }} {...other}>
+      {/* <RootStyle>
+        <SimpleBarStyle
+          timeout={500}
+          clickOnTrack={false}
+          sx={sx}
+          {...other}
+          // forceVisible="y"
+          // autoHide={false}
+        > */}
+      {children}
+      {/* </SimpleBarStyle>
+      </RootStyle> */}
+    </Box>
   );
 }

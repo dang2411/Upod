@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -35,6 +36,8 @@ const TABLE_HEAD = [
 
 export default function AreaList() {
   const { themeStretch } = useSettings();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -88,8 +91,10 @@ export default function AreaList() {
           createDate: x.create_date,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,15 +103,14 @@ export default function AreaList() {
   );
   const debounceSearch = useCallback(
     debounce(
-      ({ value, page, rowsPerPage, filterStatus }: any) =>
-        fetch({ value, page, rowsPerPage }),
+      ({ value, page, rowsPerPage, filterStatus }: any) => fetch({ value, page, rowsPerPage }),
       1000
     ),
     []
   );
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 
@@ -140,8 +144,18 @@ export default function AreaList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <AreaTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
-
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
               <TableHeadCustom
@@ -161,8 +175,6 @@ export default function AreaList() {
                     height={denseHeight}
                     emptyRows={emptyRows(page, rowsPerPage, data.length)}
                   /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

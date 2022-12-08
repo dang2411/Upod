@@ -3,7 +3,7 @@ import { capitalCase } from 'change-case';
 
 const parseStatus = (status: any) => {
   if (status.toLowerCase() === 'scheduled') {
-    return <Chip label="Scheduled" color="info" />;
+    return <Chip label="Scheduled" />;
   } else if (status.toLowerCase() === 'notified') {
     return <Chip label="Notified" color="warning" />;
   } else if (status.toLowerCase() === 'maintaining') {
@@ -12,6 +12,10 @@ const parseStatus = (status: any) => {
     return <Chip label="Missed" color="error" />;
   } else if (status.toLowerCase() === 'completed') {
     return <Chip label="Completed" color ='success' />;
+  } else if (status.toLowerCase() === 'warning') {
+    return <Chip label="Warning" color ='warning' />;  
+  } else if (status.toLowerCase() === 'preparing') {
+    return <Chip label="Preparing" color ='info' />;  
   }
   return <Chip label="Default" />;
 };

@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  CircularProgress,
   Container,
   Dialog,
   DialogContent,
@@ -71,6 +72,9 @@ export default function CompanyEdit() {
     { id: 'description', label: 'Description', align: 'left' },
   ];
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const [open, setOpen] = useState(false);
 
   const [agencyClick, setAgencyClick] = useState(false);
@@ -121,6 +125,7 @@ export default function CompanyEdit() {
   }));
   const fetchAgency = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/agencies/get_agency_details`, {
         params: { id },
       });
@@ -282,13 +287,24 @@ export default function CompanyEdit() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = data?.name || 'Customer';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
   return (
     <>
@@ -342,23 +358,6 @@ export default function CompanyEdit() {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Box sx={{ position: 'relative' }}>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={totalAgencies}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={onChangePage}
-                    onRowsPerPageChange={onChangeRowsPerPage}
-                  />
-
-                  <FormControlLabel
-                    control={<Switch checked={dense} onChange={onChangeDense} />}
-                    label="Dense"
-                    sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
-                  />
-                </Box>
               </Card>
             </Stack>
           )}
@@ -393,23 +392,6 @@ export default function CompanyEdit() {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Box sx={{ position: 'relative' }}>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={totalServices}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={onChangePage}
-                    onRowsPerPageChange={onChangeRowsPerPage}
-                  />
-
-                  <FormControlLabel
-                    control={<Switch checked={dense} onChange={onChangeDense} />}
-                    label="Dense"
-                    sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
-                  />
-                </Box>
               </Card>
             </Stack>
           )}
@@ -417,8 +399,8 @@ export default function CompanyEdit() {
       </Page>
       <BootstrapDialog onClose={handleClose} open={open}>
         <BootstrapDialogTitle onClose={handleClose} id="dialog">
-          {agencyClick && <Typography variant='subtitle1'>Agency details</Typography>}
-          {!agencyClick && <Typography variant='subtitle1'>Service details</Typography>}
+          {agencyClick && <Typography variant="subtitle1">Agency details</Typography>}
+          {!agencyClick && <Typography variant="subtitle1">Service details</Typography>}
         </BootstrapDialogTitle>
         <DialogContent dividers>
           {agencyClick && <AgencyNewEditForm isEdit={false} currentAgency={agency} />}

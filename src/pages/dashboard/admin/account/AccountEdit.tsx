@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -13,12 +13,15 @@ export default function AccountEdit() {
 
   const { id = '' } = useParams();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const [data, setData] = useState<any>(null);
 
   const fetch = useCallback(async (id: string) => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/api/accounts/search_accounts_by_id`, {
         params: { id },
       });
@@ -30,6 +33,7 @@ export default function AccountEdit() {
           name: response.data.role.role_name,
         },
         password: response.data.password,
+        is_assign: response.data.is_assign,
         username: response.data.username,
         isDelete: response.data.is_delete,
       };
@@ -46,13 +50,24 @@ export default function AccountEdit() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = data?.code || 'Account';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {<CircularProgress />}
+      </Box>
+    );
   }
   return (
     <Page title="Account: Edit">

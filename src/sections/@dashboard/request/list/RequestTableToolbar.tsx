@@ -12,10 +12,10 @@ const STATUS_OPTIONS = [
   'preparing',
   'resolving',
   'resolved',
-  'editing',
+  'warning',
   'rejected',
   'canceled',
-  'closed'
+  'completed'
 ];
 export default function RequestTableToolbar({
   filterText,

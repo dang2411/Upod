@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   ListItem,
   Stack,
   TextField,
@@ -34,7 +35,7 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
     name: Yup.string().required('Name is required'),
   });
   const navigate = useNavigate();
-
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
 
@@ -57,6 +58,7 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
 
   const deleteArea = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/areas/disable_area_by_id',
         {},
@@ -66,11 +68,14 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
       );
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Delete area successfully', { variant: 'success' });
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.area.root);
       } else {
+        setIsLoading(false);
         enqueueSnackbar('Delete area failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete area failed', { variant: 'error' });
       console.error(error);
     }
@@ -83,12 +88,15 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
         params: { id: currentArea!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.area.root);
         enqueueSnackbar('Update area successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update area failed', { variant: 'error' });
       console.error(error);
     }
@@ -99,12 +107,15 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
     try {
       const response: any = await axios.post('/api/areas/create_area', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.area.root);
         enqueueSnackbar('Create area successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create area failed', { variant: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,6 +133,7 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
   } = methods;
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       const params = {
         area_name: data.name,
@@ -196,6 +208,17 @@ export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
           )}
         </Card>
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}

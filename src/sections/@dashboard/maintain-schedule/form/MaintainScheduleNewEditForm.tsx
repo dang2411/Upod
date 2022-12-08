@@ -1,9 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Grid, Stack, TextField } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Grid, Stack, TextField } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { format } from 'date-fns';
+import { values } from 'lodash';
 import { useSnackbar } from 'notistack';
+import { Technician } from 'src/@types/user';
+import { useState } from 'react';
 import { useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +18,7 @@ import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
 import { MaintainTitleSection } from '../../maintain-report/form/MaintainTitleSection';
+import TechnicianDialog from '../../request/dialog/TechnicianDialog';
 
 type Props = {
   currentMaintainSchedule: any;
@@ -29,6 +33,10 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
   const navigate = useNavigate();
 
   const { user } = useAuth();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [currentTechnician, setCurrentTechnician] = useState<Technician>();
 
   const isCustomer = user?.account?.roleName === 'Customer';
 
@@ -46,10 +54,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       id: currentMaintainSchedule.contract.id,
       name: currentMaintainSchedule.contract.name,
     },
-    technician: {
-      name: currentMaintainSchedule.technician.tech_name,
-      id: currentMaintainSchedule.technician.id,
-    },
+    technician: currentMaintainSchedule.technician,
     createDate: currentMaintainSchedule?.create_date,
     startTime: currentMaintainSchedule?.start_time,
     endTime: currentMaintainSchedule?.end_time,
@@ -57,6 +62,9 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     description: currentMaintainSchedule.description,
   };
 
+  const handleConfirm = (value: Technician) => {
+    setCurrentTechnician(value);
+  };
   const updateMaintainSchedule = useCallback(async (data: any) => {
     try {
       const response: any = await axios.put(
@@ -67,12 +75,18 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
         }
       );
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
+
         navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
         enqueueSnackbar('Update maintain schedule successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
+
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
+
       enqueueSnackbar('Update  maintain schedule failed', { variant: 'error' });
       console.error(error);
     }
@@ -90,11 +104,17 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       );
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Delete maintain schedule successfully', { variant: 'success' });
+        setIsLoading(false);
+
         navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
       } else {
+        setIsLoading(false);
+
         enqueueSnackbar('Delete maintain schedule successfully', { variant: 'success' });
       }
     } catch (error) {
+      setIsLoading(false);
+
       enqueueSnackbar('Delete agency failed', { variant: 'error' });
       console.error(error);
     }
@@ -103,9 +123,11 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
   const onSubmit = (data: any) => {
     if (isEdit) {
+      setIsLoading(true);
       const params = {
         id: currentMaintainSchedule!.id,
         description: data.description,
+        technician_id: currentTechnician?.id || defaultValues.technician.id,
         maintain_time: data.maintainTime,
       };
       updateMaintainSchedule(params);
@@ -124,19 +146,21 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     setToggle: setOpenDeleteDialog,
   } = useToggle(false);
 
-  const onDeleteClick = () => {
-    setOpenDeleteDialog(true);
-  };
-
   const onConfirmDelete = () => {
     deleteMaintainSchedule();
   };
 
   const {
+    toggle: openConfirmDialog,
+    onClose: onConfirmDialogClose,
+    setToggle: setOpenConfirmDialog,
+  } = useToggle();
+
+  const {
     handleSubmit,
     control,
     watch,
-    getValues,
+    setValue,
     formState: { isSubmitting },
   } = methods;
   const disableNameDescription =
@@ -146,8 +170,13 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
   const editPage = isEdit && currentMaintainSchedule;
 
+  const disableTechnician = !(
+    (currentMaintainSchedule.status === 'NOTIFIED' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'SCHEDULED' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'WARNING' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'MISSED' && !isCustomer)
+  );
   const status = currentMaintainSchedule.status.toLowerCase();
-
   return (
     <>
       <FormProvider onSubmit={handleSubmit(onSubmit)} methods={methods}>
@@ -205,9 +234,16 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   label="Agency"
                 />
                 <TextField
-                  disabled
-                  value={currentMaintainSchedule.technician.tech_name}
+                  disabled={disableTechnician}
+                  value={currentTechnician?.tech_name || defaultValues.technician.tech_name}
                   label="Techician"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => {
+                    setOpenConfirmDialog(true);
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ readOnly: true }}
                 />
                 <TextField
                   disabled
@@ -234,22 +270,45 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   </>
                 )}
               </Stack>
+              {!disableTechnician && (
+                <TechnicianDialog
+                  open={openConfirmDialog}
+                  onClose={onConfirmDialogClose}
+                  onSelect={handleConfirm}
+                  id={currentMaintainSchedule.id}
+                  ismaintain={true}
+                  agencyId={null}
+                  serviceId={null}
+                />
+              )}
             </Card>
           </Grid>
         </Grid>
 
         {(currentMaintainSchedule.status === 'SCHEDULED' ||
-          currentMaintainSchedule.status === 'NOTIFIED') && (
+          currentMaintainSchedule.status === 'NOTIFIED' ||
+          currentMaintainSchedule.status === 'WARNING') && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-            <Button variant="outlined" color="error" onClick={onDeleteClick}>
+            {/* <Button variant="outlined" color="error" onClick={onDeleteClick}>
               Delete
-            </Button>
+            </Button> */}
             <LoadingButton loading={isSubmitting} variant="contained" type="submit">
               {editPage ? 'Save' : 'Create'}
             </LoadingButton>
           </Stack>
         )}
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -103,8 +104,10 @@ export default function MaintainScheduleList() {
           status: x.status,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,11 +125,14 @@ export default function MaintainScheduleList() {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterStatus, filterText]);
 
   const [total, setTotal] = useState(0);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -156,6 +162,18 @@ export default function MaintainScheduleList() {
         />
 
         <Card>
+          
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <MaintainScheduleTableToolbar
             filterText={filterText}
             onFilterText={handleFilterTextChange}
@@ -190,7 +208,6 @@ export default function MaintainScheduleList() {
                     emptyRows={emptyRows(page, rowsPerPage, data.length)}
                   /> */}
 
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

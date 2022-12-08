@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Container } from '@mui/material';
+import { format } from 'date-fns';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -43,6 +44,7 @@ export default function ContractDetail() {
         terminal_content: response.data.terminal_content,
         reject_reason: response.data.reject_reason,
         description: response.data.description,
+        terminal_time: format(new Date(response.data.terminal_time), 'HH:mm dd/MM/yyyy'),
         frequencyMaintain: response.data.frequency_maintain_time,
         service: response.data.service.map((x) => ({
           id: x.id,

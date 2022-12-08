@@ -34,7 +34,6 @@ import * as Yup from 'yup';
 import Iconify from 'src/components/Iconify';
 import { SwiperSlide } from 'swiper/react';
 import uploadFirebase from 'src/utils/uploadFirebase';
-import ContractNewEditImageCard from '../card/ContractNewEditImageCard';
 import ContractNewEditImageContainer from '../card/ContractNewEditImageContainer';
 
 type Props = {
@@ -49,11 +48,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     name: Yup.string().required('Name is required'),
     startDate: Yup.date().required('Start date is required'),
     endDate: Yup.date().required('End date is required'),
+    customer: Yup.object().required('Customer is required'),
     service: Yup.array()
       .required('Service is required')
       .test({
         message: 'At least one service is required',
-        test: (arr) => arr!.length > 0,
+        test: (arr) => arr!?.length > 0,
       }),
     frequencyMaintain: Yup.number().required('Frequency maintain is required'),
     contractPrice: Yup.number(),
@@ -88,6 +88,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     is_expire: currentContract?.is_expire,
     is_accepted: currentContract?.is_accepted,
     terminal_content: currentContract?.terminal_content,
+    terminal_time: currentContract?.terminal_time,
     reject_reason: currentContract?.reject_reason,
     img: currentContract?.img || '',
     description: currentContract?.description || '',
@@ -95,6 +96,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     service: currentContract?.service,
     images: currentContract?.images || [],
   };
+
 
   const fetchCustomer = useCallback(async () => {
     try {
@@ -215,9 +217,11 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
         navigate(PATH_DASHBOARD.admin.contract.root);
         enqueueSnackbar('Create contract successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create contract failed', { variant: 'error' });
       console.error(error);
     }
@@ -285,12 +289,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     );
 
   const onSubmit = async (data: any) => {
+    setIsLoading(true);
     if (isCustomer) {
-      setIsLoading(true);
       approveContract();
     } else {
-      setIsLoading(true);
-      const fileUrl = await uploadFirebase(file, user?.account?.id ?? 'other');
+      let fileUrl = '';
+      if (file) fileUrl = await uploadFirebase(file, user?.account?.id ?? 'other');
       const urlList = await onUploadClick();
       const params = {
         customer_id: data.customer.id,
@@ -434,12 +438,20 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
                   minRows={4}
                 />
                 {defaultValues.terminal_content && (
-                  <RHFTextField
-                    name="terminal_content"
-                    label="Terminal Content"
-                    disabled={disable}
-                    multiline
-                  />
+                  <>
+                    <RHFTextField
+                      name="terminal_content"
+                      label="Terminal Content"
+                      disabled={disable}
+                      multiline
+                    />
+                    <RHFTextField
+                      name="terminal_time"
+                      label="Terminal Date"
+                      disabled={disable}
+                      multiline
+                    />
+                  </>
                 )}
                 {defaultValues.reject_reason && (
                   <RHFTextField
@@ -602,52 +614,54 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={8}>
-            <Card sx={{ p: 3 }}>
-              <Stack spacing={2}>
-                {!newPage && (
-                  <>
-                    <Typography variant="subtitle1">Files</Typography>
-                    <RHFTextField
-                      name=""
-                      label="Attachment"
-                      value={defaultValues.attachment}
-                      InputProps={{
-                        endAdornment: (
-                          <LoadingButton
-                            href={defaultValues.attachment}
-                            variant="contained"
-                            type="submit"
-                            size="small"
-                          >
-                            Download
-                          </LoadingButton>
-                        ),
-                      }}
-                      disabled={disable}
-                    />
-                  </>
-                )}
-              </Stack>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Card sx={{ p: 3 }}>
-              {!newPage && (
-                <RHFTextField
-                  name=""
-                  value={''}
-                  label="Images"
-                  InputProps={{
-                    startAdornment: (
-                      <ContractNewEditImageContainer fullWidth listImage={defaultValues.img} />
-                    ),
-                  }}
-                  disabled={disable}
-                />
-              )}
-            </Card>
-          </Grid>
+          {!newPage && (
+            <>
+              <Grid item xs={12} md={8}>
+                <Card sx={{ p: 3 }}>
+                  <Stack spacing={2}>
+                    <>
+                      <Typography variant="subtitle1">Files</Typography>
+                      {defaultValues.attachment && (
+                        <RHFTextField
+                          name=""
+                          label="Attachment"
+                          value={defaultValues.attachment}
+                          InputProps={{
+                            endAdornment: (
+                              <LoadingButton
+                                href={defaultValues.attachment}
+                                variant="contained"
+                                type="submit"
+                                size="small"
+                              >
+                                Download
+                              </LoadingButton>
+                            ),
+                          }}
+                          disabled={disable}
+                        />
+                      )}
+                    </>
+                  </Stack>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Card sx={{ p: 3 }}>
+                  <RHFTextField
+                    name=""
+                    value={''}
+                    label="Images"
+                    InputProps={{
+                      startAdornment: (
+                        <ContractNewEditImageContainer fullWidth listImage={defaultValues.img} />
+                      ),
+                    }}
+                    disabled={disable}
+                  />
+                </Card>
+              </Grid>
+            </>
+          )}
         </Grid>
         {newPage && (
           <>

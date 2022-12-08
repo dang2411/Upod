@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -34,6 +35,8 @@ const TABLE_HEAD = [
 
 export default function AgencyList() {
   const { themeStretch } = useSettings();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -88,7 +91,9 @@ export default function AgencyList() {
           phone: x.telephone,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
@@ -102,8 +107,8 @@ export default function AgencyList() {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, filterText]);
 
@@ -137,6 +142,17 @@ export default function AgencyList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <AgencyTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
           <TableContainer>
@@ -162,8 +178,6 @@ export default function AgencyList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

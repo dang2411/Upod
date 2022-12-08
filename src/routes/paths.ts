@@ -54,6 +54,20 @@ export const PATH_DASHBOARD = {
       list: path(ROOTS_CUSTOMER, '/device/list'),
       view: (id: string) => path(ROOTS_CUSTOMER, `/device/view/${id}`),
     },
+     maintainReport: {
+      root: path(ROOTS_CUSTOMER, '/maintain-report'),
+      list: path(ROOTS_CUSTOMER, '/maintain-report/list'),
+      new: path(ROOTS_CUSTOMER, '/maintain-report/new'),
+      edit: (id: string) => path(ROOTS_CUSTOMER, `/maintain-report/edit/${id}`),
+      view: (id: string) => path(ROOTS_CUSTOMER, `/maintain-report/view/${id}`),
+    },
+    maintainSchedule: {
+      root: path(ROOTS_CUSTOMER, '/maintain-schedule'),
+      list: path(ROOTS_CUSTOMER, '/maintain-schedule/list'),
+      new: path(ROOTS_CUSTOMER, '/maintain-schedule/new'),
+      edit: (id: string) => path(ROOTS_CUSTOMER, `/maintain-schedule/edit/${id}`),
+      view: (id: string) => path(ROOTS_CUSTOMER, `/maintain-schedule/view/${id}`),
+    },
     agency: {
       root: path(ROOTS_CUSTOMER, '/agency'),
       list: path(ROOTS_CUSTOMER, '/agency/list'),

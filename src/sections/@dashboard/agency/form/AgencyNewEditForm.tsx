@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Stack, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -41,6 +41,8 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const { user } = useAuth();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const isCustomer = user?.account?.roleName === 'Customer';
 
   const { enqueueSnackbar } = useSnackbar();
@@ -77,9 +79,8 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const fetchTechnician = useCallback(async (data: any, customer: any) => {
     try {
       const response = await axios.get('/api/areas/get_list_technicians_by_area_id', {
-        params: { pageNumber: 1, pageSize: 1000, id: data?.id , cus_id: customer.id},
+        params: { pageNumber: 1, pageSize: 1000, id: data?.id, cus_id: customer.id },
       });
-
       setTechnicians(response.data.map((x) => ({ id: x.id, name: x.tech_name })));
     } catch (error) {
       console.error(error);
@@ -92,7 +93,6 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
       const response = await axios.get('/api/customers/get_all_customers', {
         params: { pageNumber: 1, pageSize: 1000 },
       });
-
       setCustomers(response.data.map((x) => ({ id: x.id, name: x.name })));
     } catch (error) {
       console.error(error);
@@ -105,7 +105,6 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
       const response = await axios.get('/api/areas/get_list_area', {
         params: { pageNumber: 1, pageSize: 1000 },
       });
-
       setAreas(response.data.map((x) => ({ id: x.id, name: x.area_name })));
     } catch (error) {
       console.error(error);
@@ -115,36 +114,43 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const createAgency = useCallback(async (data: any) => {
     try {
-      const response:any = await axios.post('/api/agencies/create_agency', data);
+      const response: any = await axios.post('/api/agencies/create_agency', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.agency.root);
-        enqueueSnackbar('Create agenycy successfully', { variant: 'success' });
+        enqueueSnackbar('Create agency successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
-      enqueueSnackbar('Create agenycy failed', { variant: 'error' });
+      setIsLoading(false);
+      enqueueSnackbar('Create agency failed', { variant: 'error' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateAgency = useCallback(async (data: any) => {
     try {
-      const response:any = await axios.put('/api/agencies/update_agency_by_id', data, {
+      const response: any = await axios.put('/api/agencies/update_agency_by_id', data, {
         params: { id: currentAgency!.id },
       });
       if (response.status === 200 || response.status === 201) {
         if (isCustomer) {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.customer.agency.root);
         } else {
+          setIsLoading(false);
           navigate(PATH_DASHBOARD.admin.agency.root);
         }
-        enqueueSnackbar('Update agencies successfully', { variant: 'success' });
+        enqueueSnackbar('Update agency successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
-      enqueueSnackbar('Update agencies failed', { variant: 'error' });
+      setIsLoading(false);
+      enqueueSnackbar('Update agency failed', { variant: 'error' });
       console.error(error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,6 +158,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const deleteAgency = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/agencies/disable_agency_by_id',
         {},
@@ -160,12 +167,15 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
         }
       );
       if (response.status === 200 || response.status === 201) {
-        enqueueSnackbar('Delete account successfully', { variant: 'success' });
+        enqueueSnackbar('Delete agency successfully', { variant: 'success' });
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.agency.root);
       } else {
-        enqueueSnackbar('Delete agency successfully', { variant: 'success' });
+        setIsLoading(false);
+        enqueueSnackbar('Delete agency failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete agency failed', { variant: 'error' });
       console.error(error);
     }
@@ -173,6 +183,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   }, []);
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       const params = {
         id: currentAgency!.id,
@@ -294,6 +305,17 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
           )}
         </Card>
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}

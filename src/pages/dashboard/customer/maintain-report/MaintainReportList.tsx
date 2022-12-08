@@ -17,40 +17,49 @@ import { useNavigate } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
 import Page from 'src/components/Page';
 import { TableHeadCustom, TableNoData } from 'src/components/table';
+import useAuth from 'src/hooks/useAuth';
 import useSettings from 'src/hooks/useSettings';
 import useTable from 'src/hooks/useTable';
+import useTabs from 'src/hooks/useTabs';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import DeviceTableRow from 'src/sections/@dashboard/device/list/DeviceTableRow';
-import DeviceTableToolbar from 'src/sections/@dashboard/device/list/DeviceTableToolbar';
+import MaintainTableRow from 'src/sections/@dashboard/maintain-report/list/MaintainTableRow';
+import MaintainTableToolbar from 'src/sections/@dashboard/maintain-report/list/MaintainTableToolbar';
 import axiosInstance from 'src/utils/axios';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
   { id: 'name', label: 'Name', align: 'left' },
-  { id: 'customer', label: 'Customer', align: 'left' },
+  { id: 'createdDate', label: 'Created Date', align: 'left' },
   { id: 'agency', label: 'Agency', align: 'left' },
-  { id: 'type', label: 'Type', align: 'left' },
+  { id: 'customer', label: 'Customer', align: 'left' },
   { id: 'createdBy', label: 'Created By', align: 'left' },
+  { id: 'status', label: 'Status', align: 'left' },
+  { id: 'action', label: '', align: 'left' },
 ];
 
-export default function DeviceList() {
+export default function MaintainReportList() {
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
+
+  const { user } = useAuth();
 
   const [filterText, setFilterText] = useState('');
 
-  const handleBtnClick = () => {
-    navigate(PATH_DASHBOARD.admin.device.new);
-  };
+  const {
+    currentTab: filterStatus,
+    // onChangeTab: onChangeFilterStatus,
+    setCurrentTab: setFilterStatus,
+  } = useTabs('all');
 
   const handleFilterTextChange = (value: string) => {
     setFilterText(value);
   };
 
   const handleRowClick = (value: string) => {
-    navigate(PATH_DASHBOARD.admin.device.view(value));
+    navigate(PATH_DASHBOARD.customer.maintainReport.edit(value));
   };
 
   const [data, setData] = useState<any[]>([]);
@@ -63,58 +72,88 @@ export default function DeviceList() {
     rowsPerPage,
     //
     selected,
+    setPage,
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
 
+  const processMaintain = useCallback(async (id: string) => {
+    try {
+      await axiosInstance.put(
+        '/api/maintenance_reports/processing_maintenance_report',
+        {},
+        { params: { id } }
+      );
+      enqueueSnackbar('Process success', { variant: 'success' });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(`${error}`, { variant: 'error' });
+    }
+  }, []);
+
   const fetch = useCallback(
-    async ({ value, page, rowsPerPage }: any) => {
+    async ({ value, page, rowsPerPage, filterStatus }: any) => {
       try {
-        const response: any = await axiosInstance.get('/api/devices/get_list_devices', {
-          params: {
-            pageNumber: page + 1,
-            pageSize: rowsPerPage,
-            search: value === '' ? undefined : value,
-          },
-        });
+        const response: any = await axiosInstance.get(
+          '/api/maintenance_reports/get_list_maintenance_reports_by_customer_id',
+          {
+            params: {
+              id: user?.account?.id,
+              pageNumber: page + 1,
+              pageSize: rowsPerPage,
+              search: value === '' ? undefined : value,
+              status: filterStatus === 'all' ? undefined : filterStatus,
+            },
+          }
+        );
 
         setTotal(response.total);
 
         const result = Array.from(response.data).map((x: any) => ({
           id: x.id,
           code: x.code,
-          name: x.device_name,
+          name: x.name,
+          createdDate: x.update_date,
           customer: x.customer,
-          service: x.service,
           agency: x.agency,
-          type: x.devicetype.device_type_name,
-          technician: x.technician,
+          status: x.status.toLowerCase(),
+          maintenance_schedule: x.maintenance_schedule,
+          technician: x.create_by,
+          is_processed: x.is_processed,
         }));
         setData(result);
         setIsLoading(false);
       } catch (error) {
-        setIsLoading(false);
         console.error(error);
+        setIsLoading(false);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filterText, page, rowsPerPage]
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceSearch = useCallback(
     debounce(
-      ({ value, page, rowsPerPage, filterStatus }: any) => fetch({ value, page, rowsPerPage }),
+      ({ value, page, rowsPerPage, filterStatus }: any) =>
+        fetch({ value, page, rowsPerPage, filterStatus }),
       1000
     ),
     []
   );
+
+  const handleProcess = async (id: string) => {
+    await processMaintain(id);
+    fetch({ filterText, page, rowsPerPage, filterStatus });
+  };
+
   useEffect(() => {
     setIsLoading(true);
-    debounceSearch({ value: filterText, page, rowsPerPage });
-
+    debounceSearch({ value: filterText, page, rowsPerPage, filterStatus });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, filterText]);
+  }, [page, rowsPerPage, filterStatus, filterText]);
 
   const [total, setTotal] = useState(0);
 
@@ -123,18 +162,18 @@ export default function DeviceList() {
   const isNotFound = !data.length;
 
   return (
-    <Page title="Device: Listing">
+    <Page title="Maintain Report: Listing">
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
-          heading="Device: Listing"
+          heading="Maintain Report: Listing"
           links={[
             {
               name: 'Dashboard',
               href: PATH_DASHBOARD.root,
             },
             {
-              name: 'Device',
-              href: PATH_DASHBOARD.admin.device.root,
+              name: 'Maintain',
+              href: PATH_DASHBOARD.customer.maintainReport.root,
             },
             { name: 'Listing' },
           ]}
@@ -157,7 +196,16 @@ export default function DeviceList() {
               {<CircularProgress />}
             </Box>
           )}
-          <DeviceTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
+          <MaintainTableToolbar
+            filterText={filterText}
+            onFilterText={handleFilterTextChange}
+            filterStatus={filterStatus}
+            onChangeFilterStatus={(value) => {
+              setPage(0);
+              setFilterStatus(value);
+            }}
+          />
+
           <TableContainer>
             <Table size={dense ? 'small' : 'medium'}>
               <TableHeadCustom
@@ -170,17 +218,19 @@ export default function DeviceList() {
 
               <TableBody>
                 {data.map((row: any) => (
-                  <DeviceTableRow
+                  <MaintainTableRow
                     key={row.id}
+                    isCustomer={user?.account?.roleName === 'Customer'}
                     row={row}
-                    onRowClick={() => handleRowClick(row.id)}
+                    onRowClick={() => handleRowClick(row.maintenance_schedule.id)}
+                    is_processed={row.is_processed}
                   />
                 ))}
                 {/* 
-                <TableEmptyRows
-                  height={denseHeight}
-                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
-                /> */}
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(page, rowsPerPage, data.length)}
+                    /> */}
               </TableBody>
             </Table>
           </TableContainer>

@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   ListItem,
   Stack,
   TextField,
@@ -42,6 +43,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     area: Yup.object().required('Area is required'),
     account: Yup.object().required('Account is required'),
     gender: Yup.number().required('Gender is required'),
+    breach: Yup.string().required('Breach is required'),
     address: Yup.string().required('Address is required'),
     service: Yup.array()
       .required('Service is required')
@@ -70,6 +72,8 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   } = useToggle(false);
 
   const [areas, setAreas] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [services, setServices] = useState([]);
 
@@ -117,6 +121,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     account: currentTechnician?.account,
     phone: currentTechnician?.telephone || '',
     email: currentTechnician?.email || '',
+    breach: currentTechnician?.breach || 0,
     gender: currentTechnician?.gender || 0,
     address: currentTechnician?.address || '',
     rating: currentTechnician?.rating || '',
@@ -157,12 +162,15 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
     try {
       const response: any = await axios.post('/api/technicians/create_technician', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Create technician successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create technician failed', { variant: 'error' });
       console.error(error);
     }
@@ -175,12 +183,15 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         params: { id: currentTechnician!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.technician.root);
         enqueueSnackbar('Update technician successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update technician failed', { variant: 'error' });
       console.error(error);
     }
@@ -189,6 +200,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
 
   const deleteTechnician = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/technicians/disable_technician_by_id',
         {},
@@ -198,11 +210,14 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
       );
       if (response.status === 200 || response.status === 201) {
         enqueueSnackbar('Delete account successfully', { variant: 'success' });
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.technician.root);
       } else {
+        setIsLoading(false);
         enqueueSnackbar('Delete account failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete technician failed', { variant: 'error' });
       console.error(error);
     }
@@ -210,6 +225,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   }, []);
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       // update
       const params = {
@@ -219,6 +235,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
         email: data.email,
         gender: data.gender,
         address: data.address,
+        breach: data.breach,
         rating_avg: 0,
         service_id: data.service.map((x: any) => x.id),
       };
@@ -372,6 +389,7 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                   />
                 )}
               />
+              <RHFTextField name="breach" label="Breach times" type="number" disabled={disable} />
             </Box>
           </Stack>
           {!disable && (
@@ -388,6 +406,17 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
           )}
         </Card>
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <CreateAccountDialog
         open={openDialog}
         onClose={onCloseDialog}

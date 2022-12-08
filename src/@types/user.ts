@@ -127,7 +127,7 @@ export type UserPost = {
   }[];
 };
 
-export type AuthCredential  = {
+export type AuthCredential = {
   id: string;
   code: string;
   account_id: string;
@@ -135,14 +135,15 @@ export type AuthCredential  = {
   role_name: string;
   username: string;
   token: string;
-}
+};
 
 export type Technician = {
   id: string;
   code?: string;
   tech_name?: string;
+  area;
   address?: string;
-  number_of_requests? :number;
+  number_of_requests?: number;
   skills?: string[];
   avatar?: string;
 };

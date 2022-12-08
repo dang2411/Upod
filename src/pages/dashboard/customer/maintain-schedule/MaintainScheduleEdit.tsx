@@ -42,7 +42,7 @@ export default function MaintainScheduleEdit() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const onReportClick = () => {
-    navigate(PATH_DASHBOARD.admin.maintainReport.edit(data.id));
+    navigate(PATH_DASHBOARD.customer.maintainReport.edit(data.id));
   };
   useEffect(() => {
     setIsLoading(false);
@@ -76,7 +76,7 @@ export default function MaintainScheduleEdit() {
             },
             {
               name: 'Maintain Schedule',
-              href: PATH_DASHBOARD.admin.maintainSchedule.root,
+              href: PATH_DASHBOARD.customer.maintainSchedule.root,
             },
             { name: title },
           ]}

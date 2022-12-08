@@ -25,6 +25,16 @@ const customerNavConfig = [
       { title: 'request', path: PATH_DASHBOARD.customer.request.root, icon: ICONS.request },
       { title: 'contract', path: PATH_DASHBOARD.customer.contract.root, icon: ICONS.contract },
       { title: 'agency', path: PATH_DASHBOARD.customer.agency.root, icon: ICONS.agency },
+      {
+        title: 'maintain report',
+        path: PATH_DASHBOARD.customer.maintainReport.root,
+        icon: ICONS.maintainReport,
+      },
+      {
+        title: 'maintain schedule',
+        path: PATH_DASHBOARD.customer.maintainSchedule.root,
+        icon: ICONS.maintainSchedule,
+      },
     ],
   },
 ];

@@ -23,12 +23,12 @@ export default function ConfirmDialog({ open, onConfirm, onClose, title, text }:
         <DialogContent>
           <DialogContentText>{text}</DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={onConfirm}>
-            Confirm
-          </Button>
-          <Button variant="contained" color="error" onClick={onClose}>
+        <DialogActions>   
+          <Button variant="outlined" color="error" onClick={onClose}>
             Cancel
+          </Button>
+          <Button variant="contained" onClick={onConfirm}>
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>

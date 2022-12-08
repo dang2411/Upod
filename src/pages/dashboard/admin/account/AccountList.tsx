@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Container,
   debounce,
   FormControlLabel,
@@ -33,6 +34,8 @@ const TABLE_HEAD = [
 
 export default function AccountList() {
   const { themeStretch } = useSettings();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -87,7 +90,9 @@ export default function AccountList() {
           assign: !x.is_assign,
         }));
         setData(result);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         enqueueSnackbar('Cannot fetch data', { variant: 'error' });
       }
@@ -103,6 +108,7 @@ export default function AccountList() {
     []
   );
   useEffect(() => {
+    setIsLoading(true);
     debounceSearch({ value: filterText, page, rowsPerPage });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -137,6 +143,17 @@ export default function AccountList() {
         />
 
         <Card>
+          {isLoading && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {<CircularProgress />}
+            </Box>
+          )}
           <AccountTableToolbar filterText={filterText} onFilterText={handleFilterTextChange} />
 
           <TableContainer>
@@ -162,8 +179,6 @@ export default function AccountList() {
                   height={denseHeight}
                   emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 /> */}
-
-                <TableNoData isNotFound={isNotFound} />
               </TableBody>
             </Table>
           </TableContainer>

@@ -1,6 +1,15 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Autocomplete, Box, Button, Card, ListItem, Stack, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  ListItem,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -40,6 +49,8 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const { user } = useAuth();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const { toggle: openDialog, onClose: onCloseDialog, setToggle: setOpenDialog } = useToggle(false);
 
   const [accounts, setAccounts] = useState([{ id: 'new', name: '' }]);
@@ -67,14 +78,17 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
     try {
       const response: any = await axios.post('/api/customers/create_customer', data);
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Create company successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar(response.message ?? 'Create company failed', {
           variant: 'error',
         });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Create company failed', { variant: 'error' });
       console.error(error);
     }
@@ -87,12 +101,15 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         params: { id: currentCompany!.id },
       });
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Update company successfully', { variant: 'success' });
       } else {
-        enqueueSnackbar(response.message , { variant: 'error' });
+        setIsLoading(false);
+        enqueueSnackbar(response.message, { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Update company failed', { variant: 'error' });
       console.error(error);
     }
@@ -123,6 +140,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
 
   const deleteCompany = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(
         '/api/customers/disable_customer_by_id',
         {},
@@ -131,12 +149,15 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
         }
       );
       if (response.status === 200 || response.status === 201) {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.company.root);
         enqueueSnackbar('Delete company successfully', { variant: 'success' });
       } else {
+        setIsLoading(false);
         enqueueSnackbar('Delete company failed', { variant: 'error' });
       }
     } catch (error) {
+      setIsLoading(false);
       enqueueSnackbar('Delete company failed', { variant: 'error' });
       console.error(error);
     }
@@ -144,6 +165,7 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   }, []);
 
   const onSubmit = (data: any) => {
+    setIsLoading(true);
     if (isEdit) {
       const params = {
         name: data.name,
@@ -274,13 +296,24 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
           )}
         </Card>
       </FormProvider>
+      {isLoading && (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          {<CircularProgress />}
+        </Box>
+      )}
       <CreateAccountDialog
         open={openDialog}
         onClose={onCloseDialog}
         role="Customer"
         onSuccess={onCreateAccountSuccess}
       />
-       <ConfirmDialog
+      <ConfirmDialog
         open={openDeleteDialog}
         onClose={onCloseDeleteDialog}
         onConfirm={onConfirmDelete}

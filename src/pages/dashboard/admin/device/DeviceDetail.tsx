@@ -1,5 +1,6 @@
-import { Container, Grid } from '@mui/material';
+import { CircularProgress, Container, Grid } from '@mui/material';
 import { Box } from '@mui/system';
+import { watch } from 'fs';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBreadcrumbs from 'src/components/HeaderBreadcrumbs';
@@ -12,6 +13,8 @@ import axiosInstance from 'src/utils/axios';
 
 export default function DeviceDetail() {
   const { themeStretch } = useSettings();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const { id = '' } = useParams();
 
@@ -56,7 +59,9 @@ export default function DeviceDetail() {
       };
       if (response.status === 200) {
         setData(result);
+        setIsLoading(false);
       } else {
+        setIsLoading(false);
         navigate(PATH_DASHBOARD.admin.device.root);
       }
     } catch (e) {
@@ -67,13 +72,24 @@ export default function DeviceDetail() {
 
   useEffect(() => {
     fetch(id);
+    setIsLoading(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const title = data?.code || 'Device';
 
   if (!data) {
-    return <div />;
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (

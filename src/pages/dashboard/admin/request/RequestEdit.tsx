@@ -50,7 +50,9 @@ export default function RequestEdit() {
         description: response.data.description,
         startTime: response.data.start_time,
         endTime: response.data.end_time,
+        duration_time: response.data.duration_time,
         status: response.data.request_status.toLowerCase(),
+        createdBySystem: response.data.is_system,
         technician: response.data.technicican,
         createdBy: response.data.create_by,
       } as Request;
@@ -95,11 +97,6 @@ export default function RequestEdit() {
 
   return (
     <Page title="Request: Edit">
-      {isLoading && (
-        <Box sx={{ minWidth: '100%', display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      )}
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <HeaderBreadcrumbs
           heading={title}
