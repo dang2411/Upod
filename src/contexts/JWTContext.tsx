@@ -153,6 +153,10 @@ function AuthProvider({ children }: AuthProviderProps) {
       throw new Error(response.message);
     }
 
+    if (response.data.role_name !== 'Admin' && response.data.role_name !== 'Customer') {
+      throw new Error('Permission denied!!!');
+    }
+
     const { id, token, account_id, code, username, role_id, role_name } = response.data;
 
     const user = {

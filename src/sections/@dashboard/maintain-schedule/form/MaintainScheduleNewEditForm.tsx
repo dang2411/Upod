@@ -1,7 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Button, Card, CircularProgress, Grid, Stack, TextField } from '@mui/material';
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
 import { format } from 'date-fns';
 import { values } from 'lodash';
 import { useSnackbar } from 'notistack';
@@ -164,7 +164,6 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     formState: { isSubmitting },
   } = methods;
   const disableNameDescription =
-    currentMaintainSchedule.status === 'MISSED' ||
     currentMaintainSchedule.status === 'MAINTAINING' ||
     currentMaintainSchedule.status === 'COMPLETED';
 
@@ -174,7 +173,8 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     (currentMaintainSchedule.status === 'NOTIFIED' && !isCustomer) ||
     (currentMaintainSchedule.status === 'SCHEDULED' && !isCustomer) ||
     (currentMaintainSchedule.status === 'WARNING' && !isCustomer) ||
-    (currentMaintainSchedule.status === 'MISSED' && !isCustomer)
+    (currentMaintainSchedule.status === 'MISSED' && !isCustomer) ||
+    (currentMaintainSchedule.status === 'PREPARING' && !isCustomer)
   );
   const status = currentMaintainSchedule.status.toLowerCase();
   return (
@@ -194,9 +194,9 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   name="maintainTime"
                   control={control}
                   render={({ field, fieldState: { error } }) => (
-                    <DateTimePicker
+                    <DatePicker
                       label="Maintain Time"
-                      inputFormat="dd/MM/yyyy hh:mm"
+                      inputFormat="dd/MM/yyyy"
                       value={field.value}
                       disabled={disableNameDescription}
                       onChange={(newValue) => {
@@ -287,7 +287,9 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
 
         {(currentMaintainSchedule.status === 'SCHEDULED' ||
           currentMaintainSchedule.status === 'NOTIFIED' ||
-          currentMaintainSchedule.status === 'WARNING') && (
+          currentMaintainSchedule.status === 'WARNING' ||
+          currentMaintainSchedule.status === 'MISSED' ||
+          currentMaintainSchedule.status === 'PREPARING') && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             {/* <Button variant="outlined" color="error" onClick={onDeleteClick}>
               Delete

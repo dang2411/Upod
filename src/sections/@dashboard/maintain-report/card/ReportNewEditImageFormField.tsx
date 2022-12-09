@@ -23,20 +23,22 @@ import ReportNewEditImageCard from './ReportNewEditImageCard';
 
 export default function ReportNewEditImageFormField({ listImage, ...rest }: any) {
   return (
-    <Box p={3}>
-      <Swiper
-        pagination={{
-          dynamicBullets: true,
-        }}
-        modules={[Pagination]}
-        className="mySwiper"
-      >
-        {Array.from(listImage).map((img: any, index) => (
-          <SwiperSlide key={index}>
-            <ReportNewEditImageCard image={img} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </Box>
+    <>
+      <Box p={3}>
+        <Swiper
+          pagination={{
+            dynamicBullets: true,
+          }}
+          modules={[Pagination]}
+          className="mySwiper"
+        >
+          {Array.from(listImage).map((img: any, index) => (
+            <SwiperSlide key={index}>
+              <ReportNewEditImageCard image={img} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </Box>
+    </>
   );
 }

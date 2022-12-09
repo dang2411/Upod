@@ -55,13 +55,13 @@ export default function MaintainNewEditDetailForm({ currentMaintain }: any) {
             fullWidth
             disabled
           />
-          <RHFTextField
+          {/* <RHFTextField
             name="description"
             label="Description"
             variant="outlined"
             fullWidth
             disabled
-          />
+          /> */}
         </Stack>
       </Card>
     </>
