@@ -11,6 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { info } from 'console';
 import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
@@ -80,7 +81,7 @@ type Props = {
 
 export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
   const RequestSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
     service: Yup.object().required('Service is required'),
     // priority: Yup.number().required('Priority is required').min(1).max(3),
     agency: Yup.object().required('Agency is required'),
@@ -614,6 +615,18 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                     variant="outlined"
                     fullWidth
                     disabled={true}
+                    sx={{
+                      '& .Mui-disabled': {
+                        cursor: 'pointer',
+                      },
+                    }}
+                    onClick={() => {
+                      if (!isCustomer) {
+                        navigate(PATH_DASHBOARD.admin.contract.view(getValues('contract').id));
+                      } else {
+                        navigate(PATH_DASHBOARD.customer.contract.view(getValues('contract').id));
+                      }
+                    }}
                   />
                 </Grid>
               )}
@@ -659,7 +672,11 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                 <Grid item xs={12} md={6}>
                   <RHFTextField
                     name="technician"
-                    value={watch('technician')?.tech_name ?? ''}
+                    value={
+                      (watch('technician').tech_name &&
+                        watch('technician').tech_name + ', ' + watch('technician').code) ||
+                      ''
+                    }
                     helperText={
                       currentRequest !== null && currentStatus === 'pending' ? (
                         <Typography sx={{ color: 'error.main' }} variant="body2">
@@ -842,9 +859,20 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   Cancel
                 </Button>
               ))}
-            {((currentStatus === 'preparing' && !isCustomer && isCreatedByAdmin) ||
-              (currentStatus === 'preparing' && isCustomer && isCreatedByCurrentUser) ||
-              (currentStatus === 'warning' && isCustomer && isCreatedByCurrentUser)) && (
+            {((currentStatus === 'preparing' &&
+              !isCustomer &&
+              (isCreatedByAdmin || isCreatedBySystem)) ||
+              (currentStatus === 'preparing' &&
+                isCustomer &&
+                isCreatedByCurrentUser &&
+                !isCreatedBySystem) ||
+              (currentStatus === 'warning' &&
+                isCustomer &&
+                isCreatedByCurrentUser &&
+                !isCreatedBySystem) ||
+              (currentStatus === 'warning' &&
+                !isCustomer &&
+                (isCreatedByAdmin || isCreatedBySystem))) && (
               <Button onClick={handleCancelClick} color="error" variant="outlined">
                 Cancel
               </Button>

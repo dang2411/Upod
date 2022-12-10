@@ -32,8 +32,8 @@ export default function AccountNewEditForm({ currentAccount, isEdit }: Props) {
 
   const AccountSchema = Yup.object().shape({
     role: Yup.object().required('Role is required'),
-    username: Yup.string().required('Username is required'),
-    password: Yup.string().required('Password is required'),
+    username: Yup.string().trim().required('Username is required'),
+    password: Yup.string().trim().required('Password is required'),
   });
 
   const [roles, setRoles] = useState([]);

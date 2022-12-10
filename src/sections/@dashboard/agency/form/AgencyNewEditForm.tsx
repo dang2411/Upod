@@ -5,6 +5,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { Technician } from 'src/@types/user';
 import ConfirmDialog from 'src/components/dialog/ConfirmDialog';
 import { FormProvider, RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
 import useAuth from 'src/hooks/useAuth';
@@ -12,6 +13,7 @@ import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
 import * as Yup from 'yup';
+import TechnicianDialog from '../../request/dialog/TechnicianDialog';
 
 type Props = {
   currentAgency: any;
@@ -22,9 +24,10 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const navigate = useNavigate();
 
   const AgencySchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    address: Yup.string().required('Address is required'),
+    name: Yup.string().trim().required('Name is required'),
+    address: Yup.string().trim().required('Address is required'),
     phone: Yup.string()
+      .trim()
       .matches(
         /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
         {
@@ -34,7 +37,7 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
       )
       .required('Phone is required'),
     area: Yup.object().required('Area is required'),
-    manager: Yup.string().required('Manager name is required'),
+    manager: Yup.string().trim().required('Manager name is required'),
     customer: Yup.object().required('Customer is required'),
     technician: Yup.object().required('Technician is required'),
   });
@@ -50,8 +53,6 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const [areas, setAreas] = useState([]);
 
   const [customers, setCustomers] = useState([]);
-
-  const [technicians, setTechnicians] = useState([]);
 
   const defaultValues = {
     code: currentAgency?.code || '',
@@ -72,21 +73,10 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
   const {
     handleSubmit,
     watch,
+    setValue,
     getValues,
     formState: { isSubmitting },
   } = methods;
-
-  const fetchTechnician = useCallback(async (data: any, customer: any) => {
-    try {
-      const response = await axios.get('/api/areas/get_list_technicians_by_area_id', {
-        params: { pageNumber: 1, pageSize: 1000, id: data?.id, cus_id: customer.id },
-      });
-      setTechnicians(response.data.map((x) => ({ id: x.id, name: x.tech_name })));
-    } catch (error) {
-      console.error(error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const fetchCustomer = useCallback(async () => {
     try {
@@ -220,6 +210,12 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
 
   const disable = (!isEdit && currentAgency != null) || isCustomer;
 
+  const {
+    toggle: openConfirmDialog,
+    onClose: onConfirmDialogClose,
+    setToggle: setOpenConfirmDialog,
+  } = useToggle();
+
   const onDeleteClick = () => {
     setOpenDeleteDialog(true);
   };
@@ -228,18 +224,15 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
     deleteAgency();
   };
 
+  const onConfirm = (value: Technician) => {
+    setValue('technician', value);
+  };
+
   useEffect(() => {
     fetchAreas();
     fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (getValues('area')) {
-      fetchTechnician(getValues('area'), getValues('customer'));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [watch('area'), watch('customer')]);
 
   const editPage = isEdit && currentAgency;
 
@@ -271,15 +264,25 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
                 InputLabelProps={{ shrink: true }}
                 disabled={disable}
               />
-              {watch('area') && technicians != null && (
-                <RHFAutocomplete
+              {watch('area') && watch('customer') && (
+                <RHFTextField
                   name="technician"
+                  value={
+                    (watch('technician').tech_name &&
+                      watch('technician').tech_name + ', ' + watch('technician').code) ||
+                    (defaultValues.technician.tech_name &&
+                      defaultValues.technician.tech_name + ', ' + defaultValues.technician.code) ||
+                    ''
+                  }
                   label="Technician"
                   variant="outlined"
-                  options={technicians}
                   fullWidth
+                  onClick={() => {
+                    setOpenConfirmDialog(true);
+                  }}
                   InputLabelProps={{ shrink: true }}
-                  disabled={disable}
+                  inputProps={{ readOnly: true }}
+                  disabled={false}
                 />
               )}
               <RHFAutocomplete
@@ -293,11 +296,25 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
               />
             </Box>
           </Stack>
+          {watch('customer') && watch('area') && (
+            <TechnicianDialog
+              open={openConfirmDialog}
+              onClose={onConfirmDialogClose}
+              onSelect={onConfirm}
+              id={getValues('customer').id || ''}
+              isdefault={true}
+              isAdminCreate={false}
+              agencyId={getValues('area').id || ''}
+              serviceId={null}
+            />
+          )}
           {!isCustomer && (
             <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
-              <Button variant="outlined" color="error" onClick={onDeleteClick}>
-                Delete
-              </Button>
+              {currentAgency && (
+                <Button variant="outlined" color="error" onClick={onDeleteClick}>
+                  Delete
+                </Button>
+              )}
               <LoadingButton loading={isSubmitting} variant="contained" type="submit">
                 {editPage ? 'Save' : 'Create'}
               </LoadingButton>

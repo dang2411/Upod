@@ -42,6 +42,7 @@ type Props = {
   serviceId: string | null;
   isAdminCreate?: boolean;
   ismaintain?: boolean;
+  isdefault?: boolean;
 };
 
 export default function TechnicianDialog({
@@ -53,6 +54,7 @@ export default function TechnicianDialog({
   serviceId,
   ismaintain = false,
   isAdminCreate = false,
+  isdefault = false,
 }: Props): JSX.Element {
   const handleSelect = (value: Technician) => {
     if (onSelect) {
@@ -70,7 +72,11 @@ export default function TechnicianDialog({
   const fetch = useCallback(async () => {
     try {
       let response: any;
-      if (isAdminCreate) {
+      if (isdefault) {
+        response = await axios.get('/api/areas/get_list_technicians_by_area_id', {
+          params: { pageNumber: 1, pageSize: 1000, id: agencyId, cus_id: id },
+        });
+      } else if (isAdminCreate) {
         response = await axios.get('/api/requests/get_technicians_by_id_report_service', {
           params: { agency_id: agencyId, service_id: serviceId },
         });
@@ -87,13 +93,15 @@ export default function TechnicianDialog({
         });
       }
       setLoading(false);
+      console.log(response.data.number_of_requests);
       if (response.data) {
         setData(
           response.data.map((x) => ({
             id: x.id,
-            tech_name: x.technician_name,
+            tech_name: x.technician_name || x.tech_name,
+            code: x.code,
             skills: x.skills,
-            area: x.area,
+            area: x.area || x.area_name,
             number_of_requests: x.number_of_requests || 0,
             // skills: x.service.map((e) => e.service_name),
           }))
@@ -156,7 +164,7 @@ export default function TechnicianDialog({
               }}
             >
               <Typography variant="subtitle2" sx={{ pb: 1 }}>
-                {technician.tech_name}
+                {technician.tech_name}, {technician.code}
               </Typography>
               <Stack direction="row" spacing={0.5} alignItems="center">
                 <Iconify icon="material-symbols:check-circle-outline" />

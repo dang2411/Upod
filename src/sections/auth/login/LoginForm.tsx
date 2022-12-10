@@ -35,8 +35,8 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({
-    username: Yup.string().required('Username is required'),
-    password: Yup.string().required('Password is required'),
+    username: Yup.string().trim().required('Username is required'),
+    password: Yup.string().trim().required('Password is required'),
   });
 
   const defaultValues = {
@@ -63,7 +63,7 @@ export default function LoginForm() {
     } catch (error) {
       reset();
       // if (isMountedRef.current) {
-        setError('afterSubmit', { ...error, message: error.message });
+      setError('afterSubmit', { ...error, message: error.message });
       // }
     }
   };

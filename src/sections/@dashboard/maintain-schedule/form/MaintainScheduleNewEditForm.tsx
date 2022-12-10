@@ -27,7 +27,7 @@ type Props = {
 
 export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, isEdit }: Props) {
   const serviceSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
   });
 
   const navigate = useNavigate();
@@ -161,11 +161,13 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     control,
     watch,
     setValue,
+    getValues,
     formState: { isSubmitting },
   } = methods;
   const disableNameDescription =
     currentMaintainSchedule.status === 'MAINTAINING' ||
-    currentMaintainSchedule.status === 'COMPLETED';
+    currentMaintainSchedule.status === 'COMPLETED' ||
+    currentMaintainSchedule.status === 'MISSED';
 
   const editPage = isEdit && currentMaintainSchedule;
 
@@ -173,7 +175,6 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     (currentMaintainSchedule.status === 'NOTIFIED' && !isCustomer) ||
     (currentMaintainSchedule.status === 'SCHEDULED' && !isCustomer) ||
     (currentMaintainSchedule.status === 'WARNING' && !isCustomer) ||
-    (currentMaintainSchedule.status === 'MISSED' && !isCustomer) ||
     (currentMaintainSchedule.status === 'PREPARING' && !isCustomer)
   );
   const status = currentMaintainSchedule.status.toLowerCase();
@@ -186,7 +187,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
           </Box>
         )}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={9}>
+          <Grid item xs={12} md={6}>
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
                 <RHFTextField name="name" label="Name" disabled />
@@ -223,7 +224,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
               </Stack>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={6}>
             <Card sx={{ p: 3 }}>
               <Stack spacing={3}>
                 {/* {isEdit && <TitleSection label={getValues('code')} status={watch('status')} />} */}
@@ -235,7 +236,13 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                 />
                 <TextField
                   disabled={disableTechnician}
-                  value={currentTechnician?.tech_name || defaultValues.technician.tech_name}
+                  value={
+                    (watch('technician').tech_name &&
+                      watch('technician').tech_name + ', ' + watch('technician').code) ||
+                    (defaultValues.technician.tech_name &&
+                      defaultValues.technician.tech_name + ', ' + defaultValues.technician.code) ||
+                    ''
+                  }
                   label="Techician"
                   variant="outlined"
                   fullWidth
@@ -249,6 +256,18 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                   disabled
                   value={currentMaintainSchedule.contract.name}
                   label="Contract"
+                  sx={{
+                    '& .Mui-disabled': {
+                      cursor: 'pointer',
+                    },
+                  }}
+                  onClick={() => {
+                    if (!isCustomer) {
+                      navigate(PATH_DASHBOARD.admin.contract.view(getValues('contract').id));
+                    } else {
+                      navigate(PATH_DASHBOARD.customer.contract.view(getValues('contract').id));
+                    }
+                  }}
                 />
                 {status === 'completed' && (
                   <>
@@ -288,7 +307,6 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
         {(currentMaintainSchedule.status === 'SCHEDULED' ||
           currentMaintainSchedule.status === 'NOTIFIED' ||
           currentMaintainSchedule.status === 'WARNING' ||
-          currentMaintainSchedule.status === 'MISSED' ||
           currentMaintainSchedule.status === 'PREPARING') && (
           <Stack mt={3} direction="row" justifyContent="end" textAlign="end" spacing={2}>
             {/* <Button variant="outlined" color="error" onClick={onDeleteClick}>

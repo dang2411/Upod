@@ -32,10 +32,11 @@ export default function CompanyNewEditForm({ currentCompany, isEdit }: Props) {
   const navigate = useNavigate();
 
   const CompanySchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Email is invalid').required('Email is required'),
-    address: Yup.string().required('Address is required'),
+    name: Yup.string().trim().required('Name is required'),
+    email: Yup.string().trim().email('Email is invalid').required('Email is required'),
+    address: Yup.string().trim().required('Address is required'),
     phone: Yup.string()
+      .trim()
       .matches(
         /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
         {

@@ -33,7 +33,7 @@ type Props = {
 
 export default function DeviceNewEditForm({ currentDevice, isEdit }: Props) {
   const deviceSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
   });
 
   const [deviceTypes, setDeviceTypes] = useState([]);

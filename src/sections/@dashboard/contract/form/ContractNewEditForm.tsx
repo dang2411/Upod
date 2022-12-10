@@ -45,7 +45,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
   const navigate = useNavigate();
 
   const ContractSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
     startDate: Yup.date().required('Start date is required'),
     endDate: Yup.date().required('End date is required'),
     customer: Yup.object().required('Customer is required'),

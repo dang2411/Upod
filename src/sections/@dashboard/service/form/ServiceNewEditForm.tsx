@@ -33,7 +33,7 @@ type Props = {
 
 export default function ServiceNewEditForm({ currentService, isEdit }: Props) {
   const serviceSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
   });
   const navigate = useNavigate();
   const { user } = useAuth();

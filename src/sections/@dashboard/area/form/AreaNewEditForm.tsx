@@ -32,7 +32,7 @@ type Props = {
 
 export default function AreaNewEditForm({ currentArea, isEdit }: Props) {
   const areaSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
   });
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);

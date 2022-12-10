@@ -10,8 +10,9 @@ import * as Yup from 'yup';
 
 export default function CreateAccountDialog({ open, onClose, onSuccess, role }: any) {
   const AccountSchema = Yup.object().shape({
-    username: Yup.string().required('Username is required'),
+    username: Yup.string().trim().required('Username is required'),
     password: Yup.string()
+      .trim()
       .required('Password is required')
       .min(8, 'Password must be at least 8 characters'),
   });

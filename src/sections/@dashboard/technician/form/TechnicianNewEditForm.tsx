@@ -39,20 +39,21 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
   const navigate = useNavigate();
 
   const TechnicianSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
     area: Yup.object().required('Area is required'),
     account: Yup.object().required('Account is required'),
     gender: Yup.number().required('Gender is required'),
-    breach: Yup.string().required('Breach is required'),
-    address: Yup.string().required('Address is required'),
+    breach: Yup.string().trim().required('Breach is required'),
+    address: Yup.string().trim().required('Address is required'),
     service: Yup.array()
       .required('Service is required')
       .test({
         message: 'At least one service is required',
         test: (arr) => arr!.length > 0,
       }),
-    email: Yup.string().email('Email is invalid').required('Email is required'),
+    email: Yup.string().trim().email('Email is invalid').required('Email is required'),
     phone: Yup.string()
+      .trim()
       .matches(
         /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
         {
@@ -389,7 +390,9 @@ export default function TechnicianNewEditForm({ currentTechnician, isEdit }: Pro
                   />
                 )}
               />
-              <RHFTextField name="breach" label="Breach times" type="number" disabled={disable} />
+              {currentTechnician && (
+                <RHFTextField name="breach" label="Breach times" type="number" disabled={disable} />
+              )}
             </Box>
           </Stack>
           {!disable && (

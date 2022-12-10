@@ -31,10 +31,13 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string().required('First name required'),
-    lastName: Yup.string().required('Last name required'),
-    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
-    password: Yup.string().required('Password is required'),
+    firstName: Yup.string().trim().required('First name required'),
+    lastName: Yup.string().trim().required('Last name required'),
+    email: Yup.string()
+      .trim()
+      .email('Email must be a valid email address')
+      .required('Email is required'),
+    password: Yup.string().trim().required('Password is required'),
   });
 
   const defaultValues = {

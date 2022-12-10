@@ -1,4 +1,5 @@
 import { Card, Chip, Stack, TextField, Typography, SxProps } from '@mui/material';
+import { getValue } from '@mui/system';
 import { capitalCase } from 'change-case';
 import { Console } from 'console';
 
@@ -38,9 +39,10 @@ export default function MaintainNewEditDetailForm({ currentMaintain }: any) {
   return (
     <>
       <Card sx={{ p: 3 }}>
-        <TitleSection sx={{ ml: -2 }} label={getValues('name')} status={watch('status')} />
+        <TitleSection sx={{ ml: -2 }} label={getValues('code')} status={watch('status')} />
         <Stack spacing={2} mt={3}>
           <RHFTextField name="code" label="Code" variant="outlined" fullWidth disabled />
+          <RHFTextField name="name" label="Name" variant="outlined" fullWidth disabled />
           <TextField
             label="Created Date"
             variant="outlined"

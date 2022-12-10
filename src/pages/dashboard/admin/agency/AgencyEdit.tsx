@@ -110,10 +110,7 @@ export default function AgencyDetail() {
           id: response.data.area.id,
           name: response.data.area.area_name,
         },
-        technician: {
-          id: response.data.technician.id,
-          name: response.data.technician.tech_name,
-        },
+        technician: response.data.technician,
         address: response.data.address,
         telephone: response.data.telephone,
         createDate: response.data.create_date,

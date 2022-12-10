@@ -11,7 +11,7 @@ type Props = {
 
 export default function TicketNewEditForm({ currentTicket, isEdit }: Props) {
   const ticketSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string().trim().required('Name is required'),
   });
 
   const { user } = useAuth();

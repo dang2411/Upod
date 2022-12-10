@@ -66,7 +66,7 @@ export default function MaintainReportDetail() {
         id: response.data.id,
         status: response.data.status.toLowerCase(),
         code: response.data.code,
-        name: response.data.device_name,
+        name: response.data.name,
         create_date: response.data.create_date,
         update_date: response.data.update_date,
         agency: response.data.agency,
@@ -92,7 +92,7 @@ export default function MaintainReportDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const title = data?.code || 'Device';
+  const title = data?.name;
 
   if (!data) {
     return (
