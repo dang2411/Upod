@@ -243,6 +243,11 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
                       defaultValues.technician.tech_name + ', ' + defaultValues.technician.code) ||
                     ''
                   }
+                  focused={
+                    (currentMaintainSchedule.status.toLowerCase() === 'notified' ||
+                      currentMaintainSchedule.status.toLowerCase() === 'warning') &&
+                    !isCustomer
+                  }
                   label="Techician"
                   variant="outlined"
                   fullWidth

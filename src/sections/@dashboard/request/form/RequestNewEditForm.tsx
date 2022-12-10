@@ -684,7 +684,7 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                         </Typography>
                       ) : undefined
                     }
-                    error={
+                    focused={
                       (currentStatus === 'pending' ||
                         currentStatus === 'preparing' ||
                         currentStatus === 'warning') &&
