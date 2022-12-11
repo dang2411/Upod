@@ -56,6 +56,7 @@ export default function RequestEdit() {
         technician: response.data.technicican,
         createdBy: response.data.create_by,
       } as Request;
+      console.log(result);
       if (response.status === 200) {
         setRequest(result);
       } else {

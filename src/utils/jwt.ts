@@ -4,6 +4,8 @@ import { PATH_AUTH } from '../routes/paths';
 //
 import axios from './axios';
 
+import * as signalR from '@microsoft/signalr';
+
 // ----------------------------------------------------------------------
 
 const isValidToken = (accessToken: string) => {

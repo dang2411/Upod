@@ -1,5 +1,5 @@
 import { noCase } from 'change-case';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 // @mui
 import {
   Box,
@@ -25,13 +25,73 @@ import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+import axiosInstance from 'src/utils/axios';
+import useAuth from 'src/hooks/useAuth';
+import { Console } from 'console';
+import { format } from 'date-fns';
+import axios from 'src/utils/axios';
+import { useNavigate } from 'react-router';
 
 // ----------------------------------------------------------------------
 
 export default function NotificationsPopover() {
-  const [notifications, setNotifications] = useState(_notifications);
+  const { user } = useAuth();
 
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  const [count, setCount] = useState(0);
+
+  const navigate = useNavigate();
+
+  const isCustomer = user?.account?.roleName === 'Customer';
+
+  const [notifications, setNotifications] = useState<any>([]);
+  let totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+
+  const fetch = useCallback(async () => {
+    try {
+      const response: any = await axiosInstance.get(`/api/notifications/get_notifications`, {
+        params: { id: user?.account?.id },
+      });
+      if (response.status === 200) {
+        if (response.data.length !== notifications.length) {
+          setCount(response.data.length - notifications.length);
+          setNotifications(
+            response.data.map((e: any) => ({
+              id: e.id,
+              title: e.object_name,
+              description: e.notification_content,
+              avatar: '',
+              type: e.current_object_id,
+              createdAt: new Date(format(new Date(e.created_time), 'HH:mm MM/dd/yyyy')),
+              isUnRead: !e.is_read,
+            }))
+          );
+        }
+      }
+      totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+    } catch (e) {
+      console.error(e);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const readNotify = useCallback(async (id: string) => {
+    try {
+      const response = await axios.put(
+        '/api/notifications/read_notifications',
+        {},
+        {
+          params: { id: id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setCount(count - 1);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [open, setOpen] = useState<HTMLElement | null>(null);
 
@@ -43,14 +103,68 @@ export default function NotificationsPopover() {
     setOpen(null);
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isUnRead: false,
-      }))
-    );
+  const handleClick = (id: string, requestId: string, isUnRead: boolean, type: string) => {
+    if (isUnRead === true) {
+      readNotify(id);
+    }
+    console.log(type);
+    if (type === 'RE') {
+      if (!isCustomer) {
+        navigate(PATH_DASHBOARD.admin.request.edit(requestId));
+      } else navigate(PATH_DASHBOARD.customer.request.edit(requestId));
+    } else if (type === 'CON') {
+      if (!isCustomer) {
+        navigate(PATH_DASHBOARD.admin.contract.view(requestId));
+      } else navigate(PATH_DASHBOARD.customer.contract.view(requestId));
+    } else if (type === 'MS') {
+      if (!isCustomer) {
+        navigate(PATH_DASHBOARD.admin.maintainSchedule.edit(requestId));
+      } else navigate(PATH_DASHBOARD.customer.maintainSchedule.edit(requestId));
+    } else if (type === 'MR') {
+      if (!isCustomer) {
+        navigate(PATH_DASHBOARD.admin.maintainReport.edit(requestId));
+      } else navigate(PATH_DASHBOARD.customer.maintainReport.edit(requestId));
+    }
   };
+
+  const readAllNotify = useCallback(async () => {
+    try {
+      const response = await axios.put(
+        '/api/notifications/read_all_notifications',
+        {},
+        {
+          params: { user_id: user?.account?.id },
+        }
+      );
+      if (response.status === 200 || response.status === 201) {
+        setCount(0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleMarkAllAsRead = () => {
+    readAllNotify();
+    // setNotifications(
+    //   notifications.map((notification) => ({
+    //     ...notification,
+    //     isUnRead: false,
+    //   }))
+    // );
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+      fetch();
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -99,7 +213,20 @@ export default function NotificationsPopover() {
             }
           >
             {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+              <>
+                <Box
+                  onClick={() =>
+                    handleClick(
+                      notification.id,
+                      notification.type,
+                      notification.isUnRead,
+                      notification.title
+                    )
+                  }
+                >
+                  <NotificationItem key={notification.id} notification={notification} />
+                </Box>
+              </>
             ))}
           </List>
 
@@ -112,7 +239,20 @@ export default function NotificationsPopover() {
             }
           >
             {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+              <>
+                <Box
+                  onClick={() =>
+                    handleClick(
+                      notification.id,
+                      notification.type,
+                      notification.isUnRead,
+                      notification.title
+                    )
+                  }
+                >
+                  <NotificationItem key={notification.id} notification={notification} />
+                </Box>
+              </>
             ))}
           </List>
         </Scrollbar>

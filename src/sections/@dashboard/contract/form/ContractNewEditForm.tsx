@@ -97,7 +97,6 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     images: currentContract?.images || [],
   };
 
-
   const fetchCustomer = useCallback(async () => {
     try {
       const response = await axios.get('/api/customers/get_all_customers', {
@@ -278,6 +277,7 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     handleSubmit,
     control,
     watch,
+    reset,
     getValues,
     setValue,
     formState: { isSubmitting },
@@ -317,6 +317,12 @@ export default function ContractNewEditForm({ currentContract, isEdit }: Props) 
     fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    reset(defaultValues);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentContract]);
 
   useEffect(() => {
     fetchServices(getValues('customer')?.id);

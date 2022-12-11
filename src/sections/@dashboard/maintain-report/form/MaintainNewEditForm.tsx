@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import axios from 'src/utils/axios';
 import { useSnackbar } from 'notistack';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -150,6 +150,12 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    reset(defaultValues);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMaintain]);
+
   const {
     toggle: openServiceDialog,
     onClose: onServiceDialogClose,
@@ -163,6 +169,7 @@ export default function MaintainNewEditForm({ currentMaintain, isEdit }: Props) 
 
   const {
     handleSubmit,
+    reset,
     formState: { isSubmitting },
   } = methods;
 

@@ -25,6 +25,7 @@ import useAuth from 'src/hooks/useAuth';
 import useToggle from 'src/hooks/useToggle';
 import { PATH_DASHBOARD } from 'src/routes/paths';
 import axios from 'src/utils/axios';
+import connectSignalR from 'src/utils/connectSignalR';
 import uploadFirebase from 'src/utils/uploadFirebase';
 import { isContext } from 'vm';
 import * as Yup from 'yup';
@@ -440,24 +441,26 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
     watch,
     setValue,
     getValues,
+    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   useEffect(() => {
+    reset();
     fetchCustomer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (isEdit && currentRequest) {
-  //     reset(defaultValues);
-  //   }
-  //   if (!isEdit) {
-  //     reset(defaultValues);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isEdit, agencies, services, currentRequest]);
+  useEffect(() => {
+    if (isEdit && currentRequest) {
+      reset(defaultValues);
+    }
+    if (!isEdit) {
+      reset(defaultValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, currentRequest]);
 
   useEffect(() => {
     if (getValues('agency')) {

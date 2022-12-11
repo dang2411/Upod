@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { values } from 'lodash';
 import { useSnackbar } from 'notistack';
 import { Technician } from 'src/@types/user';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -77,7 +77,11 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
       if (response.status === 200 || response.status === 201) {
         setIsLoading(false);
 
-        navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
+        if (isCustomer) {
+          navigate(PATH_DASHBOARD.customer.maintainSchedule.root);
+        } else {
+          navigate(PATH_DASHBOARD.admin.maintainSchedule.root);
+        }
         enqueueSnackbar('Update maintain schedule successfully', { variant: 'success' });
       } else {
         setIsLoading(false);
@@ -121,6 +125,12 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    reset(defaultValues);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMaintainSchedule]);
+
   const onSubmit = (data: any) => {
     if (isEdit) {
       setIsLoading(true);
@@ -131,6 +141,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
         maintain_time: data.maintainTime,
       };
       updateMaintainSchedule(params);
+      console.log(params);
     }
   };
 
@@ -160,7 +171,7 @@ export default function MaintainScheduleNewEditForm({ currentMaintainSchedule, i
     handleSubmit,
     control,
     watch,
-    setValue,
+    reset,
     getValues,
     formState: { isSubmitting },
   } = methods;

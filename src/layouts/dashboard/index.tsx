@@ -14,6 +14,7 @@ import DashboardHeader from './header';
 import NavbarVertical from './navbar/NavbarVertical';
 import NavbarHorizontal from './navbar/NavbarHorizontal';
 import Typography from 'src/theme/overrides/Typography';
+import connectSignalR from 'src/utils/connectSignalR';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,7 @@ const MainStyle = styled('main', {
 // ----------------------------------------------------------------------
 
 export default function DashboardLayout() {
+
   const { collapseClick, isCollapse } = useCollapseDrawer();
 
   const { themeLayout } = useSettings();
@@ -98,7 +100,6 @@ export default function DashboardLayout() {
       <NavbarVertical isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
 
       <MainStyle collapseClick={collapseClick}>
-
         <Outlet />
       </MainStyle>
     </Box>
