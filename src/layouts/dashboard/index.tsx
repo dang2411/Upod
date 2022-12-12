@@ -46,7 +46,6 @@ const MainStyle = styled('main', {
 // ----------------------------------------------------------------------
 
 export default function DashboardLayout() {
-
   const { collapseClick, isCollapse } = useCollapseDrawer();
 
   const { themeLayout } = useSettings();
@@ -101,6 +100,7 @@ export default function DashboardLayout() {
 
       <MainStyle collapseClick={collapseClick}>
         <Outlet />
+        
       </MainStyle>
     </Box>
   );

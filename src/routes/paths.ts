@@ -31,6 +31,7 @@ export const PATH_PAGE = {
 
 export const PATH_DASHBOARD = {
   root: ROOTS_DASHBOARD,
+  dashboard: { root: path(ROOTS_DASHBOARD, 'dashboard') },
   customer: {
     account: {
       root: path(ROOTS_ADMIN, '/account'),
@@ -54,7 +55,7 @@ export const PATH_DASHBOARD = {
       list: path(ROOTS_CUSTOMER, '/device/list'),
       view: (id: string) => path(ROOTS_CUSTOMER, `/device/view/${id}`),
     },
-     maintainReport: {
+    maintainReport: {
       root: path(ROOTS_CUSTOMER, '/maintain-report'),
       list: path(ROOTS_CUSTOMER, '/maintain-report/list'),
       new: path(ROOTS_CUSTOMER, '/maintain-report/new'),

@@ -268,9 +268,9 @@ export default function AgencyNewEditForm({ currentAgency, isEdit }: Props) {
                 <RHFTextField
                   name="technician"
                   value={
-                    (watch('technician').tech_name &&
+                    (watch('technician')?.tech_name &&
                       watch('technician').tech_name + ', ' + watch('technician').code) ||
-                    (defaultValues.technician.tech_name &&
+                    (defaultValues.technician?.tech_name &&
                       defaultValues.technician.tech_name + ', ' + defaultValues.technician.code) ||
                     ''
                   }
