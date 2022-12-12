@@ -72,6 +72,7 @@ export default function Router() {
       ),
       children: [
         { element: <Navigate to={PATH_AFTER_LOGIN} replace />, index: true },
+        { path: 'home', element: <DashboardPage /> },
         { path: 'app', element: <GeneralApp /> },
         { path: 'analytics', element: <GeneralAnalytics /> },
         { path: 'banking', element: <GeneralBanking /> },
@@ -532,3 +533,5 @@ const AdminAreaDetailPage = Loadable(
 const AdminAreaEditPage = Loadable(lazy(() => import('../pages/dashboard/admin/area/AreaEdit')));
 const AdminAreaNewPage = Loadable(lazy(() => import('../pages/dashboard/admin/area/AreaNew')));
 const AdminAreaListPage = Loadable(lazy(() => import('../pages/dashboard/admin/area/AreaList')));
+
+const DashboardPage = Loadable(lazy(() => import('../pages/dashboard')));

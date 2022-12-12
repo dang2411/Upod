@@ -107,7 +107,6 @@ export default function NotificationsPopover() {
     if (isUnRead === true) {
       readNotify(id);
     }
-    console.log(type);
     if (type === 'RE') {
       if (!isCustomer) {
         navigate(PATH_DASHBOARD.admin.request.edit(requestId));

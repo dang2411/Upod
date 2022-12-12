@@ -34,7 +34,7 @@ export const AUTH0_API = {
 export const MAPBOX_API = import.meta.env.REACT_APP_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
-export const PATH_AFTER_LOGIN = PATH_DASHBOARD.root; // as '/dashboard/app'
+export const PATH_AFTER_LOGIN = '/dashboard/home'; // as '/dashboard/app'
 
 // LAYOUT
 // ----------------------------------------------------------------------
