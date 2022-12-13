@@ -24,6 +24,7 @@ import { TableHeadCustom, TableNoData } from 'src/components/table';
 import ContractTableRow from 'src/sections/@dashboard/contract/list/ContractTableRow';
 import ContractTableToolbar from 'src/sections/@dashboard/contract/list/ContractTableToolbar';
 import axiosInstance from 'src/utils/axios';
+import { MultiFilePreview, UploadMultiFile, UploadSingleFile } from 'src/components/upload';
 
 const TABLE_HEAD = [
   { id: 'code', label: 'Code', align: 'left' },
@@ -204,6 +205,8 @@ export default function ContractList() {
             />
           </Box>
         </Card>
+        {/* <UploadSingleFile file={null}  /> */}
+        
       </Container>
     </Page>
   );
