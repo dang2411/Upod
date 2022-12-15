@@ -91,7 +91,7 @@ export default function ContractList() {
           company: x.customer.cus_name,
           is_expire: x.is_expire,
           is_accepted: x.is_accepted,
-          createdAt: x.start_date,
+          createdAt: x.create_date,
           expiredAt: x.end_date,
         }));
         setData(result);
