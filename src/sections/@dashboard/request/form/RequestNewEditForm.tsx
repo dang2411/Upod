@@ -676,8 +676,8 @@ export default function RequestNewEditForm({ currentRequest, isEdit }: Props) {
                   <RHFTextField
                     name="technician"
                     value={
-                      (watch('technician').tech_name &&
-                        watch('technician').tech_name + ', ' + watch('technician').code) ||
+                      (watch('technician')?.tech_name &&
+                        watch('technician')?.tech_name + ', ' + watch('technician')?.code) ||
                       ''
                     }
                     helperText={
